@@ -27,7 +27,7 @@ export default function VoicesPage() {
 
   if (loading) {
     return (
-      <MainLayout>
+      <DashboardLayout>
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
