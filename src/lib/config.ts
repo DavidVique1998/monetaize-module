@@ -3,6 +3,16 @@
  * Maneja todas las variables de entorno de forma tipada
  */
 
+// Cargar variables de entorno si no están disponibles
+if (typeof process !== 'undefined' && !process.env.RETELL_API_KEY) {
+  try {
+    require('dotenv').config({ path: '.env.local' });
+  } catch (error) {
+    // dotenv no está disponible o el archivo no existe
+    console.warn('No se pudo cargar .env.local:', error);
+  }
+}
+
 export const config = {
   // Retell AI Configuration
   retell: {
