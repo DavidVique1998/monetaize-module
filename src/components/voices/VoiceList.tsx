@@ -10,7 +10,7 @@ import { useState, useMemo } from 'react';
 
 interface VoiceListProps {
   voices: RetellVoice[];
-  selectedVoice?: RetellVoice;
+  selectedVoice?: RetellVoice | null;
   onVoiceSelect?: (voice: RetellVoice) => void;
   onVoicePreview?: (voice: RetellVoice) => void;
 }
