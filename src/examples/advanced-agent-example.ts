@@ -15,6 +15,7 @@ export async function createCustomerServiceAgent() {
       voice_id: '11labs-Adrian',
       response_engine: {
         type: 'retell-llm',
+        llm_id: '',
       },
       
       // Configuración de voz
@@ -95,7 +96,7 @@ export async function createCustomerServiceAgent() {
       // Configuración de PII
       pii_config: {
         mode: 'post_call',
-        categories: ['email', 'phone', 'credit_card'],
+        categories: ['email', 'phone_number', 'credit_card'],
       },
       
       // Diccionario de pronunciación
@@ -136,6 +137,7 @@ export async function createSalesAgent() {
       voice_id: '11labs-Sarah',
       response_engine: {
         type: 'retell-llm',
+        llm_id: '',
       },
       
       // Configuración optimizada para ventas
@@ -207,6 +209,7 @@ export async function createAppointmentSchedulerAgent() {
       voice_id: 'openai-Alloy',
       response_engine: {
         type: 'retell-llm',
+        llm_id: '',
       },
       
       // Configuración para programación
@@ -283,7 +286,7 @@ export async function createAgentFromTemplate(templateName: string, customOverri
       ...customOverrides,
       // Campos requeridos
       voice_id: customOverrides.voice_id || '11labs-Adrian',
-      response_engine: customOverrides.response_engine || { type: 'retell-llm' },
+      response_engine: customOverrides.response_engine || { type: 'retell-llm', llm_id: '' },
     };
     
     // Validar datos

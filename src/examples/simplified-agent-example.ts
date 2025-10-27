@@ -15,6 +15,7 @@ export async function createSimpleAgent() {
       voice_id: '11labs-Adrian',
       response_engine: {
         type: 'retell-llm',
+        llm_id: '',
       },
       language: 'en-US',
     };
@@ -42,6 +43,7 @@ export async function createAdvancedAgent() {
       voice_id: '11labs-Sarah',
       response_engine: {
         type: 'retell-llm',
+        llm_id: '',
       },
       
       // Configuración de voz (disponible en el SDK)
@@ -126,6 +128,7 @@ export async function createAgentFromTemplate() {
       voice_id: '11labs-Adrian',
       response_engine: {
         type: 'retell-llm',
+        llm_id: '',
       },
     };
     

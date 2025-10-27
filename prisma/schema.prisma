@@ -1,0 +1,186 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// User model for authentication and user management
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String?
+  role          String    @default("user")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  agents        Agent[]
+  phoneNumbers  PhoneNumber[]
+
+  @@index([email])
+}
+
+// Agent model for AI assistants
+model Agent {
+  id              String    @id
+  name            String
+  voiceId         String
+  language        String    @default("en-US")
+  prompt          String?   @db.Text
+  llmId           String?   @default("gpt-4o")
+  llmType         String    @default("custom-llm")
+  version         Int       @default(1)
+  isActive        Boolean   @default(true)
+  userId          String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Retell AI specific fields
+  retellAgentId   String?   @unique
+  enableBackchannel Boolean @default(true)
+  responsiveness  Float?    @default(0.7)
+  
+  // Call settings
+  maxCallTime     Int?
+  silenceTimeout  Int?
+  recordingEnabled Boolean  @default(true)
+  voicemailDetection Boolean @default(false)
+
+  // Relations
+  owner           User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phoneNumbers    PhoneNumber[]  @relation("InboundAgents")
+  outboundNumbers PhoneNumber[]  @relation("OutboundAgents")
+  tags            AgentTag[]
+
+  @@index([retellAgentId])
+  @@index([userId])
+}
+
+// Phone Number model
+model PhoneNumber {
+  id                    String    @id @default(uuid())
+  phoneNumber           String    @unique
+  phoneNumberPretty     String?
+  phoneNumberType       String    @default("retell-twilio")
+  nickname              String?
+  areaCode              Int?
+  
+  // Agent assignments
+  inboundAgentId        String?
+  outboundAgentId       String?
+  inboundAgentVersion   Int?
+  outboundAgentVersion  Int?
+  
+  // Webhooks
+  inboundWebhookUrl     String?
+  outboundWebhookUrl    String?
+  
+  // Relations
+  inboundAgent          Agent?  @relation("InboundAgents", fields: [inboundAgentId], references: [id])
+  outboundAgent         Agent?  @relation("OutboundAgents", fields: [outboundAgentId], references: [id])
+  userId                String?
+  owner                 User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([phoneNumber])
+  @@index([inboundAgentId])
+  @@index([outboundAgentId])
+  @@index([userId])
+}
+
+// Voice model for available voices
+model Voice {
+  id          String   @id
+  name        String
+  description String?
+  language    String   @default("en-US")
+  gender      String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([language])
+  @@index([isActive])
+}
+
+// Contact model
+model Contact {
+  id            String   @id @default(uuid())
+  firstName     String?
+  lastName      String?
+  email         String?
+  phone         String
+  company       String?
+  notes         String?  @db.Text
+  tags          String[]
+  
+  userId        String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([phone])
+  @@index([email])
+  @@index([userId])
+}
+
+// Tag model for organizing agents
+model Tag {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  color       String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  agents      AgentTag[]
+
+  @@index([name])
+}
+
+// Many-to-many relationship between Agents and Tags
+model AgentTag {
+  id        String   @id @default(uuid())
+  agentId   String
+  tagId     String
+  createdAt DateTime @default(now())
+
+  agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([agentId, tagId])
+  @@index([agentId])
+  @@index([tagId])
+}
+
+// Call/Conversation model for tracking AI interactions
+model Conversation {
+  id            String    @id @default(uuid())
+  conversationId String   @unique // Retell conversation ID
+  agentId       String
+  phoneNumber   String?
+  contactId     String?
+  direction     String    @default("outbound") // inbound or outbound
+  status        String    // ongoing, ended, etc.
+  duration      Int?      // in seconds
+  startTime     DateTime
+  endTime       DateTime?
+  recordingUrl  String?
+  transcript    String?   @db.Text
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([conversationId])
+  @@index([agentId])
+  @@index([contactId])
+  @@index([createdAt])
+}

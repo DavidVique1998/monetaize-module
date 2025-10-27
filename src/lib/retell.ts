@@ -13,6 +13,7 @@ export const retellClient = new Retell({
 
 // Tipos para Retell AI usando directamente los tipos oficiales del SDK
 export type RetellAgent = Retell.Agent.AgentResponse;
+export type RetellAgentWithPrompt = RetellAgent & { prompt?: string };
 export type CreateAgentData = Retell.Agent.AgentCreateParams;
 export type UpdateAgentData = Retell.Agent.AgentUpdateParams;
 export type AdvancedCreateAgentData = Retell.Agent.AgentCreateParams; // Usar directamente el tipo del SDK
@@ -74,11 +75,69 @@ export class RetellService {
    */
   static async getAgent(agentId: string): Promise<RetellAgent> {
     try {
+      console.log('Fetching agent with ID:', agentId);
       const agent = await retellClient.agent.retrieve(agentId);
+      console.log('Agent retrieved successfully:', agent.agent_name);
       return agent;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching agent:', error);
-      throw new Error('Failed to fetch agent');
+      console.error('Error details:', {
+        message: error?.message,
+        status: error?.status,
+        response: error?.response
+      });
+      throw error; // Re-lanzar el error original en lugar de crear uno genérico
+    }
+  }
+
+  /**
+   * Obtener un Retell LLM específico
+   */
+  static async getRetellLLM(llmId: string): Promise<Retell.Llm.LlmResponse> {
+    try {
+      const llm = await retellClient.llm.retrieve(llmId);
+      return llm;
+    } catch (error) {
+      console.error('Error fetching Retell LLM:', error);
+      throw new Error('Failed to fetch Retell LLM');
+    }
+  }
+
+  /**
+   * Obtener un agente con su prompt desde el LLM
+   */
+  static async getAgentWithPrompt(agentId: string): Promise<RetellAgentWithPrompt> {
+    try {
+      console.log('Fetching agent with prompt for ID:', agentId);
+      const agent = await retellClient.agent.retrieve(agentId);
+      console.log('Agent retrieved:', agent.agent_name);
+      let prompt = '';
+      
+      // Si el agente tiene un llm_id, intentar obtener el prompt del LLM
+      if (agent.response_engine && 'llm_id' in agent.response_engine && agent.response_engine.llm_id) {
+        console.log('Fetching LLM prompt for llm_id:', agent.response_engine.llm_id);
+        try {
+          const llm = await retellClient.llm.retrieve(agent.response_engine.llm_id);
+          prompt = llm.general_prompt || '';
+          console.log('LLM prompt retrieved successfully, length:', prompt.length);
+        } catch (error) {
+          console.warn('Could not fetch LLM prompt:', error);
+          // Continuar sin el prompt si falla
+        }
+      }
+      
+      return {
+        ...agent,
+        prompt
+      };
+    } catch (error: any) {
+      console.error('Error fetching agent from Retell API:', error);
+      console.error('Error details:', {
+        message: error?.message,
+        status: error?.status,
+        code: error?.code
+      });
+      throw error;
     }
   }
 
@@ -132,6 +191,45 @@ export class RetellService {
     } catch (error) {
       console.error('Error fetching voice:', error);
       throw new Error('Failed to fetch voice');
+    }
+  }
+
+  /**
+   * Listar todos los Retell LLMs
+   */
+  static async getRetellLLMs(): Promise<Retell.Llm.LlmResponse[]> {
+    try {
+      const llms = await retellClient.llm.list();
+      return llms || [];
+    } catch (error) {
+      console.error('Error fetching Retell LLMs:', error);
+      throw new Error('Failed to fetch Retell LLMs');
+    }
+  }
+
+  /**
+   * Crear un nuevo Retell LLM
+   */
+  static async createRetellLLM(data: Retell.Llm.LlmCreateParams): Promise<Retell.Llm.LlmResponse> {
+    try {
+      const llm = await retellClient.llm.create(data);
+      return llm;
+    } catch (error) {
+      console.error('Error creating Retell LLM:', error);
+      throw new Error('Failed to create Retell LLM');
+    }
+  }
+
+  /**
+   * Actualizar un Retell LLM
+   */
+  static async updateRetellLLM(llmId: string, data: Retell.Llm.LlmUpdateParams): Promise<Retell.Llm.LlmResponse> {
+    try {
+      const llm = await retellClient.llm.update(llmId, data);
+      return llm;
+    } catch (error) {
+      console.error('Error updating Retell LLM:', error);
+      throw new Error('Failed to update Retell LLM');
     }
   }
 
@@ -291,6 +389,7 @@ export class RetellService {
       language: 'en-US',
       response_engine: {
         type: 'retell-llm',
+        llm_id: '',
       },
       webhook_events: ['call_ended', 'call_analyzed'],
     };
