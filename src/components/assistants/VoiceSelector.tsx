@@ -8,9 +8,10 @@ interface VoiceSelectorProps {
   voices: RetellVoice[];
   value: string;
   onChange: (voiceId: string) => void;
+  onSettingsClick?: () => void;
 }
 
-export function VoiceSelector({ voices, value, onChange }: VoiceSelectorProps) {
+export function VoiceSelector({ voices, value, onChange, onSettingsClick }: VoiceSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -116,9 +117,15 @@ export function VoiceSelector({ voices, value, onChange }: VoiceSelectorProps) {
         </button>
       )}
 
-      <button className="hover:bg-gray-100 rounded p-0.5 transition-colors cursor-pointer">
-        <SettingsIcon className="w-3 h-3 text-gray-400" />
-      </button>
+      {onSettingsClick && (
+        <button 
+          onClick={onSettingsClick}
+          className="hover:bg-gray-100 rounded p-0.5 transition-colors cursor-pointer"
+          title="Voice Settings"
+        >
+          <SettingsIcon className="w-3 h-3 text-gray-400" />
+        </button>
+      )}
 
       {isOpen && (
         <div className="absolute top-full right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 w-96">

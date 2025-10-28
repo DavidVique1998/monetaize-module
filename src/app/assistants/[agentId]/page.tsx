@@ -7,6 +7,7 @@ import { useAgents, RetellAgent } from '@/hooks/useAgents';
 import { useVoices } from '@/hooks/useVoices';
 import { VoiceSelector } from '@/components/assistants/VoiceSelector';
 import { CallSettingsModal } from '@/components/assistants/CallSettingsModal';
+import { VoiceSettingsModal } from '@/components/assistants/VoiceSettingsModal';
 import { 
   ArrowLeft, 
   Pencil, 
@@ -58,10 +59,23 @@ export default function EditAssistantPage() {
   const [agentName, setAgentName] = useState('');
   const [isNameEditing, setIsNameEditing] = useState(false);
   const [voiceId, setVoiceId] = useState('');
+  const [voiceModel, setVoiceModel] = useState<string | null>(null);
+  const [voiceTemperature, setVoiceTemperature] = useState(1);
+  const [voiceSpeed, setVoiceSpeed] = useState(1);
+  const [volume, setVolume] = useState(1);
   const [llmId, setLlmId] = useState('gpt-4o');
   const [isSaved, setIsSaved] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [showCallSettings, setShowCallSettings] = useState(false);
+  const [showVoiceSettings, setShowVoiceSettings] = useState(false);
+
+  const handleCallSettingsSave = (settings: any) => {
+    // Store settings without saving yet, just update state
+    setCallSettings(settings);
+    setIsSaved(false);
+  };
+
+  const [callSettings, setCallSettings] = useState<any>(null);
 
   useEffect(() => {
     loadAgent();
@@ -72,6 +86,10 @@ export default function EditAssistantPage() {
       setPrompt(agent.prompt || '');
       setAgentName(agent.agent_name || '');
       setVoiceId(agent.voice_id || '');
+      setVoiceModel(agent.voice_model || null);
+      setVoiceTemperature(agent.voice_temperature || 1);
+      setVoiceSpeed(agent.voice_speed || 1);
+      setVolume(agent.volume || 1);
       
       // Acceder a llm_id de forma segura
       const responseEngine = agent.response_engine;
@@ -99,16 +117,29 @@ export default function EditAssistantPage() {
     
     setIsSaving(true);
     try {
-      await updateAgent(agentId, {
+      // Combine all settings
+      const allSettings: any = {
         agent_name: agentName,
         prompt: prompt,
         voice_id: voiceId,
+        voice_model: voiceModel,
+        voice_temperature: voiceTemperature,
+        voice_speed: voiceSpeed,
+        volume: volume,
         response_engine: {
           ...agent.response_engine,
           llm_id: llmId,
         },
-      });
+      };
+
+      // Include call settings if they were modified
+      if (callSettings) {
+        Object.assign(allSettings, callSettings);
+      }
+
+      await updateAgent(agentId, allSettings);
       setIsSaved(true);
+      setCallSettings(null); // Clear call settings after save
       loadAgent();
     } catch (error) {
       console.error('Error saving agent:', error);
@@ -252,6 +283,7 @@ export default function EditAssistantPage() {
                   setVoiceId(voiceId);
                   setIsSaved(false);
                 }}
+                onSettingsClick={voiceId ? () => setShowVoiceSettings(true) : undefined}
               />
 
               <button
@@ -392,6 +424,109 @@ export default function EditAssistantPage() {
 
             {activeTab === 'voice' && (
               <div className="flex-1 flex flex-col min-h-0 overflow-y-auto space-y-4">
+                {/* Voice Settings */}
+                <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
+                  <h3 className="text-sm font-semibold text-gray-900">Voice Configuration</h3>
+                  
+                  {/* Voice Model */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Voice Model</label>
+                    <select
+                      value={voiceModel || ''}
+                      onChange={(e) => {
+                        setVoiceModel(e.target.value || null);
+                        setIsSaved(false);
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                      <option value="">Default (Auto-select)</option>
+                      <option value="eleven_turbo_v2">Eleven Turbo v2</option>
+                      <option value="eleven_flash_v2">Eleven Flash v2</option>
+                      <option value="eleven_turbo_v2_5">Eleven Turbo v2.5</option>
+                      <option value="eleven_flash_v2_5">Eleven Flash v2.5</option>
+                      <option value="eleven_multilingual_v2">Eleven Multilingual v2</option>
+                      <option value="tts-1">TTS-1</option>
+                      <option value="gpt-4o-mini-tts">GPT-4o Mini TTS</option>
+                    </select>
+                    <p className="text-xs text-gray-500">Only available for 11labs voices. Leave as default to use auto-selection.</p>
+                  </div>
+
+                  {/* Voice Temperature */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-medium text-gray-700">Voice Temperature</label>
+                      <span className="text-sm font-medium text-gray-900">{voiceTemperature}</span>
+                    </div>
+                    <p className="text-xs text-gray-500">Controls how stable the voice is (0-2). Lower = more stable, Higher = more variant</p>
+                    <input
+                      type="range"
+                      min="0"
+                      max="2"
+                      step="0.1"
+                      value={voiceTemperature}
+                      onChange={(e) => {
+                        setVoiceTemperature(Number(e.target.value));
+                        setIsSaved(false);
+                      }}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>0 (Stable)</span>
+                      <span>2 (Variant)</span>
+                    </div>
+                  </div>
+
+                  {/* Voice Speed */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-medium text-gray-700">Voice Speed</label>
+                      <span className="text-sm font-medium text-gray-900">{voiceSpeed}</span>
+                    </div>
+                    <p className="text-xs text-gray-500">Controls speed of voice (0.5-2). Lower = slower, Higher = faster</p>
+                    <input
+                      type="range"
+                      min="0.5"
+                      max="2"
+                      step="0.1"
+                      value={voiceSpeed}
+                      onChange={(e) => {
+                        setVoiceSpeed(Number(e.target.value));
+                        setIsSaved(false);
+                      }}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>0.5 (Slower)</span>
+                      <span>2 (Faster)</span>
+                    </div>
+                  </div>
+
+                  {/* Volume */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-medium text-gray-700">Volume</label>
+                      <span className="text-sm font-medium text-gray-900">{volume}</span>
+                    </div>
+                    <p className="text-xs text-gray-500">Controls the volume of the agent (0-2). Lower = quieter, Higher = louder</p>
+                    <input
+                      type="range"
+                      min="0"
+                      max="2"
+                      step="0.1"
+                      value={volume}
+                      onChange={(e) => {
+                        setVolume(Number(e.target.value));
+                        setIsSaved(false);
+                      }}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>0 (Quieter)</span>
+                      <span>2 (Louder)</span>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Warning Message */}
                 <div className="flex items-start space-x-3 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                   <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
@@ -781,7 +916,28 @@ export default function EditAssistantPage() {
       <CallSettingsModal
         isOpen={showCallSettings}
         onClose={() => setShowCallSettings(false)}
+        agent={agent || undefined}
+        agentId={agentId}
+        onSave={handleCallSettingsSave}
       />
+
+      {/* Voice Settings Modal */}
+        <VoiceSettingsModal
+          isOpen={showVoiceSettings}
+          onClose={() => setShowVoiceSettings(false)}
+          voiceModel={voiceModel}
+          voiceTemperature={voiceTemperature}
+          voiceSpeed={voiceSpeed}
+          volume={volume}
+          onSave={(settings) => {
+            // Update local states without saving yet
+            setVoiceModel(settings.voiceModel);
+            setVoiceTemperature(settings.voiceTemperature);
+            setVoiceSpeed(settings.voiceSpeed);
+            setVolume(settings.volume);
+            setIsSaved(false); // Activate Save Changes button
+          }}
+        />
     </DashboardLayout>
   );
 }
