@@ -3,13 +3,14 @@
  * Maneja todas las variables de entorno de forma tipada
  */
 
-// Cargar variables de entorno si no están disponibles
-if (typeof process !== 'undefined' && !process.env.RETELL_API_KEY) {
+// Cargar variables de entorno solo en desarrollo
+// En producción (Vercel), las variables se inyectan directamente
+if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
   try {
+    // Solo intentar cargar .env.local en desarrollo
     require('dotenv').config({ path: '.env.local' });
   } catch (error) {
-    // dotenv no está disponible o el archivo no existe
-    console.warn('No se pudo cargar .env.local:', error);
+    console.warn('Could not load .env.local file:', error);
   }
 }
 

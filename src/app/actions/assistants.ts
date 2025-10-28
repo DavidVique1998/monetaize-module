@@ -22,9 +22,13 @@ export async function createBlankAssistant(): Promise<CreateAssistantResult> {
     // Check if API key is configured
     const apiKey = process.env.RETELL_API_KEY;
     if (!apiKey || apiKey === 'your_retell_api_key_here') {
+      const envMessage = process.env.NODE_ENV === 'production' 
+        ? 'RETELL_API_KEY environment variable is not configured in your hosting platform (Vercel). Please add it in your environment settings.'
+        : 'RETELL_API_KEY is not configured. Please set up your Retell API key in the .env.local file for development.';
+      
       return {
         success: false,
-        error: 'RETELL_API_KEY is not configured. Please set up your Retell API key in the .env.local file.',
+        error: envMessage,
       };
     }
 
