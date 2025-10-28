@@ -234,7 +234,7 @@ export class RetellService {
   }
 
   /**
-   * Iniciar una llamada
+   * Iniciar una llamada telefónica
    */
   static async createCall(data: CallData): Promise<CallResponse> {
     try {

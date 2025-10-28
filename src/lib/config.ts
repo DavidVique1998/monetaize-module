@@ -18,6 +18,7 @@ export const config = {
   // Retell AI Configuration
   retell: {
     apiKey: process.env.RETELL_API_KEY || '',
+    agentId: process.env.RETELL_AGENT_ID || '',
     baseUrl: process.env.RETELL_BASE_URL || 'https://api.retellai.com',
   },
 
@@ -76,6 +77,10 @@ export const validateConfig = () => {
 
   if (!config.retell.apiKey) {
     errors.push('RETELL_API_KEY is required');
+  }
+
+  if (!config.retell.agentId) {
+    errors.push('RETELL_AGENT_ID is required');
   }
 
   if (!config.ghl.token) {
