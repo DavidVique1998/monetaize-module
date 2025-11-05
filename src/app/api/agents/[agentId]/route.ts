@@ -42,29 +42,45 @@ export async function PATCH(
   
   try {
     const body = await request.json();
+    console.log('API: Updating agent:', agentId);
+    console.log('API: Update data:', body);
     
     // Separar el prompt del resto de los datos del agente
     const { prompt, ...agentData } = body;
     
     // Actualizar el agente
     const agent = await RetellService.updateAgent(agentId, agentData);
+    console.log('API: Agent updated successfully');
+    console.log('API: Updated agent version:', agent.version);
+    console.log('API: Updated agent is_published:', (agent as any).is_published);
     
     // Si hay prompt y el agente tiene un llm_id, actualizar el LLM
     if (prompt !== undefined && agent.response_engine && 'llm_id' in agent.response_engine && agent.response_engine.llm_id) {
       try {
+        console.log('API: Updating LLM prompt for:', agent.response_engine.llm_id);
         await RetellService.updateRetellLLM(agent.response_engine.llm_id, {
           general_prompt: prompt
         } as any);
+        console.log('API: LLM prompt updated successfully');
       } catch (error) {
         console.warn('Could not update LLM prompt:', error);
       }
     }
     
     return NextResponse.json({ success: true, data: agent });
-  } catch (error) {
-    console.error('Error updating agent:', error);
+  } catch (error: any) {
+    console.error('API: Error updating agent:', error);
+    console.error('API: Error details:', {
+      message: error?.message,
+      status: error?.status,
+      code: error?.code
+    });
     return NextResponse.json(
-      { success: false, error: 'Failed to update agent' },
+      { 
+        success: false, 
+        error: error.message || 'Failed to update agent',
+        details: error?.message
+      },
       { status: 500 }
     );
   }

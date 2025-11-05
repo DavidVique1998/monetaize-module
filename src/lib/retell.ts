@@ -146,11 +146,25 @@ export class RetellService {
    */
   static async updateAgent(agentId: string, data: Partial<UpdateAgentData>): Promise<RetellAgent> {
     try {
+      console.log('RetellService: Updating agent:', agentId);
+      console.log('RetellService: Update data:', data);
+      
       const agent = await retellClient.agent.update(agentId, data);
+      
+      console.log('RetellService: Agent updated successfully');
+      console.log('RetellService: Updated agent version:', agent.version);
+      console.log('RetellService: Updated agent is_published:', (agent as any).is_published);
+      
       return agent;
-    } catch (error) {
-      console.error('Error updating agent:', error);
-      throw new Error('Failed to update agent');
+    } catch (error: any) {
+      console.error('RetellService: Error updating agent:', error);
+      console.error('RetellService: Error details:', {
+        message: error?.message,
+        status: error?.status,
+        code: error?.code,
+        response: error?.response
+      });
+      throw new Error(`Failed to update agent: ${error.message || 'Unknown error'}`);
     }
   }
 
@@ -243,6 +257,302 @@ export class RetellService {
     } catch (error) {
       console.error('Error creating call:', error);
       throw new Error('Failed to create call');
+    }
+  }
+
+  /**
+   * Crear una llamada web para el cliente web
+   */
+  static async createWebCall(agentId: string): Promise<{
+    access_token: string;
+    call_id: string;
+    agent_id: string;
+    agent_version: number;
+    call_status: string;
+    call_type: string;
+  }> {
+    try {
+      // El SDK de Retell usa snake_case para los parámetros
+      const response = await retellClient.call.createWebCall({
+        agent_id: agentId,
+      });
+      return response;
+    } catch (error) {
+      console.error('Error creating web call:', error);
+      throw new Error('Failed to create web call');
+    }
+  }
+
+  /**
+   * Verificar si un agente está configurado correctamente para chat
+   */
+  static async validateAgentForChat(agentId: string): Promise<{
+    isValid: boolean;
+    agent: RetellAgent | null;
+    issues: string[];
+  }> {
+    const issues: string[] = [];
+    
+    try {
+      console.log('Validating agent for chat:', agentId);
+      
+      // Obtener detalles del agente
+      const agent = await retellClient.agent.retrieve(agentId);
+      console.log('Agent details:', agent);
+      
+      // Verificar que el agente existe
+      if (!agent) {
+        issues.push('Agent not found');
+        return { isValid: false, agent: null, issues };
+      }
+      
+      // Verificar que tiene response_engine configurado
+      if (!agent.response_engine) {
+        issues.push('Agent has no response engine configured');
+      } else {
+        console.log('Response engine:', agent.response_engine);
+        
+        // Verificar el tipo de response engine
+        if (agent.response_engine.type === 'retell-llm') {
+          if (!agent.response_engine.llm_id) {
+            issues.push('Retell LLM ID is required for chat functionality');
+          } else {
+            // Verificar que el LLM existe y tiene prompt
+            try {
+              console.log('Checking LLM:', agent.response_engine.llm_id);
+              const llm = await retellClient.llm.retrieve(agent.response_engine.llm_id);
+              console.log('LLM details:', llm);
+              
+              if (!llm.general_prompt) {
+                issues.push('LLM has no prompt configured');
+              }
+            } catch (llmError: any) {
+              console.error('Error retrieving LLM:', llmError);
+              issues.push(`Cannot retrieve LLM: ${llmError.message}`);
+            }
+          }
+        } else if (agent.response_engine.type === 'conversation-flow') {
+          if (!agent.response_engine.conversation_flow_id) {
+            issues.push('Conversation Flow ID is required for chat functionality');
+          }
+        } else {
+          issues.push(`Unsupported response engine type: ${agent.response_engine.type}`);
+        }
+      }
+      
+      // Verificar que está publicado
+      if (!(agent as any).is_published) {
+        issues.push('Agent is not published');
+      }
+      
+      const isValid = issues.length === 0;
+      
+      if (!isValid) {
+        console.log('Agent validation issues:', issues);
+      } else {
+        console.log('Agent is valid for chat');
+      }
+      
+      return { isValid, agent, issues };
+    } catch (error: any) {
+      console.error('Error validating agent:', error);
+      issues.push(`Error retrieving agent: ${error.message}`);
+      return { isValid: false, agent: null, issues };
+    }
+  }
+
+  /**
+   * Obtener un Retell LLM por ID
+   */
+  static async getRetellLlm(llmId: string): Promise<any> {
+    try {
+      const llm = await retellClient.llm.retrieve(llmId);
+      return llm;
+    } catch (error) {
+      console.error('Error getting Retell LLM:', error);
+      throw new Error('Failed to get Retell LLM');
+    }
+  }
+
+  /**
+   * Publicar un agente usando fetch directo para manejar respuesta vacía
+   */
+  static async publishAgentDirect(agentId: string): Promise<void> {
+    try {
+      console.log('RetellService: Publishing agent directly:', agentId);
+      console.log('RetellService: API Key configured:', !!config.retell.apiKey);
+      
+      if (!config.retell.apiKey) {
+        throw new Error('Retell API key not configured');
+      }
+      
+      if (!agentId) {
+        throw new Error('Agent ID is required');
+      }
+
+      const response = await fetch(`https://api.retellai.com/publish-agent/${agentId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${config.retell.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('RetellService: Publish response status:', response.status);
+      console.log('RetellService: Publish response headers:', Object.fromEntries(response.headers.entries()));
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('RetellService: Publish error response:', errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText || 'Failed to publish agent'}`);
+      }
+
+      // El endpoint retorna 200 sin contenido, esto es normal según la documentación
+      console.log('RetellService: Agent published successfully (status 200)');
+    } catch (error: any) {
+      console.error('RetellService: Error publishing agent:', error);
+      throw new Error(`Failed to publish agent: ${error.message || 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Publicar un agente y obtener el estado actualizado con LLM
+   */
+  static async publishAgent(agentId: string): Promise<any> {
+    try {
+      // Primero publicar el agente
+      await this.publishAgentDirect(agentId);
+      
+      // Luego obtener el agente actualizado con prompt usando el método existente
+      console.log('RetellService: Fetching updated agent with prompt after publish...');
+      const updatedAgent = await this.getAgentWithPrompt(agentId);
+      
+      console.log('RetellService: Agent published and status updated:', {
+        agent_id: updatedAgent.agent_id,
+        version: updatedAgent.version,
+        is_published: (updatedAgent as any).is_published,
+        has_prompt: !!(updatedAgent as any).prompt,
+        prompt_length: (updatedAgent as any).prompt?.length || 0
+      });
+      
+      return updatedAgent;
+    } catch (error: any) {
+      console.error('RetellService: Error in publishAgent:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Crear un chat con un agente
+   */
+  static async createChat(agentId: string): Promise<{
+    chat_id: string;
+    agent_id: string;
+    chat_status: string;
+    start_timestamp?: number;
+    transcript?: string;
+    message_with_tool_calls?: any[];
+  }> {
+    try {
+      console.log('Creating chat for agent:', agentId);
+      console.log('Retell API Key configured:', !!config.retell.apiKey);
+      
+      if (!config.retell.apiKey) {
+        throw new Error('Retell API key not configured');
+      }
+      
+      if (!agentId) {
+        throw new Error('Agent ID is required');
+      }
+
+      // Validar que el agente esté configurado correctamente para chat
+      const validation = await this.validateAgentForChat(agentId);
+      
+      if (!validation.isValid) {
+        throw new Error(`Agent not configured for chat: ${validation.issues.join(', ')}`);
+      }
+
+      const response = await retellClient.chat.create({
+        agent_id: agentId,
+      });
+      console.log('Chat created successfully:', response);
+      return response;
+    } catch (error: any) {
+      console.error('Error creating chat:', error);
+      console.error('Error details:', {
+        message: error?.message,
+        status: error?.status,
+        code: error?.code,
+        response: error?.response
+      });
+      throw new Error(`Failed to create chat: ${error?.message || 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Enviar un mensaje a un chat existente
+   */
+  static async sendChatMessage(chatId: string, content: string): Promise<{
+    messages: Array<{
+      message_id: string;
+      role: string;
+      content: string;
+      created_timestamp: number;
+    }>;
+  }> {
+    try {
+      const response = await retellClient.chat.createChatCompletion({
+        chat_id: chatId,
+        content: content,
+      });
+      
+      // Filtrar solo mensajes regulares (no tool calls)
+      const regularMessages = response.messages.filter((msg: any) => 
+        msg.role === 'user' || msg.role === 'agent'
+      ).map((msg: any) => ({
+        message_id: msg.message_id,
+        role: msg.role,
+        content: msg.content || '',
+        created_timestamp: msg.created_timestamp,
+      }));
+      
+      return { messages: regularMessages };
+    } catch (error) {
+      console.error('Error sending chat message:', error);
+      throw new Error('Failed to send chat message');
+    }
+  }
+
+  /**
+   * Obtener detalles de un chat
+   */
+  static async getChat(chatId: string): Promise<{
+    chat_id: string;
+    agent_id: string;
+    chat_status: string;
+    transcript?: string;
+    message_with_tool_calls?: any[];
+    start_timestamp?: number;
+    end_timestamp?: number;
+  }> {
+    try {
+      const response = await retellClient.chat.retrieve(chatId);
+      return response;
+    } catch (error) {
+      console.error('Error getting chat:', error);
+      throw new Error('Failed to get chat');
+    }
+  }
+
+  /**
+   * Terminar un chat
+   */
+  static async endChat(chatId: string): Promise<void> {
+    try {
+      await retellClient.chat.end(chatId);
+    } catch (error) {
+      console.error('Error ending chat:', error);
+      throw new Error('Failed to end chat');
     }
   }
 

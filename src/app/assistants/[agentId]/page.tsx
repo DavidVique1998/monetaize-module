@@ -8,6 +8,8 @@ import { useVoices } from '@/hooks/useVoices';
 import { VoiceSelector } from '@/components/assistants/VoiceSelector';
 import { CallSettingsModal } from '@/components/assistants/CallSettingsModal';
 import { VoiceSettingsModal } from '@/components/assistants/VoiceSettingsModal';
+import { WebCallInterface } from '@/components/assistants/WebCallInterface';
+import { ChatLabInterface } from '@/components/assistants/ChatLabInterface';
 import { 
   ArrowLeft, 
   Pencil, 
@@ -49,7 +51,7 @@ export default function EditAssistantPage() {
   const params = useParams();
   const agentId = params.agentId as string;
   
-  const { getAgent, updateAgent } = useAgents();
+  const { getAgent, updateAgent, updateAgentStatus } = useAgents();
   const { voices } = useVoices();
   
   const [agent, setAgent] = useState<(RetellAgent & { prompt?: string }) | null>(null);
@@ -66,8 +68,20 @@ export default function EditAssistantPage() {
   const [llmId, setLlmId] = useState('gpt-4o');
   const [isSaved, setIsSaved] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
   const [showCallSettings, setShowCallSettings] = useState(false);
   const [showVoiceSettings, setShowVoiceSettings] = useState(false);
+
+  // Auto-hide error after 5 seconds
+  useEffect(() => {
+    if (publishError) {
+      const timer = setTimeout(() => {
+        setPublishError(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [publishError]);
 
   const handleCallSettingsSave = (settings: any) => {
     // Store settings without saving yet, just update state
@@ -104,6 +118,13 @@ export default function EditAssistantPage() {
       setLoading(true);
       const agentData = await getAgent(agentId);
       setAgent(agentData);
+      
+      // Also update the agent in the main agents list to keep it in sync
+      updateAgentStatus(agentId, {
+        version: agentData.version,
+        is_published: (agentData as any).is_published,
+        last_modification_timestamp: agentData.last_modification_timestamp
+      });
     } catch (error) {
       console.error('Error loading agent:', error);
       setAgent(null);
@@ -140,11 +161,63 @@ export default function EditAssistantPage() {
       await updateAgent(agentId, allSettings);
       setIsSaved(true);
       setCallSettings(null); // Clear call settings after save
-      loadAgent();
+      // No need to reload - updateAgent already updates the local state
     } catch (error) {
       console.error('Error saving agent:', error);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handlePublish = async () => {
+    if (!agent) return;
+    
+    setIsPublishing(true);
+    setPublishError(null);
+    try {
+      const response = await fetch(`/api/agents/${agentId}/publish`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ agentId }),
+      });
+
+      console.log('Publish response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Publish API Error:', errorData);
+        throw new Error(errorData.error || `HTTP ${response.status}: Failed to publish agent`);
+      }
+
+      const result = await response.json();
+      console.log('Publish result:', result);
+      
+      if (result.success) {
+        // Use the updated agent data returned from the API
+        console.log('Agent published successfully');
+        console.log('Updated agent data:', result.data);
+        
+        // Update the local agent state with the real data from Retell
+        if (result.data) {
+          setAgent(result.data);
+          
+          // Also update the agent in the main agents list
+          updateAgentStatus(agentId, {
+            version: result.data.version,
+            is_published: result.data.is_published,
+            last_modification_timestamp: result.data.last_modification_timestamp
+          });
+        }
+      } else {
+        throw new Error(result.error || 'Failed to publish agent');
+      }
+    } catch (error: any) {
+      console.error('Error publishing agent:', error);
+      setPublishError(error.message || 'Failed to publish agent');
+    } finally {
+      setIsPublishing(false);
     }
   };
 
@@ -294,7 +367,37 @@ export default function EditAssistantPage() {
                 <Cloud className="w-4 h-4 mr-2" />
                 {isSaving ? 'Saving...' : 'Save Changes'}
               </button>
+
+              <button
+                onClick={handlePublish}
+                disabled={isPublishing || !isSaved || !agent || (agent as any).is_published}
+                className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-semibold px-4 py-2 rounded-lg transition-colors flex items-center cursor-pointer disabled:cursor-not-allowed"
+              >
+                <Rocket className="w-4 h-4 mr-2" />
+                {isPublishing ? 'Publishing...' : 'Publish Agent'}
+              </button>
             </div>
+
+            {/* Publish Error Message - Fixed position to avoid layout shift */}
+            {publishError && (
+              <div className="fixed top-4 right-4 z-50 bg-red-50 border border-red-200 rounded-lg p-4 shadow-lg max-w-md animate-in slide-in-from-right duration-300">
+                <div className="flex items-start space-x-2">
+                  <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm text-red-800 font-medium">Failed to publish agent</p>
+                    <p className="text-xs text-red-700 mt-1 break-words">{publishError}</p>
+                  </div>
+                  <button
+                    onClick={() => setPublishError(null)}
+                    className="text-red-400 hover:text-red-600 transition-colors ml-2 flex-shrink-0"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Tabs with Controls */}
@@ -346,7 +449,7 @@ export default function EditAssistantPage() {
             <div className="flex items-center space-x-3">
               <div className="flex items-center space-x-1 text-sm text-green-600">
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Saved</span>
+                <span>{agent && (agent as any).is_published ? 'Published' : 'Saved'}</span>
               </div>
               <select
                 value={llmId}
@@ -424,229 +527,24 @@ export default function EditAssistantPage() {
 
             {activeTab === 'voice' && (
               <div className="flex-1 flex flex-col min-h-0 overflow-y-auto space-y-4">
-                {/* Voice Settings */}
-                <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
-                  <h3 className="text-sm font-semibold text-gray-900">Voice Configuration</h3>
-                  
-                  {/* Voice Model */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Voice Model</label>
-                    <select
-                      value={voiceModel || ''}
-                      onChange={(e) => {
-                        setVoiceModel(e.target.value || null);
-                        setIsSaved(false);
-                      }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    >
-                      <option value="">Default (Auto-select)</option>
-                      <option value="eleven_turbo_v2">Eleven Turbo v2</option>
-                      <option value="eleven_flash_v2">Eleven Flash v2</option>
-                      <option value="eleven_turbo_v2_5">Eleven Turbo v2.5</option>
-                      <option value="eleven_flash_v2_5">Eleven Flash v2.5</option>
-                      <option value="eleven_multilingual_v2">Eleven Multilingual v2</option>
-                      <option value="tts-1">TTS-1</option>
-                      <option value="gpt-4o-mini-tts">GPT-4o Mini TTS</option>
-                    </select>
-                    <p className="text-xs text-gray-500">Only available for 11labs voices. Leave as default to use auto-selection.</p>
-                  </div>
-
-                  {/* Voice Temperature */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <label className="text-sm font-medium text-gray-700">Voice Temperature</label>
-                      <span className="text-sm font-medium text-gray-900">{voiceTemperature}</span>
-                    </div>
-                    <p className="text-xs text-gray-500">Controls how stable the voice is (0-2). Lower = more stable, Higher = more variant</p>
-                    <input
-                      type="range"
-                      min="0"
-                      max="2"
-                      step="0.1"
-                      value={voiceTemperature}
-                      onChange={(e) => {
-                        setVoiceTemperature(Number(e.target.value));
-                        setIsSaved(false);
-                      }}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
-                    />
-                    <div className="flex justify-between text-xs text-gray-500">
-                      <span>0 (Stable)</span>
-                      <span>2 (Variant)</span>
-                    </div>
-                  </div>
-
-                  {/* Voice Speed */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <label className="text-sm font-medium text-gray-700">Voice Speed</label>
-                      <span className="text-sm font-medium text-gray-900">{voiceSpeed}</span>
-                    </div>
-                    <p className="text-xs text-gray-500">Controls speed of voice (0.5-2). Lower = slower, Higher = faster</p>
-                    <input
-                      type="range"
-                      min="0.5"
-                      max="2"
-                      step="0.1"
-                      value={voiceSpeed}
-                      onChange={(e) => {
-                        setVoiceSpeed(Number(e.target.value));
-                        setIsSaved(false);
-                      }}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
-                    />
-                    <div className="flex justify-between text-xs text-gray-500">
-                      <span>0.5 (Slower)</span>
-                      <span>2 (Faster)</span>
-                    </div>
-                  </div>
-
-                  {/* Volume */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <label className="text-sm font-medium text-gray-700">Volume</label>
-                      <span className="text-sm font-medium text-gray-900">{volume}</span>
-                    </div>
-                    <p className="text-xs text-gray-500">Controls the volume of the agent (0-2). Lower = quieter, Higher = louder</p>
-                    <input
-                      type="range"
-                      min="0"
-                      max="2"
-                      step="0.1"
-                      value={volume}
-                      onChange={(e) => {
-                        setVolume(Number(e.target.value));
-                        setIsSaved(false);
-                      }}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
-                    />
-                    <div className="flex justify-between text-xs text-gray-500">
-                      <span>0 (Quieter)</span>
-                      <span>2 (Louder)</span>
-                    </div>
-                  </div>
-                </div>
+                {/* Web Call Interface */}
+                <WebCallInterface 
+                  agentId={agentId}
+                  agentName={agentName}
+                  onCallStart={() => console.log('Call started')}
+                  onCallEnd={() => console.log('Call ended')}
+                />
 
                 {/* Warning Message */}
                 <div className="flex items-start space-x-3 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                   <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
-                  <p className="text-sm text-yellow-800">Labs do not call tools or book appointments</p>
-                </div>
-
-                {/* Chat Simulation */}
-                <div className="bg-white border border-gray-200 rounded-lg p-6">
-                  <div className="flex items-start space-x-3 mb-4">
-                    <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                      <Sparkles className="w-6 h-6 text-gray-600" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-gray-900 mb-1">AI</div>
-                      <div className="bg-gray-100 rounded-lg px-4 py-2 text-sm text-gray-700">
-                        Hello! Click 'Start Call' to begin the conversation.
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex justify-end">
-                    <button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition-colors cursor-pointer">
-                      Start Call
-                    </button>
-                  </div>
+                  <p className="text-sm text-yellow-800">Voice Lab allows you to test your agent with real web calls. Make sure to save your voice settings before testing.</p>
                 </div>
               </div>
             )}
 
             {activeTab === 'chat' && (
-              <div className="flex-1 flex flex-col min-h-0 overflow-y-auto space-y-4">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-gray-700">Test contact ID: <span className="text-gray-900">9aLcvbekEDQGYJDE5022</span></label>
-                  <div className="flex items-center space-x-2">
-                    <button className="px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center cursor-pointer">
-                      <Wrench className="w-4 h-4 mr-2" />
-                      Simulation Under Construction
-                    </button>
-                    <button className="px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center cursor-pointer">
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Clear conversation
-                    </button>
-                    <button className="p-2 text-gray-400 hover:text-gray-600 cursor-pointer">
-                      <Info className="w-5 h-5" />
-                    </button>
-                    <button className="p-2 text-gray-400 hover:text-gray-600 cursor-pointer">
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <button className="p-2 text-gray-400 hover:text-gray-600 cursor-pointer">
-                      <ChevronRightIcon className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Warning Message */}
-                <div className="flex items-start space-x-3 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
-                  <p className="text-sm text-yellow-800">Labs do not call tools or book appointments</p>
-                </div>
-
-                {/* Chat Area */}
-                <div className="flex-1 bg-white border border-gray-200 rounded-lg overflow-hidden flex flex-col min-h-[600px]">
-                  {/* Chat Messages */}
-                  <div className="flex-1 p-6 overflow-y-auto space-y-4">
-                    {/* User Message */}
-                    <div className="flex justify-end">
-                      <div className="bg-gray-100 rounded-lg px-4 py-2 max-w-md">
-                        <p className="text-sm text-gray-900">Hola</p>
-                      </div>
-                    </div>
-
-                    {/* AI Message */}
-                    <div className="flex justify-start">
-                      <div className="flex items-start space-x-2 max-w-md">
-                        <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                          <Sparkles className="w-4 h-4 text-purple-600" />
-                        </div>
-                        <div>
-                          <div className="text-xs font-medium text-gray-700 mb-1">New Blank Assistant</div>
-                          <div className="bg-blue-500 text-white rounded-lg px-4 py-2">
-                            <p className="text-sm">¡Hola! ¿Cómo puedo ayudarte hoy?</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* User Message */}
-                    <div className="flex justify-end">
-                      <div className="bg-gray-100 rounded-lg px-4 py-2 max-w-md">
-                        <p className="text-sm text-gray-900">que sabes</p>
-                      </div>
-                    </div>
-
-                    {/* AI Message */}
-                    <div className="flex justify-start">
-                      <div className="flex items-start space-x-2 max-w-md">
-                        <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                          <Sparkles className="w-4 h-4 text-purple-600" />
-                        </div>
-                        <div>
-                          <div className="text-xs font-medium text-gray-700 mb-1">New Blank Assistant</div>
-                          <div className="bg-blue-500 text-white rounded-lg px-4 py-2">
-                            <p className="text-sm">Sé un poco de todo, desde responder preguntas generales hasta ayudarte con tareas específicas. ¿Hay algo en particular sobre lo que te gustaría saber más?</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Message Input */}
-                  <div className="border-t border-gray-200 p-4">
-                    <input
-                      type="text"
-                      placeholder="Message your AI"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-                    <p className="text-xs text-gray-500 mt-2">AI can make mistakes - check important information.</p>
-                  </div>
-                </div>
-              </div>
+              <ChatLabInterface agentId={agentId} agentName={agentName} />
             )}
 
             {activeTab === 'knowledge' && (

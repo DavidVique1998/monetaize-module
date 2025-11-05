@@ -37,7 +37,11 @@ export function useAgents() {
       const result = await response.json();
       
       if (result.success) {
-        setAgents(result.data);
+        // Remove duplicates based on agent_id
+        const uniqueAgents = result.data.filter((agent: any, index: number, self: any[]) => 
+          index === self.findIndex(a => a.agent_id === agent.agent_id)
+        );
+        setAgents(uniqueAgents);
       } else {
         console.warn('Failed to load agents from API, using mock data');
         // Use mock data as fallback
@@ -65,7 +69,11 @@ export function useAgents() {
       const result = await response.json();
       
       if (result.success) {
-        setAgents(prev => [result.data, ...prev]);
+        // Remove any existing agent with the same ID before adding the new one
+        setAgents(prev => {
+          const filtered = prev.filter(agent => agent.agent_id !== result.data.agent_id);
+          return [result.data, ...filtered];
+        });
         return result.data;
       } else {
         throw new Error(result.error || 'Failed to create agent');
@@ -106,6 +114,9 @@ export function useAgents() {
 
   const updateAgent = async (agentId: string, agentData: any) => {
     try {
+      console.log('useAgents: Updating agent:', agentId);
+      console.log('useAgents: Update data:', agentData);
+      
       const response = await fetch(`/api/agents/${agentId}`, {
         method: 'PATCH',
         headers: {
@@ -114,37 +125,32 @@ export function useAgents() {
         body: JSON.stringify(agentData),
       });
       
+      console.log('useAgents: Update response status:', response.status);
+      
       const result = await response.json();
+      console.log('useAgents: Update result:', result);
       
       if (result.success) {
+        // Update the agent in the list with the returned data
         setAgents(prev => prev.map(agent => 
           agent.agent_id === agentId ? result.data : agent
         ));
+        console.log('useAgents: Agent updated in local state');
         return result.data;
       } else {
-        console.warn('Failed to update agent in API, simulating success');
-        // Simulate successful update with mock data
-        const updatedAgent = createMockAgent({
-          ...agentData,
-          agent_id: agentId
-        });
-        setAgents(prev => prev.map(agent => 
-          agent.agent_id === agentId ? updatedAgent : agent
-        ));
-        return updatedAgent;
+        throw new Error(result.error || 'Failed to update agent');
       }
-    } catch (err) {
-      console.warn('Error updating agent, simulating success:', err);
-      // Simulate successful update with mock data
-      const updatedAgent = createMockAgent({
-        ...agentData,
-        agent_id: agentId
-      });
-      setAgents(prev => prev.map(agent => 
-        agent.agent_id === agentId ? updatedAgent : agent
-      ));
-      return updatedAgent;
+    } catch (err: any) {
+      console.error('useAgents: Error updating agent:', err);
+      throw err;
     }
+  };
+
+  const updateAgentStatus = (agentId: string, updates: Partial<any>) => {
+    console.log('useAgents: Updating agent status:', agentId, updates);
+    setAgents(prev => prev.map(agent => 
+      agent.agent_id === agentId ? { ...agent, ...updates } : agent
+    ));
   };
 
   useEffect(() => {
@@ -159,5 +165,6 @@ export function useAgents() {
     createAgent,
     getAgent,
     updateAgent,
+    updateAgentStatus,
   };
 }

@@ -21,25 +21,30 @@ export default function AssistantsPage() {
     loadAgents();
   }, []);
 
-  // Filter assistants
-  const filteredAgents = agents.filter((agent) => {
-    const query = searchQuery.toLowerCase();
-    const matchesSearch = 
-      agent.agent_name?.toLowerCase().includes(query) ||
-      agent.agent_id?.toLowerCase().includes(query);
-    
-    // TODO: Implement proper filtering for favorites, imported, archived
-    switch (activeTab) {
-      case 'favorites':
-        return matchesSearch; // Placeholder
-      case 'imported':
-        return matchesSearch; // Placeholder
-      case 'archived':
-        return matchesSearch; // Placeholder
-      default:
-        return matchesSearch;
-    }
-  });
+  // Filter assistants and remove duplicates
+  const filteredAgents = agents
+    .filter((agent) => {
+      const query = searchQuery.toLowerCase();
+      const matchesSearch = 
+        agent.agent_name?.toLowerCase().includes(query) ||
+        agent.agent_id?.toLowerCase().includes(query);
+      
+      // TODO: Implement proper filtering for favorites, imported, archived
+      switch (activeTab) {
+        case 'favorites':
+          return matchesSearch; // Placeholder
+        case 'imported':
+          return matchesSearch; // Placeholder
+        case 'archived':
+          return matchesSearch; // Placeholder
+        default:
+          return matchesSearch;
+      }
+    })
+    .filter((agent, index, self) => 
+      // Remove duplicates based on agent_id
+      index === self.findIndex(a => a.agent_id === agent.agent_id)
+    );
 
   const handleDelete = async (agentId: string) => {
     if (!confirm('¿Estás seguro de que quieres eliminar este asistente?')) return;
@@ -189,11 +194,12 @@ export default function AssistantsPage() {
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
             {/* Table Header */}
             <div className="px-6 py-4 border-b border-gray-200">
-              <div className="grid grid-cols-5 gap-4 text-sm font-semibold text-gray-700">
+              <div className="grid grid-cols-6 gap-4 text-sm font-semibold text-gray-700">
                 <div>NAME</div>
                 <div>META DATA</div>
                 <div>UPDATED</div>
                 <div>CREATED</div>
+                <div>STATUS</div>
                 <div>ID</div>
               </div>
             </div>
@@ -219,7 +225,7 @@ export default function AssistantsPage() {
                     className="px-6 py-4 hover:bg-gray-50 transition-colors group cursor-pointer"
                     onClick={() => router.push(`/assistants/${agent.agent_id}`)}
                   >
-                    <div className="grid grid-cols-5 gap-4 items-center">
+                    <div className="grid grid-cols-6 gap-4 items-center">
                       {/* Name */}
                       <div className="flex items-center space-x-3">
                         <Bot className="w-5 h-5 text-gray-400" />
@@ -250,6 +256,26 @@ export default function AssistantsPage() {
                           {'last_modification_timestamp' in agent && agent.last_modification_timestamp 
                             ? formatDate(agent.last_modification_timestamp) 
                             : 'N/A'}
+                        </p>
+                      </div>
+                      
+                      {/* Status */}
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          {(agent as any).is_published ? (
+                            <>
+                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                              <span className="text-sm text-green-600 font-medium">Published</span>
+                            </>
+                          ) : (
+                            <>
+                              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                              <span className="text-sm text-yellow-600 font-medium">Draft</span>
+                            </>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          v{(agent as any).version || 0}
                         </p>
                       </div>
                       
