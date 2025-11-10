@@ -16,7 +16,8 @@ import {
   Grid3X3,
   Settings,
   HelpCircle,
-  Hash
+  Hash,
+  ShoppingBag
 } from 'lucide-react';
 
 interface NavigationItemProps {
@@ -160,6 +161,7 @@ export function Navigation({ isCollapsed = false }: { isCollapsed?: boolean }) {
     'settings': <Settings className="w-5 h-5" />,
     'help-circle': <HelpCircle className="w-5 h-5" />,
     'hash': <Hash className="w-5 h-5" />,
+    'installer': <ShoppingBag className="w-5 h-5" />,
   };
 
   // Modo colapsado: solo iconos

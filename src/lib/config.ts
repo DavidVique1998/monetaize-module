@@ -22,9 +22,23 @@ export const config = {
     baseUrl: process.env.RETELL_BASE_URL || 'https://api.retellai.com',
   },
 
+  ghlApp:{
+    companyId: process.env.GHL_COMPANY_ID || 'XkDPrpIPqtMrw7l5hItq',
+    appId: process.env.GHL_APP_ID || '',
+    apiSecret: process.env.GHL_API_SECRET || '',
+    privateIntegrationToken: process.env.GHL_PRIVATE_INTEGRATION_TOKEN || '',
+  },
+
+  // MongoDB Configuration
+  mongodb: {
+    url: process.env.MONGODB_URL || 'mongodb://localhost:27017',
+    database: process.env.MONGODB_DATABASE || 'ghl_sessions',
+  },
+
   // GoHighLevel Integration
   ghl: {
     token: process.env.GHL_TOKEN || '',
+    agencyToken: process.env.GHL_AGENCY_TOKEN || '',
   },
 
   // Application Configuration
