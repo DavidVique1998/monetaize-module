@@ -1,6 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface UserProfileProps {
   name: string;
@@ -9,6 +10,7 @@ interface UserProfileProps {
   initials?: string;
   className?: string;
   isCollapsed?: boolean;
+  onClick?: () => void;
 }
 
 export function UserProfile({ 
@@ -17,14 +19,27 @@ export function UserProfile({
   avatar, 
   initials = 'AL', 
   className,
-  isCollapsed = false
+  isCollapsed = false,
+  onClick
 }: UserProfileProps) {
+  const router = useRouter();
+
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    } else {
+      router.push('/profile');
+    }
+  };
   if (isCollapsed) {
     return (
-      <div className={cn(
-        "flex items-center justify-center p-2 hover:bg-gray-50 rounded-lg transition-all duration-200 cursor-pointer group",
-        className
-      )}>
+      <div 
+        onClick={handleClick}
+        className={cn(
+          "flex items-center justify-center p-2 hover:bg-gray-50 rounded-lg transition-all duration-200 cursor-pointer group",
+          className
+        )}
+      >
         {avatar ? (
           <img 
             src={avatar} 
@@ -43,10 +58,13 @@ export function UserProfile({
   }
 
   return (
-    <div className={cn(
-      "flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-all duration-200 cursor-pointer group",
-      className
-    )}>
+    <div 
+      onClick={handleClick}
+      className={cn(
+        "flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-all duration-200 cursor-pointer group",
+        className
+      )}
+    >
       <div className="flex items-center">
         {avatar ? (
           <img 

@@ -1,12 +1,22 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter } from '@/components/ui/sidebar';
 import { Navigation } from '@/components/navigation/Navigation';
 import { BalanceCard } from '@/components/ui/BalanceCard';
 import { UserProfile } from '@/components/ui/UserProfile';
 import { Phone, Pin, PinOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
+
+interface User {
+  id: string;
+  email: string;
+  name: string | null;
+  role: 'ADMIN' | 'LOCATION';
+  ghlLocationId: string | null;
+  ghlCompanyId: string | null;
+}
 
 interface MainSidebarProps {
   className?: string;
@@ -27,6 +37,53 @@ export function MainSidebar({
   onMouseLeave,
   onTogglePin
 }: MainSidebarProps) {
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        const result = await response.json();
+        
+        if (result.success && result.user) {
+          setUser(result.user);
+        } else {
+          // Si no está autenticado, redirigir a install_ghl
+          router.push('/install_ghl');
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+        router.push('/install_ghl');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [router]);
+
+  // Generar iniciales del nombre o email
+  const getInitials = (name: string | null, email: string): string => {
+    if (name) {
+      const parts = name.split(' ');
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      }
+      return name.substring(0, 2).toUpperCase();
+    }
+    return email.substring(0, 2).toUpperCase();
+  };
+
+  if (loading) {
+    return null; // O un spinner
+  }
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <>
       {/* Sidebar */}
@@ -102,9 +159,9 @@ export function MainSidebar({
                 
                 {/* Perfil de usuario */}
                 <UserProfile 
-                  name="Current user"
-                  email="escobarf1999@gmail.com"
-                  initials="AL"
+                  name={user.name || user.email}
+                  email={user.email}
+                  initials={getInitials(user.name, user.email)}
                 />
               </div>
             </SidebarFooter>

@@ -11,20 +11,41 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+// User role enum
+enum UserRole {
+  ADMIN
+  LOCATION
+}
+
 // User model for authentication and user management
 model User {
   id            String    @id @default(uuid())
   email         String    @unique
   name          String?
-  role          String    @default("user")
+  role          UserRole  @default(LOCATION)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  // GoHighLevel integration fields
+  ghlLocationId String?   @unique
+  ghlCompanyId  String?
+  ghlLocationName String?
+  ghlLocationAddress String?
+  ghlLocationCity String?
+  ghlLocationState String?
+  ghlLocationPhone String?
+  ghlLocationEmail String?
+  ghlLocationWebsite String?
+  ghlLocationTimezone String?
 
   // Relations
   agents        Agent[]
   phoneNumbers  PhoneNumber[]
 
   @@index([email])
+  @@index([ghlLocationId])
+  @@index([ghlCompanyId])
+  @@index([role])
 }
 
 // Agent model for AI assistants
