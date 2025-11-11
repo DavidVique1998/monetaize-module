@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter } from '@/components/ui/sidebar';
 import { Navigation } from '@/components/navigation/Navigation';
-import { BalanceCard } from '@/components/ui/BalanceCard';
+import { WalletBalance } from '@/components/wallet/WalletBalance';
+import { RechargeModal } from '@/components/wallet/RechargeModal';
 import { UserProfile } from '@/components/ui/UserProfile';
 import { Phone, Pin, PinOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -40,6 +41,7 @@ export function MainSidebar({
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -112,6 +114,11 @@ export function MainSidebar({
               <div className="flex flex-col items-center space-y-1">
                 {/* Iconos de navegación */}
                 <Navigation isCollapsed={true} />
+                {/* Balance colapsado */}
+                <WalletBalance 
+                  isCollapsed={true}
+                  onRechargeClick={() => setIsRechargeModalOpen(true)}
+                />
               </div>
             </SidebarContent>
           </>
@@ -155,7 +162,10 @@ export function MainSidebar({
             <SidebarFooter>
               <div className="space-y-4">
                 {/* Balance */}
-                <BalanceCard balance={-3.13} />
+                <WalletBalance 
+                  isCollapsed={false}
+                  onRechargeClick={() => setIsRechargeModalOpen(true)}
+                />
                 
                 {/* Perfil de usuario */}
                 <UserProfile 
@@ -169,6 +179,15 @@ export function MainSidebar({
         )}
       </Sidebar>
       </div>
+      
+      {/* Modal de recarga */}
+      <RechargeModal
+        isOpen={isRechargeModalOpen}
+        onClose={() => setIsRechargeModalOpen(false)}
+        onSuccess={() => {
+          // El balance se actualizará automáticamente
+        }}
+      />
     </>
   );
 }

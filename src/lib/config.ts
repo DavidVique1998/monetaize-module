@@ -48,6 +48,13 @@ export const config = {
     environment: process.env.NODE_ENV || 'development',
   },
 
+  // Stripe Configuration
+  stripe: {
+    secretKey: process.env.STRIPE_SECRET_KEY || '',
+    publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '',
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || '',
+  },
+
   // API Configuration
   api: {
     baseUrl: process.env.API_BASE_URL || 'http://localhost:3000/api',

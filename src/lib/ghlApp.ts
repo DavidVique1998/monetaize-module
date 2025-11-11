@@ -132,20 +132,6 @@ export class GHLApp {
     return GHLApp.instance;
   }
 
-  /**
-   * Método estático helper que obtiene una instancia configurada para un locationId
-   * Inicializa automáticamente y crea el contexto en un solo paso
-   * 
-   * @example
-   * // En lugar de:
-   * // const ghlApp = GHLApp.getInstance();
-   * // await ghlApp.initialize();
-   * // const ghl = ghlApp.forLocation(user.ghlLocationId);
-   * 
-   * // Simplemente:
-   * const ghl = await GHLApp.forLocation(user.ghlLocationId);
-   * const location = await ghl.getLocation();
-   */
   public static async forLocation(locationId: string): Promise<GHLAppForLocation> {
     const instance = GHLApp.getInstance();
     await instance.ensureInitialized();

@@ -41,6 +41,7 @@ model User {
   // Relations
   agents        Agent[]
   phoneNumbers  PhoneNumber[]
+  wallet        Wallet?
 
   @@index([email])
   @@index([ghlLocationId])
@@ -204,4 +205,114 @@ model Conversation {
   @@index([agentId])
   @@index([contactId])
   @@index([createdAt])
+}
+
+// Wallet model - Billetera vinculada al usuario/location
+model Wallet {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  balance         Decimal   @default(0) @db.Decimal(10, 2) // Balance en dólares
+  currency        String    @default("USD")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions    WalletTransaction[]
+  autoRecharge    AutoRechargeSettings?
+  paymentLinks    PaymentLink[]
+
+  @@index([userId])
+}
+
+// Transaction type enum
+enum TransactionType {
+  RECHARGE      // Recarga de saldo
+  CONSUMPTION   // Consumo de créditos
+  REFUND        // Reembolso
+  ADJUSTMENT    // Ajuste manual
+}
+
+// Transaction status enum
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// Wallet Transaction model - Registro de todas las transacciones
+model WalletTransaction {
+  id              String            @id @default(uuid())
+  walletId        String
+  type            TransactionType
+  status          TransactionStatus @default(PENDING)
+  amount          Decimal           @db.Decimal(10, 2) // Monto en dólares
+  balanceBefore   Decimal           @db.Decimal(10, 2)
+  balanceAfter    Decimal           @db.Decimal(10, 2)
+  
+  // Detalles de consumo (para métricas)
+  metricType      String?           // messages, tokens, conversations, minutes, etc.
+  metricValue     Decimal?          @db.Decimal(10, 2) // Valor consumido de la métrica
+  description     String?           @db.Text
+  
+  // Referencias externas
+  paymentLinkId   String?           // Si es una recarga, referencia al payment link
+  stripePaymentId String?           // ID del pago en Stripe
+  conversationId  String?           // Si es consumo de conversación
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Relations
+  wallet          Wallet            @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  paymentLink     PaymentLink?      @relation(fields: [paymentLinkId], references: [id])
+
+  @@index([walletId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+  @@index([stripePaymentId])
+}
+
+// Payment Link model - Links de pago de Stripe
+model PaymentLink {
+  id              String    @id @default(uuid())
+  walletId        String
+  stripeLinkId    String    @unique // ID del payment link en Stripe
+  amount          Decimal   @db.Decimal(10, 2) // Monto a recargar
+  currency        String    @default("USD")
+  url             String    @db.Text // URL del link de pago
+  status          String    @default("pending") // pending, paid, expired, cancelled
+  expiresAt       DateTime?
+  paidAt          DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  wallet          Wallet    @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  transactions    WalletTransaction[]
+
+  @@index([walletId])
+  @@index([stripeLinkId])
+  @@index([status])
+}
+
+// Auto Recharge Settings model - Configuración de recarga automática
+model AutoRechargeSettings {
+  id              String    @id @default(uuid())
+  walletId        String    @unique
+  enabled         Boolean   @default(false)
+  threshold       Decimal   @db.Decimal(10, 2) // Límite inferior para activar recarga
+  rechargeAmount  Decimal   @db.Decimal(10, 2) // Monto a recargar automáticamente
+  paymentMethodId String?   // ID del método de pago guardado en Stripe
+  lastRechargeAt  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  wallet          Wallet    @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId])
+  @@index([enabled])
 }
