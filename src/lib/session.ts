@@ -42,20 +42,29 @@ const SESSION_SECRET = process.env.SESSION_SECRET || 'monetaize-session-secret-c
 export class SessionManager {
   /**
    * Codificar datos del usuario en un token de sesión
-   * Formato: base64(userId|email|role|timestamp|random)
+   * Formato: base64(userId|email|role|ghlLocationId|ghlCompanyId|timestamp|random)
    */
   static encodeSessionToken(user: SessionUser): string {
     const timestamp = Date.now();
     const random = Math.random().toString(36).substring(2, 15);
-    const data = `${user.id}|${user.email}|${user.role}|${timestamp}|${random}`;
+    const locationId = user.ghlLocationId || '';
+    const companyId = user.ghlCompanyId || '';
+    const data = `${user.id}|${user.email}|${user.role}|${locationId}|${companyId}|${timestamp}|${random}`;
     return Buffer.from(data).toString('base64url');
   }
 
   /**
    * Decodificar token de sesión y extraer información básica
    * Retorna null si el token es inválido
+   * Formato: base64(userId|email|role|ghlLocationId|ghlCompanyId|timestamp|random)
    */
-  static decodeSessionToken(sessionToken: string): { userId: string; email: string; role: string } | null {
+  static decodeSessionToken(sessionToken: string): { 
+    userId: string; 
+    email: string; 
+    role: string;
+    ghlLocationId: string | null;
+    ghlCompanyId: string | null;
+  } | null {
     if (!sessionToken) return null;
     
     try {
@@ -64,10 +73,17 @@ export class SessionManager {
       
       if (parts.length < 3) return null;
       
+      // Compatibilidad con tokens antiguos (sin ghlLocationId/ghlCompanyId)
+      // Si tiene menos de 5 partes, es un token antiguo
+      const ghlLocationId = parts.length > 3 && parts[3] ? parts[3] : null;
+      const ghlCompanyId = parts.length > 4 && parts[4] ? parts[4] : null;
+      
       return {
         userId: parts[0],
         email: parts[1],
         role: parts[2],
+        ghlLocationId,
+        ghlCompanyId,
       };
     } catch (error) {
       console.error('Error decoding session token:', error);
@@ -179,7 +195,13 @@ export class SessionManager {
    */
   static getSessionUserFromRequest(
     cookieStore: ReadonlyRequestCookies
-  ): { userId: string; email: string; role: string } | null {
+  ): { 
+    userId: string; 
+    email: string; 
+    role: string;
+    ghlLocationId: string | null;
+    ghlCompanyId: string | null;
+  } | null {
     try {
       const sessionToken = this.getSessionTokenFromCookies(cookieStore);
       if (!sessionToken) return null;

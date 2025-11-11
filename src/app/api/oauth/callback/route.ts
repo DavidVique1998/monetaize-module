@@ -79,25 +79,33 @@ export async function GET(request: NextRequest) {
         throw new Error('Company ID or location ID not found in token response');
       }
 
-      // Guardar el token de company
-      const sessionStorage = ghlApp.getSessionStorage();
-      await sessionStorage.setSession(locationId, {
-        access_token: tokenResponse.access_token!,
-        refresh_token: tokenResponse.refresh_token!,
-        token_type: tokenResponse.token_type,
-        scope: tokenResponse.scope,
-        userType: tokenResponse.userType,
-        companyId: companyId,
-        userId: tokenResponse.userId,
-        expires_in: tokenResponse.expires_in
-      });
-      // Paso 3: Obtener información de la location
-      console.log('Obteniendo información de la location...');
-      const locationInfo = await ghl.locations.getLocation({
+      console.log('[OAuth Callback] Token Response:', {
+        companyId,
         locationId,
+        userType: tokenResponse.userType,
+        hasAccessToken: !!tokenResponse.access_token,
+        hasRefreshToken: !!tokenResponse.refresh_token
       });
 
-      const location = locationInfo.location;
+      // IMPORTANTE: Según los ejemplos oficiales de GHL SDK, se guarda el objeto token completo
+      // usando locationId como resourceId. El SDK maneja automáticamente todos los campos.
+      const sessionStorage = ghlApp.getSessionStorage();
+      
+      // Guardar el objeto token completo directamente (como en los ejemplos oficiales)
+      // Esto asegura que todos los campos del token se guarden correctamente
+      await sessionStorage.setSession(locationId, tokenResponse);
+
+      console.log('[OAuth Callback] Sesión guardada con resourceId (locationId):', locationId);
+      console.log('[OAuth Callback] Token completo guardado:', {
+        userType: tokenResponse.userType,
+        companyId: tokenResponse.companyId,
+        locationId: tokenResponse.locationId
+      });
+
+      // Paso 3: Obtener información de la location usando el token
+      console.log('Obteniendo información de la location...');
+      const ghlForLocation = await GHLApp.forLocation(locationId);
+      const location = await ghlForLocation.getLocation();
       if (!location) {
         throw new Error('Location not found');
       }

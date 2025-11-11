@@ -65,8 +65,24 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Usuario autenticado, permitir acceso
-  return NextResponse.next();
+  // Usuario autenticado, agregar información de sesión a los headers
+  // Esto permite acceder fácilmente al locationId en cualquier API route
+  const response = NextResponse.next();
+  
+  // Agregar headers con información de la sesión para fácil acceso
+  response.headers.set('x-user-id', sessionData.userId);
+  response.headers.set('x-user-email', sessionData.email);
+  response.headers.set('x-user-role', sessionData.role);
+  
+  // Agregar locationId si está disponible (importante para GHL)
+  if (sessionData.ghlLocationId) {
+    response.headers.set('x-ghl-location-id', sessionData.ghlLocationId);
+  }
+  if (sessionData.ghlCompanyId) {
+    response.headers.set('x-ghl-company-id', sessionData.ghlCompanyId);
+  }
+
+  return response;
 }
 
 /**

@@ -20,6 +20,57 @@ export interface GHLLocation {
   [key: string]: any; // Permitir propiedades adicionales del SDK
 }
 
+/**
+ * Clase que encapsula métodos de GHL con un locationId pre-configurado
+ * Permite llamar métodos sin tener que pasar locationId cada vez
+ */
+export class GHLAppForLocation {
+  private ghlApp: GHLApp;
+  private locationId: string;
+
+  constructor(ghlApp: GHLApp, locationId: string) {
+    this.ghlApp = ghlApp;
+    this.locationId = locationId;
+  }
+
+  /**
+   * Obtener la location actual
+   */
+  public async getLocation(): Promise<GHLLocation> {
+    return this.ghlApp.getLocation(this.locationId);
+  }
+
+  /**
+   * Obtener un contacto por ID (usa el locationId configurado)
+   */
+  public async getContact(contactId: string): Promise<any> {
+    return this.ghlApp.getContact(contactId, this.locationId);
+  }
+
+  /**
+   * Obtener headers con el locationId configurado
+   * Útil para llamadas directas al SDK
+   */
+  public getHeaders(): { locationId: string } {
+    return { locationId: this.locationId };
+  }
+
+  /**
+   * Obtener el SDK de HighLevel para llamadas directas
+   * Útil cuando necesitas usar métodos del SDK que no están encapsulados
+   */
+  public getSDK(): HighLevel {
+    return this.ghlApp.getSDK();
+  }
+
+  /**
+   * Obtener el locationId configurado
+   */
+  public getLocationId(): string {
+    return this.locationId;
+  }
+}
+
 export class GHLApp {
   private static instance: GHLApp;
   private ghl: HighLevel;
@@ -82,6 +133,26 @@ export class GHLApp {
   }
 
   /**
+   * Método estático helper que obtiene una instancia configurada para un locationId
+   * Inicializa automáticamente y crea el contexto en un solo paso
+   * 
+   * @example
+   * // En lugar de:
+   * // const ghlApp = GHLApp.getInstance();
+   * // await ghlApp.initialize();
+   * // const ghl = ghlApp.forLocation(user.ghlLocationId);
+   * 
+   * // Simplemente:
+   * const ghl = await GHLApp.forLocation(user.ghlLocationId);
+   * const location = await ghl.getLocation();
+   */
+  public static async forLocation(locationId: string): Promise<GHLAppForLocation> {
+    const instance = GHLApp.getInstance();
+    await instance.ensureInitialized();
+    return instance.forLocation(locationId);
+  }
+
+  /**
    * Obtener la instancia del SDK de HighLevel
    * Útil para acceder a métodos del SDK como webhooks
    */
@@ -95,6 +166,21 @@ export class GHLApp {
    */
   public getSessionStorage(): MongoDBSessionStorage {
     return this.sessionStorage;
+  }
+
+  /**
+   * Crear un contexto de GHLApp con un locationId pre-configurado
+   * Permite llamar métodos sin tener que pasar locationId cada vez
+   * 
+   * @example
+   * const ghlApp = GHLApp.getInstance();
+   * await ghlApp.ensureInitialized();
+   * const ghl = ghlApp.forLocation(user.ghlLocationId);
+   * const contact = await ghl.getContact(contactId); // No necesita pasar locationId
+   * const location = await ghl.getLocation(); // Usa el locationId configurado
+   */
+  public forLocation(locationId: string): GHLAppForLocation {
+    return new GHLAppForLocation(this, locationId);
   }
 
   /**
@@ -155,6 +241,39 @@ export class GHLApp {
       throw new Error('Failed to fetch location from GoHighLevel');
     }
   }
+
+  /**
+   * Obtener un contacto por ID
+   * 
+   * IMPORTANTE: Este método requiere locationId porque el endpoint getContact
+   * del SDK no acepta locationId como parámetro en el body. El SDK necesita
+   * el locationId para identificar qué token usar en MongoDB.
+   * 
+   * Los ejemplos oficiales de GHL no muestran esto porque asumen una sola
+   * sesión activa, pero en una app multi-tenant siempre debemos pasarlo.
+   */
+  public async getContact(contactId: string, locationId: string): Promise<any> {
+    try {
+      await this.ensureInitialized();
+      
+      // Cuando el endpoint no acepta locationId como parámetro,
+      // se debe pasar en los headers para que el SDK sepa qué token usar
+      const response = await this.ghl.contacts.getContact(
+        { contactId },
+        {
+          headers: {
+            locationId: locationId  // ← Requerido en app multi-tenant
+          }
+        }
+      );
+      
+      return response.contact;
+    } catch (error) {
+      console.error('Error fetching GHL contact:', error);
+      throw new Error('Failed to fetch contact from GoHighLevel');
+    }
+  }
+
 
   /**
    * Obtener todas las sesiones almacenadas para esta aplicación
