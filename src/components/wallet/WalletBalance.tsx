@@ -78,13 +78,13 @@ export function WalletBalance({ className, isCollapsed = false, onRechargeClick 
 
   return (
     <div className={cn(
-      "bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow",
+      "bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col",
       className
     )}>
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center">
-          <Wallet className="w-5 h-5 text-blue-500 mr-2" />
-          <span className="text-sm font-medium text-gray-700">Balance</span>
+          <Wallet className="w-4 h-4 text-blue-500 mr-2" />
+          <span className="text-md font-medium text-gray-700">Balance</span>
         </div>
         <button
           onClick={fetchBalance}
@@ -92,15 +92,15 @@ export function WalletBalance({ className, isCollapsed = false, onRechargeClick 
           className="p-1 hover:bg-gray-100 rounded transition-colors"
         >
           <RefreshCw className={cn(
-            "w-4 h-4 text-gray-400",
+            "w-3 h-3 text-gray-400",
             loading && "animate-spin"
           )} />
         </button>
       </div>
 
       {error ? (
-        <div className="flex items-center text-red-600 text-sm">
-          <AlertCircle className="w-4 h-4 mr-1" />
+        <div className="flex items-center text-red-600 text-xs">
+          <AlertCircle className="w-3 h-3 mr-1" />
           {error}
         </div>
       ) : (
@@ -114,7 +114,7 @@ export function WalletBalance({ className, isCollapsed = false, onRechargeClick 
           {onRechargeClick && (
             <button
               onClick={onRechargeClick}
-              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold px-4 py-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
+              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed mt-auto"
             >
               Recargar Saldo
             </button>

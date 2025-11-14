@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
         signature,
         config.stripe.webhookSecret
       );
+      console.log(`[Stripe Webhook] Evento verificado: ${event.type} (ID: ${event.id})`);
     } catch (err: any) {
       console.error('[Stripe Webhook] Error verificando firma:', err.message);
       return NextResponse.json(
@@ -46,19 +47,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Procesar el evento
+    console.log(`[Stripe Webhook] Iniciando procesamiento del evento ${event.type}...`);
     const result = await handleStripeWebhook(event);
 
     if (!result.success) {
-      console.error('[Stripe Webhook] Error procesando evento:', result.error);
+      console.error('[Stripe Webhook] ❌ Error procesando evento:', result.error);
       return NextResponse.json(
         { success: false, error: result.error },
         { status: 500 }
       );
     }
 
+    console.log(`[Stripe Webhook] ✅ Evento ${event.type} procesado exitosamente`);
     return NextResponse.json({
       success: true,
       received: true,
+      eventType: event.type,
+      eventId: event.id,
     });
   } catch (error) {
     console.error('[Stripe Webhook] Error inesperado:', error);

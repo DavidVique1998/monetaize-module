@@ -101,52 +101,52 @@ export function WalletTransactions({ className, limit = 20 }: WalletTransactions
   };
 
   return (
-    <div className={cn("bg-white rounded-lg border border-gray-200 p-6", className)}>
-      <div className="flex items-center justify-between mb-4">
+    <div className={cn("bg-white rounded-lg border border-gray-200 p-4", className)}>
+      <div className="flex items-center justify-between mb-3">
         <div className="flex items-center">
-          <History className="w-5 h-5 text-gray-600 mr-2" />
-          <h3 className="text-lg font-semibold text-gray-900">Historial de Transacciones</h3>
+          <History className="w-4 h-4 text-gray-600 mr-2" />
+          <h3 className="text-base font-semibold text-gray-900">Historial de Transacciones</h3>
         </div>
         <button
           onClick={fetchTransactions}
           disabled={loading}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
         >
           <RefreshCw className={cn(
-            "w-4 h-4 text-gray-400",
+            "w-3.5 h-3.5 text-gray-400",
             loading && "animate-spin"
           )} />
         </button>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-2 mb-3">
+          <p className="text-xs text-red-600">{error}</p>
         </div>
       )}
 
       {loading && !history ? (
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
+        <div className="flex items-center justify-center py-6">
+          <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
         </div>
       ) : history && history.transactions.length > 0 ? (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {history.transactions.map((transaction) => (
             <div
               key={transaction.id}
-              className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <div className="flex items-center space-x-3 flex-1">
+              <div className="flex items-center space-x-2 flex-1 min-w-0">
                 <div className="flex-shrink-0">
                   {getTransactionIcon(transaction.type)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-2">
-                    <p className="text-sm font-medium text-gray-900">
+                  <div className="flex items-center space-x-2 flex-wrap">
+                    <p className="text-xs font-medium text-gray-900">
                       {getTransactionLabel(transaction.type)}
                     </p>
                     <span className={cn(
-                      "text-xs px-2 py-0.5 rounded-full",
+                      "text-xs px-1.5 py-0.5 rounded-full",
                       transaction.status === 'COMPLETED'
                         ? "bg-green-100 text-green-700"
                         : transaction.status === 'PENDING'
@@ -159,19 +159,19 @@ export function WalletTransactions({ className, limit = 20 }: WalletTransactions
                     </span>
                   </div>
                   {transaction.description && (
-                    <p className="text-xs text-gray-500 mt-1">{transaction.description}</p>
+                    <p className="text-xs text-gray-500 mt-0.5 truncate">{transaction.description}</p>
                   )}
                   {transaction.metricType && (
                     <p className="text-xs text-gray-500">
                       {transaction.metricType}: {transaction.metricValue}
                     </p>
                   )}
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-400 mt-0.5">
                     {formatDate(transaction.createdAt)}
                   </p>
                 </div>
               </div>
-              <div className="text-right flex-shrink-0 ml-4">
+              <div className="text-right flex-shrink-0 ml-3">
                 <p className={cn(
                   "text-sm font-semibold",
                   transaction.type === 'RECHARGE' || transaction.type === 'REFUND'
@@ -179,19 +179,19 @@ export function WalletTransactions({ className, limit = 20 }: WalletTransactions
                     : "text-red-600"
                 )}>
                   {transaction.type === 'RECHARGE' || transaction.type === 'REFUND' ? '+' : '-'}
-                  ${Math.abs(transaction.amount).toFixed(2)}
+                  ${Math.abs(Number(transaction.amount)).toFixed(2)}
                 </p>
                 <p className="text-xs text-gray-500">
-                  Balance: ${transaction.balanceAfter.toFixed(2)}
+                  ${Number(transaction.balanceAfter).toFixed(2)}
                 </p>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="text-center py-8">
-          <History className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-sm text-gray-500">No hay transacciones aún</p>
+        <div className="text-center py-6">
+          <History className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+          <p className="text-xs text-gray-500">No hay transacciones aún</p>
         </div>
       )}
     </div>

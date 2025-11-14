@@ -49,6 +49,7 @@ export function useSidebarNavigation() {
     },
     { id: 'widgets', label: 'Widgets', href: '/widgets', iconName: 'grid-3x3' },
     // Tercera sección
+    { id: 'wallet', label: 'Wallet', href: '/wallet', iconName: 'wallet' },
     { id: 'settings', label: 'Settings', href: '/settings', iconName: 'settings' },
     { id: 'help', label: 'Help', href: '/help', iconName: 'help-circle' },
   ];

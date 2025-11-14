@@ -222,6 +222,8 @@ export async function addCredits(
         },
       });
 
+      console.log(`[Wallet] Balance actualizado: $${currentBalance.toFixed(2)} → $${newBalance.toFixed(2)}`);
+
       // Si hay un payment link, actualizar su estado
       if (paymentLinkId) {
         await tx.paymentLink.update({
@@ -231,6 +233,7 @@ export async function addCredits(
             paidAt: new Date(),
           },
         });
+        console.log(`[Wallet] Payment link ${paymentLinkId} marcado como pagado`);
       }
 
       return {
@@ -280,8 +283,21 @@ export async function getTransactionHistory(
     where: { walletId: wallet.id },
   });
 
+  // Convertir Decimal a número para evitar errores en el frontend
+  const formattedTransactions = transactions.map(transaction => ({
+    ...transaction,
+    amount: Number(transaction.amount),
+    balanceBefore: Number(transaction.balanceBefore),
+    balanceAfter: Number(transaction.balanceAfter),
+    metricValue: transaction.metricValue ? Number(transaction.metricValue) : null,
+    paymentLink: transaction.paymentLink ? {
+      ...transaction.paymentLink,
+      amount: Number(transaction.paymentLink.amount),
+    } : undefined,
+  }));
+
   return {
-    transactions,
+    transactions: formattedTransactions,
     total,
     limit,
     offset,

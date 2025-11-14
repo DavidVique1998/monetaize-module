@@ -16,7 +16,8 @@ import {
   Grid3X3,
   Settings,
   HelpCircle,
-  Hash
+  Hash,
+  Wallet
 } from 'lucide-react';
 
 interface NavigationItemProps {
@@ -157,6 +158,7 @@ export function Navigation({ isCollapsed = false }: { isCollapsed?: boolean }) {
     'tag': <Tag className="w-5 h-5" />,
     'smartphone': <Smartphone className="w-5 h-5" />,
     'grid-3x3': <Grid3X3 className="w-5 h-5" />,
+    'wallet': <Wallet className="w-5 h-5" />,
     'settings': <Settings className="w-5 h-5" />,
     'help-circle': <HelpCircle className="w-5 h-5" />,
     'hash': <Hash className="w-5 h-5" />,

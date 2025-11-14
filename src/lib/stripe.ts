@@ -1,3 +1,4 @@
+
 /**
  * Servicio de Stripe - Manejo de pagos y links de pago
  * Proporciona funciones para crear links de pago, procesar webhooks y recarga automática
@@ -12,7 +13,7 @@ const prisma = new PrismaClient();
 
 // Inicializar Stripe
 export const stripe = new Stripe(config.stripe.secretKey, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2025-10-29.clover',
 });
 
 /**
@@ -61,15 +62,18 @@ export async function createPaymentLink(
         type: 'wallet_recharge',
       },
       after_completion: {
-        type: 'hosted_confirmation',
-        hosted_confirmation: {
-          custom_message: '¡Recarga exitosa! Tu saldo se actualizará en breve.',
+        type: 'redirect',
+        redirect: {
+          url: `${config.app.url}/wallet?recharge=success&amount=${amount}`,
         },
       },
-      expires_at: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // Expira en 24 horas
     });
 
     // Guardar payment link en la base de datos
+    // Calcular fecha de expiración (24 horas desde ahora)
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24);
+
     const dbPaymentLink = await prisma.paymentLink.create({
       data: {
         walletId: wallet.id,
@@ -78,9 +82,7 @@ export async function createPaymentLink(
         currency: currency,
         url: paymentLink.url,
         status: 'pending',
-        expiresAt: paymentLink.expires_at
-          ? new Date(paymentLink.expires_at * 1000)
-          : null,
+        expiresAt: expiresAt,
       },
     });
 
@@ -105,31 +107,39 @@ export async function handleStripeWebhook(
   event: Stripe.Event
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    console.log(`[Stripe Webhook] Evento recibido: ${event.type} (ID: ${event.id})`);
+    
     switch (event.type) {
       case 'checkout.session.completed':
+        console.log('[Stripe Webhook] Procesando checkout.session.completed');
         await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
         break;
 
       case 'payment_intent.succeeded':
+        console.log('[Stripe Webhook] Procesando payment_intent.succeeded');
         await handlePaymentIntentSucceeded(event.data.object as Stripe.PaymentIntent);
         break;
 
       case 'payment_link.updated':
+        console.log('[Stripe Webhook] Procesando payment_link.updated');
         await handlePaymentLinkUpdated(event.data.object as Stripe.PaymentLink);
         break;
 
       case 'checkout.session.async_payment_succeeded':
+        console.log('[Stripe Webhook] Procesando checkout.session.async_payment_succeeded');
         // Para payment links con pagos asíncronos
         await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
         break;
 
       default:
-        console.log(`[Stripe] Evento no manejado: ${event.type}`);
+        console.log(`[Stripe Webhook] Evento no manejado: ${event.type}`);
     }
 
+    console.log(`[Stripe Webhook] Evento ${event.type} procesado exitosamente`);
     return { success: true };
   } catch (error: any) {
-    console.error('[Stripe] Error al procesar webhook:', error);
+    console.error('[Stripe Webhook] Error al procesar webhook:', error);
+    console.error('[Stripe Webhook] Stack trace:', error.stack);
     return {
       success: false,
       error: error.message || 'Error al procesar webhook',
@@ -141,6 +151,15 @@ export async function handleStripeWebhook(
  * Manejar checkout session completada
  */
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
+  console.log('[Stripe] Procesando checkout session completada:', {
+    sessionId: session.id,
+    paymentStatus: session.payment_status,
+    paymentIntent: session.payment_intent,
+    paymentLink: session.payment_link,
+    metadata: session.metadata,
+    amountTotal: session.amount_total,
+  });
+
   const walletId = session.metadata?.walletId;
   const userId = session.metadata?.userId;
   const amount = session.amount_total ? session.amount_total / 100 : 0; // Convertir de centavos a dólares
@@ -150,9 +169,12 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       walletId,
       userId,
       amount,
+      sessionId: session.id,
     });
     return;
   }
+
+  console.log(`[Stripe] Procesando recarga: $${amount} para wallet ${walletId}`);
 
   // Buscar payment link por payment link ID, metadata o por wallet
   let paymentLink = null;
@@ -189,14 +211,21 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   }
 
   // Agregar créditos a la wallet
-  await addCredits(
+  console.log(`[Stripe] Agregando créditos a wallet ${walletId}...`);
+  const result = await addCredits(
     walletId,
     amount,
     session.payment_intent as string,
     paymentLink?.id
   );
 
-  console.log(`[Stripe] Recarga completada: $${amount} para wallet ${walletId}`);
+  if (result.success) {
+    console.log(`[Stripe] ✅ Recarga completada exitosamente: $${amount} para wallet ${walletId}`);
+    console.log(`[Stripe] Nuevo balance: $${result.newBalance.toFixed(2)}`);
+    console.log(`[Stripe] Transaction ID: ${result.transactionId}`);
+  } else {
+    console.error(`[Stripe] ❌ Error al agregar créditos: ${result.error}`);
+  }
 }
 
 /**
@@ -244,15 +273,23 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
 
   const amount = paymentIntent.amount / 100; // Convertir de centavos a dólares
 
+  console.log(`[Stripe] Procesando payment intent: $${amount} para wallet ${paymentLink.walletId}`);
+
   // Agregar créditos
-  await addCredits(
+  const result = await addCredits(
     paymentLink.walletId,
     amount,
     paymentIntent.id,
     paymentLink.id
   );
 
-  console.log(`[Stripe] Recarga completada: $${amount} para wallet ${paymentLink.walletId}`);
+  if (result.success) {
+    console.log(`[Stripe] ✅ Recarga completada exitosamente: $${amount} para wallet ${paymentLink.walletId}`);
+    console.log(`[Stripe] Nuevo balance: $${result.newBalance.toFixed(2)}`);
+    console.log(`[Stripe] Transaction ID: ${result.transactionId}`);
+  } else {
+    console.error(`[Stripe] ❌ Error al agregar créditos: ${result.error}`);
+  }
 }
 
 /**
