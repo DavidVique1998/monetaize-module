@@ -128,3 +128,21 @@ select:disabled {
   color: #6b7280; /* text-gray-500 */
   cursor: not-allowed;
 }
+
+/* Stripe Elements Styles */
+.StripeElement {
+  width: 100%;
+  padding: 0;
+}
+
+.StripeElement--focus {
+  outline: none;
+}
+
+.StripeElement--invalid {
+  color: #ef4444;
+}
+
+.StripeElement--webkit-autofill {
+  background-color: #fef3c7 !important;
+}

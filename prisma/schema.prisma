@@ -38,6 +38,9 @@ model User {
   ghlLocationWebsite String?
   ghlLocationTimezone String?
 
+  // Stripe integration fields
+  stripeCustomerId String? @unique // ID del customer en Stripe
+
   // Relations
   agents        Agent[]
   phoneNumbers  PhoneNumber[]
@@ -47,6 +50,7 @@ model User {
   @@index([ghlLocationId])
   @@index([ghlCompanyId])
   @@index([role])
+  @@index([stripeCustomerId])
 }
 
 // Agent model for AI assistants

@@ -40,7 +40,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       
       {/* Main Content */}
       <div className={cn(
-        "flex-1 flex flex-col overflow-hidden",
+        "flex-1 flex flex-col overflow-auto",
         isPinned ? "pl-64" : "pl-12"
       )}>
         {children}

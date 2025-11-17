@@ -1,6 +1,8 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronDown, ChevronUp, User, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface UserProfileProps {
@@ -13,6 +15,38 @@ interface UserProfileProps {
   onClick?: () => void;
 }
 
+interface MenuItemProps {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  isDanger?: boolean;
+}
+
+function MenuItem({ icon, label, onClick, isDanger = false }: MenuItemProps) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "w-full flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 cursor-pointer",
+        "hover:bg-blue-50 hover:scale-[1.02] hover:shadow-sm",
+        "focus:outline-none",
+        isDanger
+          ? "text-red-600 hover:text-red-700 hover:bg-red-50"
+          : "text-gray-700 hover:text-blue-700",
+        "group"
+      )}
+    >
+      <div className={cn(
+        "mr-3 flex-shrink-0 transition-colors duration-200",
+        isDanger ? "text-red-500 group-hover:text-red-600" : "text-gray-400 group-hover:text-blue-600"
+      )}>
+        {icon}
+      </div>
+      <span className="flex-1 text-left">{label}</span>
+    </button>
+  );
+}
+
 export function UserProfile({ 
   name, 
   email, 
@@ -23,18 +57,53 @@ export function UserProfile({
   onClick
 }: UserProfileProps) {
   const router = useRouter();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const handleClick = () => {
+  // Cerrar dropdown al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
+
+  const handleToggleDropdown = () => {
     if (onClick) {
       onClick();
     } else {
-      router.push('/profile');
+      setIsDropdownOpen(!isDropdownOpen);
     }
   };
+
+  const handleViewProfile = () => {
+    setIsDropdownOpen(false);
+    router.push('/profile');
+  };
+
+  const handleLogout = async () => {
+    setIsDropdownOpen(false);
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      router.push('/install_ghl');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
   if (isCollapsed) {
     return (
       <div 
-        onClick={handleClick}
+        onClick={handleToggleDropdown}
         className={cn(
           "flex items-center justify-center p-2 hover:bg-gray-50 rounded-lg transition-all duration-200 cursor-pointer group",
           className
@@ -58,33 +127,57 @@ export function UserProfile({
   }
 
   return (
-    <div 
-      onClick={handleClick}
-      className={cn(
-        "flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-all duration-200 cursor-pointer group",
-        className
-      )}
-    >
-      <div className="flex items-center">
-        {avatar ? (
-          <img 
-            src={avatar} 
-            alt={name}
-            className="w-8 h-8 rounded-lg object-cover mr-3 ring-2 ring-blue-200 group-hover:ring-blue-300 transition-all duration-200"
-          />
-        ) : (
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3 ring-2 ring-blue-200 group-hover:ring-blue-300 transition-all duration-200">
-            <span className="text-xs font-medium text-white">
-              {initials}
-            </span>
-          </div>
+    <div ref={dropdownRef} className="relative">
+      <div 
+        onClick={handleToggleDropdown}
+        className={cn(
+          "flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-all duration-200 cursor-pointer group",
+          isDropdownOpen && "bg-gray-50",
+          className
         )}
-        <div className="flex flex-col">
-          <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">{name}</span>
-          <span className="text-xs text-gray-500 group-hover:text-gray-600 transition-colors">{email}</span>
+      >
+        <div className="flex items-center">
+          {avatar ? (
+            <img 
+              src={avatar} 
+              alt={name}
+              className="w-8 h-8 rounded-lg object-cover mr-3 ring-2 ring-blue-200 group-hover:ring-blue-300 transition-all duration-200"
+            />
+          ) : (
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3 ring-2 ring-blue-200 group-hover:ring-blue-300 transition-all duration-200">
+              <span className="text-xs font-medium text-white">
+                {initials}
+              </span>
+            </div>
+          )}
+          <div className="flex flex-col">
+            <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">{name}</span>
+            <span className="text-xs text-gray-500 group-hover:text-gray-600 transition-colors">{email}</span>
+          </div>
         </div>
+        {isDropdownOpen ? (
+          <ChevronUp className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
+        ) : (
+          <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
+        )}
       </div>
-      <ChevronLeft className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
+
+      {/* Dropdown Menu */}
+      {isDropdownOpen && (
+        <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg border border-gray-200 shadow-lg py-2 z-50 transform transition-all duration-200 ease-out opacity-100 translate-y-0">
+          <MenuItem
+            icon={<User className="w-4 h-4" />}
+            label="Ver Perfil"
+            onClick={handleViewProfile}
+          />
+          <MenuItem
+            icon={<LogOut className="w-4 h-4" />}
+            label="Cerrar Sesión"
+            onClick={handleLogout}
+            isDanger={true}
+          />
+        </div>
+      )}
     </div>
   );
 }

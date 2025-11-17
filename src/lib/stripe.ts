@@ -131,6 +131,18 @@ export async function handleStripeWebhook(
         await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
         break;
 
+      case 'setup_intent.succeeded':
+        console.log('[Stripe Webhook] Procesando setup_intent.succeeded');
+        // El Setup Intent se maneja en el frontend, pero podemos registrar aquí
+        break;
+
+      case 'payment_intent.payment_failed':
+        console.log('[Stripe Webhook] Procesando payment_intent.payment_failed');
+        // Manejar pagos fallidos (útil para notificaciones)
+        const failedPaymentIntent = event.data.object as Stripe.PaymentIntent;
+        console.warn(`[Stripe] Pago fallido: ${failedPaymentIntent.id} - ${failedPaymentIntent.last_payment_error?.message}`);
+        break;
+
       default:
         console.log(`[Stripe Webhook] Evento no manejado: ${event.type}`);
     }
@@ -143,6 +155,214 @@ export async function handleStripeWebhook(
     return {
       success: false,
       error: error.message || 'Error al procesar webhook',
+    };
+  }
+}
+
+/**
+ * Obtener o crear un Stripe Customer para un usuario
+ */
+export async function getOrCreateStripeCustomer(userId: string, email: string, name?: string): Promise<string> {
+  try {
+    // Buscar si el usuario ya tiene un customer ID guardado
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new Error('Usuario no encontrado');
+    }
+
+    // Si el usuario ya tiene un customer ID guardado, verificar que existe en Stripe
+    if (user.stripeCustomerId) {
+      try {
+        // Verificar que el customer existe en Stripe
+        const customer = await stripe.customers.retrieve(user.stripeCustomerId);
+        
+        // Si el customer fue eliminado, Stripe retorna un objeto con deleted: true
+        if (customer.deleted) {
+          console.warn(`[Stripe] Customer ${user.stripeCustomerId} fue eliminado en Stripe, creando uno nuevo`);
+        } else {
+          return user.stripeCustomerId;
+        }
+      } catch (error: any) {
+        // Si el customer no existe (error 404), crear uno nuevo
+        if (error.code === 'resource_missing') {
+          console.warn(`[Stripe] Customer ${user.stripeCustomerId} no existe en Stripe, creando uno nuevo`);
+        } else {
+          throw error;
+        }
+      }
+    }
+
+    // Crear nuevo customer en Stripe
+    const customer = await stripe.customers.create({
+      email: email,
+      name: name || undefined,
+      metadata: {
+        userId: userId,
+      },
+    });
+
+    // Guardar customer ID en la base de datos
+    await prisma.user.update({
+      where: { id: userId },
+      data: { stripeCustomerId: customer.id },
+    });
+
+    console.log(`[Stripe] Customer creado y guardado: ${customer.id} para usuario ${userId}`);
+
+    return customer.id;
+  } catch (error: any) {
+    console.error('[Stripe] Error creando/obteniendo customer:', error);
+    throw new Error(`Error creando customer: ${error.message}`);
+  }
+}
+
+/**
+ * Crear un Setup Intent para guardar un método de pago
+ * Esto permite al usuario guardar su tarjeta de forma segura
+ */
+export async function createSetupIntent(
+  userId: string,
+  email: string,
+  name?: string
+): Promise<{
+  success: boolean;
+  clientSecret?: string;
+  setupIntentId?: string;
+  error?: string;
+}> {
+  try {
+    const customerId = await getOrCreateStripeCustomer(userId, email, name);
+
+    const setupIntent = await stripe.setupIntents.create({
+      customer: customerId,
+      payment_method_types: ['card'],
+      metadata: {
+        userId: userId,
+        type: 'wallet_payment_method',
+      },
+    });
+
+    return {
+      success: true,
+      clientSecret: setupIntent.client_secret || undefined,
+      setupIntentId: setupIntent.id,
+    };
+  } catch (error: any) {
+    console.error('[Stripe] Error creando setup intent:', error);
+    return {
+      success: false,
+      error: error.message || 'Error creando setup intent',
+    };
+  }
+}
+
+/**
+ * Cargar directamente usando un Payment Method guardado
+ * Esta función se usa para recargas automáticas
+ */
+export async function chargePaymentMethod(
+  userId: string,
+  paymentMethodId: string,
+  amount: number,
+  currency: string = 'USD'
+): Promise<{
+  success: boolean;
+  paymentIntentId?: string;
+  error?: string;
+}> {
+  try {
+    // Obtener información del usuario
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        wallet: true,
+      },
+    });
+
+    if (!user || !user.wallet) {
+      return {
+        success: false,
+        error: 'Usuario o wallet no encontrado',
+      };
+    }
+
+    // Obtener o crear customer
+    const customerId = await getOrCreateStripeCustomer(
+      userId,
+      user.email,
+      user.name || undefined
+    );
+
+    // Verificar que el payment method pertenece al customer
+    const paymentMethod = await stripe.paymentMethods.retrieve(paymentMethodId);
+    
+    if (paymentMethod.customer && paymentMethod.customer !== customerId) {
+      // Si el payment method tiene un customer diferente, attacharlo al customer correcto
+      await stripe.paymentMethods.attach(paymentMethodId, {
+        customer: customerId,
+      });
+    } else if (!paymentMethod.customer) {
+      // Si no tiene customer, attacharlo
+      await stripe.paymentMethods.attach(paymentMethodId, {
+        customer: customerId,
+      });
+    }
+
+    // Crear Payment Intent para cobrar
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // Convertir a centavos
+      currency: currency.toLowerCase(),
+      customer: customerId,
+      payment_method: paymentMethodId,
+      confirm: true, // Confirmar automáticamente
+      return_url: `${config.app.url}/wallet?recharge=success&amount=${amount}`,
+      metadata: {
+        userId: userId,
+        walletId: user.wallet.id,
+        type: 'auto_recharge',
+      },
+      description: `Recarga automática de wallet: $${amount.toFixed(2)}`,
+    });
+
+    // Si el pago fue exitoso, agregar créditos a la wallet
+    if (paymentIntent.status === 'succeeded') {
+      const result = await addCredits(
+        user.wallet.id,
+        amount,
+        paymentIntent.id
+      );
+
+      if (!result.success) {
+        console.error('[Stripe] Error agregando créditos después de cobro exitoso:', result.error);
+        // El pago ya se procesó, pero no se agregaron créditos
+        // Esto debería manejarse con un webhook o proceso de reconciliación
+      }
+    }
+
+    return {
+      success: paymentIntent.status === 'succeeded',
+      paymentIntentId: paymentIntent.id,
+      error: paymentIntent.status !== 'succeeded' 
+        ? `Payment status: ${paymentIntent.status}` 
+        : undefined,
+    };
+  } catch (error: any) {
+    console.error('[Stripe] Error cargando payment method:', error);
+    
+    // Manejar errores específicos de Stripe
+    if (error.type === 'StripeCardError') {
+      return {
+        success: false,
+        error: error.message || 'Error procesando la tarjeta',
+      };
+    }
+
+    return {
+      success: false,
+      error: error.message || 'Error procesando el pago',
     };
   }
 }
@@ -246,20 +466,28 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     });
   }
 
-  // Si no se encuentra, buscar por invoice (payment links crean invoices)
-  if (!paymentLink && paymentIntent.invoice) {
+  // Si no se encuentra, buscar por invoice (payment links pueden crear invoices)
+  // Nota: Payment Intents pueden tener invoice_id pero no invoice directamente
+  if (!paymentLink && (paymentIntent as any).invoice) {
     // Obtener el invoice de Stripe para encontrar el payment link
     try {
-      const invoice = await stripe.invoices.retrieve(paymentIntent.invoice as string);
-      if (invoice.subscription_details?.metadata?.payment_link_id) {
-        paymentLink = await prisma.paymentLink.findUnique({
-          where: {
-            stripeLinkId: invoice.subscription_details.metadata.payment_link_id,
-          },
-          include: {
-            wallet: true,
-          },
-        });
+      const invoiceId = typeof (paymentIntent as any).invoice === 'string' 
+        ? (paymentIntent as any).invoice 
+        : (paymentIntent as any).invoice?.id;
+      
+      if (invoiceId) {
+        const invoice = await stripe.invoices.retrieve(invoiceId);
+        // Los invoices pueden tener metadata con información del payment link
+        if (invoice.metadata?.payment_link_id) {
+          paymentLink = await prisma.paymentLink.findUnique({
+            where: {
+              stripeLinkId: invoice.metadata.payment_link_id,
+            },
+            include: {
+              wallet: true,
+            },
+          });
+        }
       }
     } catch (error) {
       console.error('[Stripe] Error obteniendo invoice:', error);
@@ -312,6 +540,7 @@ async function handlePaymentLinkUpdated(paymentLink: Stripe.PaymentLink) {
 export async function processAutoRecharge(walletId: string): Promise<{
   success: boolean;
   paymentLinkId?: string;
+  paymentIntentId?: string;
   url?: string;
   error?: string;
 }> {
@@ -345,8 +574,32 @@ export async function processAutoRecharge(walletId: string): Promise<{
 
     // Si hay un método de pago guardado, intentar cobro directo
     if (wallet.autoRecharge.paymentMethodId) {
-      // TODO: Implementar cobro directo con payment method guardado
-      // Por ahora, creamos un payment link
+      console.log(`[Stripe] Intentando cobro directo con payment method ${wallet.autoRecharge.paymentMethodId}`);
+      const directChargeResult = await chargePaymentMethod(
+        wallet.userId,
+        wallet.autoRecharge.paymentMethodId,
+        rechargeAmount,
+        wallet.currency
+      );
+
+      if (directChargeResult.success) {
+        // Actualizar última recarga
+        await prisma.autoRechargeSettings.update({
+          where: { id: wallet.autoRecharge.id },
+          data: {
+            lastRechargeAt: new Date(),
+          },
+        });
+
+        console.log(`[Stripe] ✅ Recarga automática completada: $${rechargeAmount} para wallet ${walletId}`);
+        return {
+          success: true,
+          paymentIntentId: directChargeResult.paymentIntentId,
+        };
+      } else {
+        console.warn(`[Stripe] ⚠️ Cobro directo falló: ${directChargeResult.error}. Creando payment link como fallback.`);
+        // Continuar con payment link como fallback
+      }
     }
 
     // Crear payment link para recarga automática
@@ -381,8 +634,30 @@ export async function processAutoRecharge(walletId: string): Promise<{
 /**
  * Verificar y procesar recargas automáticas pendientes
  * Esta función debe ejecutarse periódicamente (cron job)
+ * 
+ * @returns Información sobre el proceso de verificación
  */
-export async function checkAndProcessAutoRecharges() {
+export async function checkAndProcessAutoRecharges(): Promise<{
+  processed: number;
+  skipped: number;
+  errors: number;
+  details: Array<{
+    walletId: string;
+    status: 'processed' | 'skipped' | 'error';
+    reason?: string;
+  }>;
+}> {
+  const result = {
+    processed: 0,
+    skipped: 0,
+    errors: 0,
+    details: [] as Array<{
+      walletId: string;
+      status: 'processed' | 'skipped' | 'error';
+      reason?: string;
+    }>,
+  };
+
   try {
     const wallets = await prisma.wallet.findMany({
       where: {
@@ -395,24 +670,71 @@ export async function checkAndProcessAutoRecharges() {
       },
     });
 
+    console.log(`[Stripe] Verificando ${wallets.length} wallets con recarga automática habilitada`);
+
     for (const wallet of wallets) {
-      const currentBalance = Number(wallet.balance);
-      const threshold = Number(wallet.autoRecharge!.threshold);
+      try {
+        const currentBalance = Number(wallet.balance);
+        const threshold = Number(wallet.autoRecharge!.threshold);
 
-      if (currentBalance <= threshold) {
-        // Verificar si ya se procesó una recarga recientemente (últimas 24 horas)
-        const lastRecharge = wallet.autoRecharge!.lastRechargeAt;
-        const hoursSinceLastRecharge = lastRecharge
-          ? (Date.now() - lastRecharge.getTime()) / (1000 * 60 * 60)
-          : Infinity;
+        if (currentBalance <= threshold) {
+          // Verificar si ya se procesó una recarga recientemente (últimas 24 horas)
+          const lastRecharge = wallet.autoRecharge!.lastRechargeAt;
+          const hoursSinceLastRecharge = lastRecharge
+            ? (Date.now() - lastRecharge.getTime()) / (1000 * 60 * 60)
+            : Infinity;
 
-        if (hoursSinceLastRecharge > 24) {
-          await processAutoRecharge(wallet.id);
+          if (hoursSinceLastRecharge > 24) {
+            const rechargeResult = await processAutoRecharge(wallet.id);
+            
+            if (rechargeResult.success) {
+              result.processed++;
+              result.details.push({
+                walletId: wallet.id,
+                status: 'processed',
+                reason: `Recarga iniciada: $${wallet.autoRecharge!.rechargeAmount}`,
+              });
+            } else {
+              result.errors++;
+              result.details.push({
+                walletId: wallet.id,
+                status: 'error',
+                reason: rechargeResult.error || 'Error desconocido',
+              });
+            }
+          } else {
+            result.skipped++;
+            result.details.push({
+              walletId: wallet.id,
+              status: 'skipped',
+              reason: `Recarga reciente (hace ${Math.round(hoursSinceLastRecharge)} horas)`,
+            });
+          }
+        } else {
+          result.skipped++;
+          result.details.push({
+            walletId: wallet.id,
+            status: 'skipped',
+            reason: `Balance ($${currentBalance}) por encima del umbral ($${threshold})`,
+          });
         }
+      } catch (error: any) {
+        result.errors++;
+        result.details.push({
+          walletId: wallet.id,
+          status: 'error',
+          reason: error.message || 'Error procesando wallet',
+        });
+        console.error(`[Stripe] Error procesando wallet ${wallet.id}:`, error);
       }
     }
+
+    console.log(`[Stripe] Verificación completada: ${result.processed} procesadas, ${result.skipped} omitidas, ${result.errors} errores`);
   } catch (error) {
     console.error('[Stripe] Error al verificar recargas automáticas:', error);
+    throw error;
   }
+
+  return result;
 }
 

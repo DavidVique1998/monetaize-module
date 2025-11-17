@@ -55,28 +55,28 @@ export function WalletBalanceCard({ className, onRechargeClick }: WalletBalanceC
 
   return (
     <div className={cn(
-      "bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6 shadow-lg hover:shadow-xl transition-all duration-300 h-full flex flex-col",
+      "bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6 shadow-lg hover:shadow-xl transition-all duration-300",
       className
     )}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center shadow-md">
-            <Wallet className="w-6 h-6 text-white" />
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-2">
+            <Wallet className="w-4 h-4 text-blue-600" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Balance de Wallet</h3>
-            <p className="text-sm text-gray-600">Saldo disponible</p>
+            <h3 className="text-base font-semibold text-gray-900">Balance de Wallet</h3>
+            <p className="text-xs text-gray-500">Saldo disponible</p>
           </div>
         </div>
         <button
           onClick={fetchBalance}
           disabled={loading}
-          className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+          className="p-1.5 hover:bg-white/50 rounded-lg transition-colors"
           title="Actualizar balance"
         >
           <RefreshCw className={cn(
-            "w-5 h-5 text-blue-600",
+            "w-4 h-4 text-blue-600",
             loading && "animate-spin"
           )} />
         </button>
@@ -90,9 +90,9 @@ export function WalletBalanceCard({ className, onRechargeClick }: WalletBalanceC
       ) : (
         <>
           {/* Balance principal */}
-          <div className="mb-6">
+          <div className="mb-4">
             <div className={cn(
-              "text-5xl font-bold mb-2 transition-colors",
+              "text-3xl font-bold mb-2 transition-colors",
               isNegative ? "text-red-600" : "text-green-600"
             )}>
               {formattedBalance}
@@ -103,16 +103,14 @@ export function WalletBalanceCard({ className, onRechargeClick }: WalletBalanceC
             </div>
           </div>
 
-          {/* Botón de recarga - se posiciona al final */}
+          {/* Botón de recarga */}
           {onRechargeClick && (
-            <div className="mt-auto">
-              <button
-                onClick={onRechargeClick}
-                className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
-              >
-                Recargar Saldo
-              </button>
-            </div>
+            <button
+              onClick={onRechargeClick}
+              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+            >
+              Recargar Saldo
+            </button>
           )}
         </>
       )}

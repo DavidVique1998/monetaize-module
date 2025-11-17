@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Settings, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Settings, Loader2, CheckCircle2, AlertCircle, CreditCard } from 'lucide-react';
+import { PaymentMethodManager } from './PaymentMethodManager';
 
 interface AutoRechargeSettingsProps {
   className?: string;
@@ -56,6 +57,12 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
   };
 
   const handleSave = async () => {
+    // Validar que si está habilitado, tenga método de pago
+    if (enabled && !settings?.paymentMethodId) {
+      setError('Debes guardar un método de pago antes de habilitar la recarga automática');
+      return;
+    }
+
     try {
       setSaving(true);
       setError(null);
@@ -70,6 +77,8 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
           enabled,
           threshold,
           rechargeAmount,
+          // Incluir paymentMethodId si existe en settings
+          paymentMethodId: settings?.paymentMethodId || null,
         }),
       });
 
@@ -79,6 +88,8 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
         setSettings(data.data);
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
+        // Recargar configuración para obtener el paymentMethodId actualizado
+        await fetchSettings();
       } else {
         setError(data.error || 'Error al guardar configuración');
       }
@@ -88,6 +99,20 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handlePaymentMethodSaved = () => {
+    // Recargar configuración cuando se guarda un método de pago
+    fetchSettings();
+  };
+
+  const handlePaymentMethodRemoved = () => {
+    // Si se elimina el método de pago y está habilitado, deshabilitar
+    if (enabled) {
+      setEnabled(false);
+      setError('El método de pago fue eliminado. La recarga automática ha sido deshabilitada.');
+    }
+    fetchSettings();
   };
 
   if (loading) {
@@ -112,6 +137,14 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
         </div>
       </div>
 
+      {/* Componente de gestión de métodos de pago integrado */}
+      <div className="mb-4">
+        <PaymentMethodManager
+          onPaymentMethodSaved={handlePaymentMethodSaved}
+          onPaymentMethodRemoved={handlePaymentMethodRemoved}
+        />
+      </div>
+
       {error && (
         <div className="mb-3 bg-red-50 border border-red-200 rounded-lg p-2 flex items-start">
           <AlertCircle className="w-4 h-4 text-red-600 mr-2 flex-shrink-0 mt-0.5" />
@@ -127,6 +160,30 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
       )}
 
       <div className="space-y-3">
+        {/* Método de pago guardado */}
+        {settings?.paymentMethodId && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center space-x-2">
+            <CreditCard className="w-4 h-4 text-green-600 flex-shrink-0" />
+            <p className="text-sm text-green-700 flex-1">
+              Método de pago guardado. Las recargas se procesarán automáticamente.
+            </p>
+          </div>
+        )}
+
+        {enabled && !settings?.paymentMethodId && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-start space-x-2">
+            <AlertCircle className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-yellow-800">
+                Método de pago requerido
+              </p>
+              <p className="text-xs text-yellow-700 mt-1">
+                Para habilitar la recarga automática, primero debes guardar un método de pago.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Toggle habilitado */}
         <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
           <div className="flex-1">
@@ -134,15 +191,27 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
             <p className="text-md text-gray-500 mt-0.5">
               Recarga automáticamente cuando el saldo llegue al umbral
             </p>
+            {enabled && settings?.paymentMethodId && (
+              <p className="text-xs text-blue-600 mt-1">
+                Se cobrará automáticamente ${rechargeAmount} cuando el balance baje de ${threshold}
+              </p>
+            )}
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
               checked={enabled}
-              onChange={(e) => setEnabled(e.target.checked)}
+              onChange={(e) => {
+                if (e.target.checked && !settings?.paymentMethodId) {
+                  setError('Primero debes guardar un método de pago');
+                  return;
+                }
+                setEnabled(e.target.checked);
+              }}
+              disabled={!settings?.paymentMethodId}
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 peer-disabled:opacity-50 peer-disabled:cursor-not-allowed"></div>
           </label>
         </div>
 
@@ -190,7 +259,7 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
         {/* Información adicional */}
         {settings?.lastRechargeAt && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
-            <p className="text-md text-blue-700">
+            <p className="text-sm text-blue-700">
               Última recarga: {new Date(settings.lastRechargeAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
@@ -199,7 +268,7 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
         {/* Botón guardar */}
         <button
           onClick={handleSave}
-          disabled={saving || threshold <= 0 || rechargeAmount <= 0}
+          disabled={saving || threshold <= 0 || rechargeAmount <= 0 || (enabled && !settings?.paymentMethodId)}
           className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
         >
           {saving ? (

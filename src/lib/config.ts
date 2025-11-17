@@ -61,6 +61,11 @@ export const config = {
     timeout: parseInt(process.env.API_TIMEOUT || '30000'),
   },
 
+  // Cron Jobs Configuration
+  cron: {
+    secret: process.env.CRON_SECRET || 'change-this-secret-in-production',
+  },
+
   // Feature Flags
   features: {
     analytics: process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true',
