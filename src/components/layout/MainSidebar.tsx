@@ -6,7 +6,7 @@ import { Navigation } from '@/components/navigation/Navigation';
 import { WalletBalance } from '@/components/wallet/WalletBalance';
 import { RechargeModal } from '@/components/wallet/RechargeModal';
 import { UserProfile } from '@/components/ui/UserProfile';
-import { Phone, Pin, PinOff } from 'lucide-react';
+import { Phone, Pin, PinOff, Zap, ZapIcon, Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 
@@ -106,8 +106,8 @@ export function MainSidebar({
         {!isVisible ? (
           <>
             <SidebarHeader className="p-2">
-              <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md">
-                <Phone className="w-5 h-5 text-white" />
+              <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-300 rounded-lg shadow-md">
+                <Coins className="w-5 h-5 text-white" />
               </div>
             </SidebarHeader>
             <SidebarContent className="py-2">
@@ -127,13 +127,7 @@ export function MainSidebar({
             {/* Header con logo de Monetaize */}
             <SidebarHeader>
               <div className="flex items-center space-x-3">
-                <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md">
-                  <Phone className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xl font-bold text-gray-800">Monetaize</span>
-                  <span className="text-xs text-gray-500 font-medium">Agente de llamada</span>
-                </div>
+                <img src="/images/logo.png" alt="Monetaize"/>
               </div>
               
               {/* Botón de pin */}

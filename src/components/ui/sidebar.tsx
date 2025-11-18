@@ -24,7 +24,7 @@ interface SidebarHeaderProps {
 
 export function SidebarHeader({ children, className }: SidebarHeaderProps) {
   return (
-    <div className={cn("flex items-center justify-center p-6 border-b border-gray-200 bg-gray-50", className)}>
+    <div className={cn("flex items-center justify-center p-6 border-b border-gray-200 ", className)}>
       {children}
     </div>
   );

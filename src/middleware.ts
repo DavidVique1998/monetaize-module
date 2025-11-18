@@ -23,6 +23,7 @@ export async function middleware(request: NextRequest) {
     '/api/webhooks',
     '/api/auth/me', // Permitir verificar sesión sin autenticación
     '/api/wallet/consume-token', // Endpoint público que usa JWT para autenticación
+    '/api/wallet/consume-batch', // Endpoint público que usa JWT para autenticación (batch processing)
   ];
 
   // Verificar si la ruta es pública
@@ -44,12 +45,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Permitir acceso a rutas de API públicas (OAuth, webhooks, auth/me, y consume-token)
+  // Permitir acceso a rutas de API públicas (OAuth, webhooks, auth/me, consume-token, y consume-batch)
   if (isPublicRoute && (
     pathname.startsWith('/api/oauth') || 
     pathname.startsWith('/api/webhooks') ||
     pathname === '/api/auth/me' ||
-    pathname === '/api/wallet/consume-token'
+    pathname === '/api/wallet/consume-token' ||
+    pathname === '/api/wallet/consume-batch'
   )) {
     return NextResponse.next();
   }

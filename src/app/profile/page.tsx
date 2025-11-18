@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { HeaderBar } from '@/components/dashboard/HeaderBar';
-import { Save, Loader2, AlertCircle, CheckCircle, LogOut } from 'lucide-react';
+import { Save, Loader2, AlertCircle, CheckCircle, LogOut, Key, Copy, Check } from 'lucide-react';
 
 interface User {
   id: string;
@@ -29,6 +29,11 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  
+  // Token JWT state
+  const [jwtToken, setJwtToken] = useState<string | null>(null);
+  const [generatingToken, setGeneratingToken] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -109,6 +114,58 @@ export default function ProfilePage() {
       router.push('/install_ghl');
     } catch (error) {
       console.error('Error logging out:', error);
+    }
+  };
+
+  const handleGenerateToken = async () => {
+    setGeneratingToken(true);
+    setMessage(null);
+    
+    try {
+      const response = await fetch('/api/profile/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setJwtToken(result.data.token);
+        setMessage({
+          type: 'success',
+          text: 'Token JWT generado exitosamente'
+        });
+        setTimeout(() => setMessage(null), 3000);
+      } else {
+        setMessage({
+          type: 'error',
+          text: result.error || 'Error al generar el token'
+        });
+      }
+    } catch (error) {
+      console.error('Error generating token:', error);
+      setMessage({
+        type: 'error',
+        text: 'Error al generar el token'
+      });
+    } finally {
+      setGeneratingToken(false);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Error copying to clipboard:', err);
+      setMessage({
+        type: 'error',
+        text: 'Error al copiar al portapapeles'
+      });
     }
   };
 
@@ -216,6 +273,98 @@ export default function ProfilePage() {
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* Token JWT */}
+            <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <Key className="w-5 h-5 text-purple-600" />
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Token JWT para API
+                  </h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Genera un token para consumir créditos desde integraciones externas
+                  </p>
+                </div>
+              </div>
+
+              {!jwtToken ? (
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600">
+                    Genera un token JWT para autenticarte en los endpoints de consumo de créditos.
+                    Este token te permitirá consumir créditos desde aplicaciones externas.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleGenerateToken}
+                    disabled={generatingToken}
+                    className="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors disabled:cursor-not-allowed"
+                  >
+                    {generatingToken ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Generando...
+                      </>
+                    ) : (
+                      <>
+                        <Key className="w-4 h-4 mr-2" />
+                        Generar Token
+                      </>
+                    )}
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium text-gray-700">Tu Token JWT:</p>
+                    <button
+                      type="button"
+                      onClick={() => copyToClipboard(jwtToken)}
+                      className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors"
+                    >
+                      {copied ? (
+                        <>
+                          <Check className="w-4 h-4 mr-2" />
+                          Copiado
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-4 h-4 mr-2" />
+                          Copiar
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <div className="bg-gray-50 rounded border border-gray-200 p-3">
+                    <code className="text-xs text-gray-800 break-all block">{jwtToken}</code>
+                  </div>
+                  <div className="p-3 bg-blue-50 rounded border border-blue-200">
+                    <p className="text-xs font-semibold text-blue-900 mb-2">Ejemplo de uso:</p>
+                    <pre className="text-xs bg-white p-2 rounded overflow-x-auto border border-blue-100">
+{`curl -X POST ${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/api/wallet/consume-token \\
+  -H "Authorization: Bearer ${jwtToken.substring(0, 30)}..." \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "amount": 0.1,
+    "reason": "Consumo de créditos por llamada",
+    "metricType": "ai_call",
+    "metricValue": 1
+  }'`}
+                    </pre>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleGenerateToken}
+                    disabled={generatingToken}
+                    className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+                  >
+                    {generatingToken ? 'Generando...' : 'Generar nuevo token'}
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Formulario de edición */}

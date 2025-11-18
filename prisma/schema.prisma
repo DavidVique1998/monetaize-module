@@ -19,32 +19,32 @@ enum UserRole {
 
 // User model for authentication and user management
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  name          String?
-  role          UserRole  @default(LOCATION)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  role      UserRole @default(LOCATION)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // GoHighLevel integration fields
-  ghlLocationId String?   @unique
-  ghlCompanyId  String?
-  ghlLocationName String?
-  ghlLocationAddress String?
-  ghlLocationCity String?
-  ghlLocationState String?
-  ghlLocationPhone String?
-  ghlLocationEmail String?
-  ghlLocationWebsite String?
+  ghlLocationId       String? @unique
+  ghlCompanyId        String?
+  ghlLocationName     String?
+  ghlLocationAddress  String?
+  ghlLocationCity     String?
+  ghlLocationState    String?
+  ghlLocationPhone    String?
+  ghlLocationEmail    String?
+  ghlLocationWebsite  String?
   ghlLocationTimezone String?
 
   // Stripe integration fields
   stripeCustomerId String? @unique // ID del customer en Stripe
 
   // Relations
-  agents        Agent[]
-  phoneNumbers  PhoneNumber[]
-  wallet        Wallet?
+  agents       Agent[]
+  phoneNumbers PhoneNumber[]
+  wallet       Wallet?
 
   @@index([email])
   @@index([ghlLocationId])
@@ -55,34 +55,34 @@ model User {
 
 // Agent model for AI assistants
 model Agent {
-  id              String    @id
-  name            String
-  voiceId         String
-  language        String    @default("en-US")
-  prompt          String?   @db.Text
-  llmId           String?   @default("gpt-4o")
-  llmType         String    @default("custom-llm")
-  version         Int       @default(1)
-  isActive        Boolean   @default(true)
-  userId          String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id        String   @id
+  name      String
+  voiceId   String
+  language  String   @default("en-US")
+  prompt    String?  @db.Text
+  llmId     String?  @default("gpt-4o")
+  llmType   String   @default("custom-llm")
+  version   Int      @default(1)
+  isActive  Boolean  @default(true)
+  userId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Retell AI specific fields
-  retellAgentId   String?   @unique
+  retellAgentId     String? @unique
   enableBackchannel Boolean @default(true)
-  responsiveness  Float?    @default(0.7)
-  
+  responsiveness    Float?  @default(0.7)
+
   // Call settings
-  maxCallTime     Int?
-  silenceTimeout  Int?
-  recordingEnabled Boolean  @default(true)
+  maxCallTime        Int?
+  silenceTimeout     Int?
+  recordingEnabled   Boolean @default(true)
   voicemailDetection Boolean @default(false)
 
   // Relations
   owner           User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  phoneNumbers    PhoneNumber[]  @relation("InboundAgents")
-  outboundNumbers PhoneNumber[]  @relation("OutboundAgents")
+  phoneNumbers    PhoneNumber[] @relation("InboundAgents")
+  outboundNumbers PhoneNumber[] @relation("OutboundAgents")
   tags            AgentTag[]
 
   @@index([retellAgentId])
@@ -91,31 +91,31 @@ model Agent {
 
 // Phone Number model
 model PhoneNumber {
-  id                    String    @id @default(uuid())
-  phoneNumber           String    @unique
-  phoneNumberPretty     String?
-  phoneNumberType       String    @default("retell-twilio")
-  nickname              String?
-  areaCode              Int?
-  
+  id                String  @id @default(uuid())
+  phoneNumber       String  @unique
+  phoneNumberPretty String?
+  phoneNumberType   String  @default("retell-twilio")
+  nickname          String?
+  areaCode          Int?
+
   // Agent assignments
-  inboundAgentId        String?
-  outboundAgentId       String?
-  inboundAgentVersion   Int?
-  outboundAgentVersion  Int?
-  
+  inboundAgentId       String?
+  outboundAgentId      String?
+  inboundAgentVersion  Int?
+  outboundAgentVersion Int?
+
   // Webhooks
-  inboundWebhookUrl     String?
-  outboundWebhookUrl    String?
-  
+  inboundWebhookUrl  String?
+  outboundWebhookUrl String?
+
   // Relations
-  inboundAgent          Agent?  @relation("InboundAgents", fields: [inboundAgentId], references: [id])
-  outboundAgent         Agent?  @relation("OutboundAgents", fields: [outboundAgentId], references: [id])
-  userId                String?
-  owner                 User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  inboundAgent  Agent?  @relation("InboundAgents", fields: [inboundAgentId], references: [id])
+  outboundAgent Agent?  @relation("OutboundAgents", fields: [outboundAgentId], references: [id])
+  userId        String?
+  owner         User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([phoneNumber])
   @@index([inboundAgentId])
@@ -140,18 +140,18 @@ model Voice {
 
 // Contact model
 model Contact {
-  id            String   @id @default(uuid())
-  firstName     String?
-  lastName      String?
-  email         String?
-  phone         String
-  company       String?
-  notes         String?  @db.Text
-  tags          String[]
-  
-  userId        String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id        String   @id @default(uuid())
+  firstName String?
+  lastName  String?
+  email     String?
+  phone     String
+  company   String?
+  notes     String?  @db.Text
+  tags      String[]
+
+  userId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([phone])
   @@index([email])
@@ -167,7 +167,7 @@ model Tag {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  agents      AgentTag[]
+  agents AgentTag[]
 
   @@index([name])
 }
@@ -179,8 +179,8 @@ model AgentTag {
   tagId     String
   createdAt DateTime @default(now())
 
-  agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
-  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  tag   Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@unique([agentId, tagId])
   @@index([agentId])
@@ -189,21 +189,21 @@ model AgentTag {
 
 // Call/Conversation model for tracking AI interactions
 model Conversation {
-  id            String    @id @default(uuid())
-  conversationId String   @unique // Retell conversation ID
-  agentId       String
-  phoneNumber   String?
-  contactId     String?
-  direction     String    @default("outbound") // inbound or outbound
-  status        String    // ongoing, ended, etc.
-  duration      Int?      // in seconds
-  startTime     DateTime
-  endTime       DateTime?
-  recordingUrl  String?
-  transcript    String?   @db.Text
-  
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id             String    @id @default(uuid())
+  conversationId String    @unique // Retell conversation ID
+  agentId        String
+  phoneNumber    String?
+  contactId      String?
+  direction      String    @default("outbound") // inbound or outbound
+  status         String // ongoing, ended, etc.
+  duration       Int? // in seconds
+  startTime      DateTime
+  endTime        DateTime?
+  recordingUrl   String?
+  transcript     String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([conversationId])
   @@index([agentId])
@@ -213,28 +213,30 @@ model Conversation {
 
 // Wallet model - Billetera vinculada al usuario/location
 model Wallet {
-  id              String    @id @default(uuid())
-  userId          String    @unique
-  balance         Decimal   @default(0) @db.Decimal(10, 2) // Balance en dólares
-  currency        String    @default("USD")
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  balance   Decimal  @default(0) @db.Decimal(10, 2) // Balance en dólares
+  currency  String   @default("USD")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions    WalletTransaction[]
-  autoRecharge    AutoRechargeSettings?
-  paymentLinks    PaymentLink[]
+  user                User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions        WalletTransaction[]
+  autoRecharge        AutoRechargeSettings?
+  paymentLinks        PaymentLink[]
+  pendingConsumptions PendingConsumption[]
+  batchConfig         BatchProcessingConfig?
 
   @@index([userId])
 }
 
 // Transaction type enum
 enum TransactionType {
-  RECHARGE      // Recarga de saldo
-  CONSUMPTION   // Consumo de créditos
-  REFUND        // Reembolso
-  ADJUSTMENT    // Ajuste manual
+  RECHARGE // Recarga de saldo
+  CONSUMPTION // Consumo de créditos
+  REFUND // Reembolso
+  ADJUSTMENT // Ajuste manual
 }
 
 // Transaction status enum
@@ -247,30 +249,30 @@ enum TransactionStatus {
 
 // Wallet Transaction model - Registro de todas las transacciones
 model WalletTransaction {
-  id              String            @id @default(uuid())
-  walletId        String
-  type            TransactionType
-  status          TransactionStatus @default(PENDING)
-  amount          Decimal           @db.Decimal(10, 2) // Monto en dólares
-  balanceBefore   Decimal           @db.Decimal(10, 2)
-  balanceAfter    Decimal           @db.Decimal(10, 2)
-  
+  id            String            @id @default(uuid())
+  walletId      String
+  type          TransactionType
+  status        TransactionStatus @default(PENDING)
+  amount        Decimal           @db.Decimal(10, 2) // Monto en dólares
+  balanceBefore Decimal           @db.Decimal(10, 2)
+  balanceAfter  Decimal           @db.Decimal(10, 2)
+
   // Detalles de consumo (para métricas)
-  metricType      String?           // messages, tokens, conversations, minutes, etc.
-  metricValue     Decimal?          @db.Decimal(10, 2) // Valor consumido de la métrica
-  description     String?           @db.Text
-  
+  metricType  String? // messages, tokens, conversations, minutes, etc.
+  metricValue Decimal? @db.Decimal(10, 2) // Valor consumido de la métrica
+  description String?  @db.Text
+
   // Referencias externas
-  paymentLinkId   String?           // Si es una recarga, referencia al payment link
-  stripePaymentId String?           // ID del pago en Stripe
-  conversationId  String?           // Si es consumo de conversación
-  
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  paymentLinkId   String? // Si es una recarga, referencia al payment link
+  stripePaymentId String? // ID del pago en Stripe
+  conversationId  String? // Si es consumo de conversación
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  wallet          Wallet            @relation(fields: [walletId], references: [id], onDelete: Cascade)
-  paymentLink     PaymentLink?      @relation(fields: [paymentLinkId], references: [id])
+  wallet      Wallet       @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  paymentLink PaymentLink? @relation(fields: [paymentLinkId], references: [id])
 
   @@index([walletId])
   @@index([type])
@@ -281,21 +283,21 @@ model WalletTransaction {
 
 // Payment Link model - Links de pago de Stripe
 model PaymentLink {
-  id              String    @id @default(uuid())
-  walletId        String
-  stripeLinkId    String    @unique // ID del payment link en Stripe
-  amount          Decimal   @db.Decimal(10, 2) // Monto a recargar
-  currency        String    @default("USD")
-  url             String    @db.Text // URL del link de pago
-  status          String    @default("pending") // pending, paid, expired, cancelled
-  expiresAt       DateTime?
-  paidAt          DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id           String    @id @default(uuid())
+  walletId     String
+  stripeLinkId String    @unique // ID del payment link en Stripe
+  amount       Decimal   @db.Decimal(10, 2) // Monto a recargar
+  currency     String    @default("USD")
+  url          String    @db.Text // URL del link de pago
+  status       String    @default("pending") // pending, paid, expired, cancelled
+  expiresAt    DateTime?
+  paidAt       DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   // Relations
-  wallet          Wallet    @relation(fields: [walletId], references: [id], onDelete: Cascade)
-  transactions    WalletTransaction[]
+  wallet       Wallet              @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  transactions WalletTransaction[]
 
   @@index([walletId])
   @@index([stripeLinkId])
@@ -309,13 +311,56 @@ model AutoRechargeSettings {
   enabled         Boolean   @default(false)
   threshold       Decimal   @db.Decimal(10, 2) // Límite inferior para activar recarga
   rechargeAmount  Decimal   @db.Decimal(10, 2) // Monto a recargar automáticamente
-  paymentMethodId String?   // ID del método de pago guardado en Stripe
+  paymentMethodId String? // ID del método de pago guardado en Stripe
   lastRechargeAt  DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
   // Relations
-  wallet          Wallet    @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId])
+  @@index([enabled])
+}
+
+// Pending Consumption model - Consumos pendientes de procesar (acumulación)
+model PendingConsumption {
+  id             String    @id @default(uuid())
+  walletId       String
+  amount         Decimal   @db.Decimal(10, 2) // Monto en dólares a consumir
+  metricType     String? // Tipo de métrica: messages, tokens, conversations, minutes, etc.
+  metricValue    Decimal?  @db.Decimal(10, 2) // Valor de la métrica consumida
+  description    String?   @db.Text
+  conversationId String? // ID de conversación si aplica
+  batchId        String? // ID del lote al que pertenece (si ya fue agrupado)
+  processed      Boolean   @default(false) // Si ya fue procesado
+  processedAt    DateTime? // Fecha de procesamiento
+  createdAt      DateTime  @default(now())
+
+  // Relations
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId])
+  @@index([processed])
+  @@index([batchId])
+  @@index([createdAt])
+  @@index([walletId, processed])
+}
+
+// Batch Processing Config model - Configuración de procesamiento por lotes
+model BatchProcessingConfig {
+  id              String    @id @default(uuid())
+  walletId        String    @unique
+  enabled         Boolean   @default(true) // Si está habilitado el procesamiento por lotes
+  maxAmount       Decimal   @db.Decimal(10, 2) // Máximo de créditos acumulados antes de procesar
+  maxTransactions Int       @default(100) // Máximo de transacciones pendientes antes de procesar
+  maxTimeSeconds  Int       @default(300) // Máximo tiempo en segundos antes de procesar (5 min por defecto)
+  lastProcessedAt DateTime? // Última vez que se procesó un lote
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
 
   @@index([walletId])
   @@index([enabled])

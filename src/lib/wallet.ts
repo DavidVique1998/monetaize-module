@@ -315,3 +315,384 @@ export async function hasSufficientBalance(
   return Number(wallet.balance) >= amount;
 }
 
+/**
+ * INTERFAZ PARA CONSUMOS POR LOTES (BATCH PROCESSING)
+ * Sistema de acumulación para evitar sobrecarga en alta concurrencia
+ */
+
+export interface PendingConsumptionParams {
+  walletId: string;
+  amount: number;
+  metricType?: string;
+  metricValue?: number;
+  description?: string;
+  conversationId?: string;
+}
+
+export interface BatchProcessingConfig {
+  maxAmount?: number; // Máximo de créditos acumulados (default: 10)
+  maxTransactions?: number; // Máximo de transacciones pendientes (default: 100)
+  maxTimeSeconds?: number; // Máximo tiempo en segundos (default: 300 = 5 min)
+}
+
+/**
+ * Obtener o crear configuración de batch processing para una wallet
+ */
+export async function getOrCreateBatchConfig(
+  walletId: string,
+  defaults?: BatchProcessingConfig
+) {
+  let config = await prisma.batchProcessingConfig.findUnique({
+    where: { walletId },
+  });
+
+  if (!config) {
+    // Verificar que la wallet existe
+    const wallet = await prisma.wallet.findUnique({
+      where: { id: walletId },
+    });
+
+    if (!wallet) {
+      throw new Error('Wallet no encontrada');
+    }
+
+    config = await prisma.batchProcessingConfig.create({
+      data: {
+        walletId,
+        enabled: true,
+        maxAmount: defaults?.maxAmount || 10, // $10 por defecto
+        maxTransactions: defaults?.maxTransactions || 100,
+        maxTimeSeconds: defaults?.maxTimeSeconds || 3600, // 5 minutos
+      },
+    });
+  }
+
+  return config;
+}
+
+/**
+ * Agregar un consumo pendiente (acumulación)
+ * Retorna el ID del consumo pendiente
+ */
+export async function addPendingConsumption(
+  params: PendingConsumptionParams
+): Promise<{
+  success: boolean;
+  pendingId?: string;
+  shouldProcess?: boolean; // Si se debe procesar inmediatamente
+  error?: string;
+}> {
+  const { walletId, amount, metricType, metricValue, description, conversationId } = params;
+
+  if (amount <= 0) {
+    return {
+      success: false,
+      error: 'El monto debe ser mayor a 0',
+    };
+  }
+
+  try {
+    // Verificar configuración primero (fuera de transacción)
+    const config = await getOrCreateBatchConfig(walletId);
+
+    if (!config.enabled) {
+      // Si el batch processing está deshabilitado, procesar inmediatamente
+      const consumeResult = await consumeCredits(params);
+      if (!consumeResult.success) {
+        return {
+          success: false,
+          error: consumeResult.error || 'Error al consumir créditos',
+        };
+      }
+      return {
+        success: true,
+        shouldProcess: false, // Ya se procesó
+        pendingId: consumeResult.transactionId,
+      };
+    }
+
+    // Si está habilitado, agregar a pendientes
+    const result = await prisma.$transaction(async (tx) => {
+      // Verificar si existe configuración en la transacción
+      let batchConfig = await tx.batchProcessingConfig.findUnique({
+        where: { walletId },
+      });
+
+      if (!batchConfig) {
+        batchConfig = await tx.batchProcessingConfig.create({
+          data: {
+            walletId,
+            enabled: true,
+            maxAmount: config.maxAmount,
+            maxTransactions: config.maxTransactions,
+            maxTimeSeconds: config.maxTimeSeconds,
+          },
+        });
+      }
+
+      // Crear consumo pendiente
+      const pending = await tx.pendingConsumption.create({
+        data: {
+          walletId,
+          amount,
+          metricType,
+          metricValue: metricValue ? metricValue : null,
+          description,
+          conversationId,
+        },
+      });
+
+      // Verificar si se debe procesar el lote
+      const pendingConsumptions = await tx.pendingConsumption.findMany({
+        where: {
+          walletId,
+          processed: false,
+        },
+      });
+
+      const totalAmount = pendingConsumptions.reduce(
+        (sum, p) => sum + Number(p.amount),
+        0
+      );
+      const totalTransactions = pendingConsumptions.length;
+
+      // Verificar umbrales
+      const shouldProcess =
+        totalAmount >= Number(batchConfig.maxAmount) ||
+        totalTransactions >= batchConfig.maxTransactions;
+
+      return {
+        success: true,
+        pendingId: pending.id,
+        shouldProcess,
+      };
+    });
+
+    return result;
+  } catch (error: any) {
+    console.error('[Wallet] Error al agregar consumo pendiente:', error);
+    return {
+      success: false,
+      error: error.message || 'Error al agregar consumo pendiente',
+    };
+  }
+}
+
+/**
+ * Procesar un lote de consumos pendientes para una wallet
+ */
+export async function processBatch(walletId: string): Promise<{
+  success: boolean;
+  processedCount?: number;
+  totalAmount?: number;
+  transactionId?: string;
+  error?: string;
+}> {
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      // Obtener consumos pendientes
+      const pendingConsumptions = await tx.pendingConsumption.findMany({
+        where: {
+          walletId,
+          processed: false,
+        },
+        orderBy: {
+          createdAt: 'asc',
+        },
+      });
+
+      if (pendingConsumptions.length === 0) {
+        return {
+          success: true,
+          processedCount: 0,
+          totalAmount: 0,
+        };
+      }
+
+      // Calcular total
+      const totalAmount = pendingConsumptions.reduce(
+        (sum, p) => sum + Number(p.amount),
+        0
+      );
+
+      // Obtener wallet
+      const wallet = await tx.wallet.findUnique({
+        where: { id: walletId },
+      });
+
+      if (!wallet) {
+        throw new Error('Wallet no encontrada');
+      }
+
+      const currentBalance = Number(wallet.balance);
+      const newBalance = currentBalance - totalAmount;
+
+      // Verificar saldo suficiente
+      if (newBalance < 0) {
+        // Marcar como fallidos
+        await tx.pendingConsumption.updateMany({
+          where: {
+            id: { in: pendingConsumptions.map((p) => p.id) },
+          },
+          data: {
+            processed: true,
+            processedAt: new Date(),
+            description: `FALLIDO: ${pendingConsumptions[0].description || 'Saldo insuficiente'}`,
+          },
+        });
+
+        throw new Error('Saldo insuficiente para procesar el lote');
+      }
+
+      // Generar batchId único
+      const batchId = `batch-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+      // Crear transacción consolidada
+      const transaction = await tx.walletTransaction.create({
+        data: {
+          walletId,
+          type: TransactionType.CONSUMPTION,
+          status: TransactionStatus.COMPLETED,
+          amount: totalAmount,
+          balanceBefore: currentBalance,
+          balanceAfter: newBalance,
+          metricType: 'batch_processed',
+          metricValue: pendingConsumptions.length,
+          description: `Lote procesado: ${pendingConsumptions.length} consumos (${totalAmount.toFixed(2)} USD)`,
+        },
+      });
+
+      // Marcar consumos como procesados
+      await tx.pendingConsumption.updateMany({
+        where: {
+          id: { in: pendingConsumptions.map((p) => p.id) },
+        },
+        data: {
+          processed: true,
+          processedAt: new Date(),
+          batchId,
+        },
+      });
+
+      // Actualizar balance
+      await tx.wallet.update({
+        where: { id: walletId },
+        data: {
+          balance: newBalance,
+        },
+      });
+
+      // Actualizar última vez procesada en la configuración
+      await tx.batchProcessingConfig.update({
+        where: { walletId },
+        data: {
+          lastProcessedAt: new Date(),
+        },
+      });
+
+      // Verificar recarga automática
+      const autoRecharge = await tx.autoRechargeSettings.findUnique({
+        where: { walletId },
+      });
+
+      if (autoRecharge?.enabled && newBalance <= Number(autoRecharge.threshold)) {
+        console.log(`[Wallet] Balance bajo umbral. Balance: $${newBalance}, Umbral: ${autoRecharge.threshold}`);
+      }
+
+      return {
+        success: true,
+        processedCount: pendingConsumptions.length,
+        totalAmount,
+        transactionId: transaction.id,
+      };
+    });
+
+    return result;
+  } catch (error: any) {
+    console.error('[Wallet] Error al procesar lote:', error);
+    return {
+      success: false,
+      error: error.message || 'Error al procesar lote',
+    };
+  }
+}
+
+/**
+ * Procesar lotes para todas las wallets que cumplan los criterios
+ * (Para usar en cron jobs)
+ */
+export async function processAllBatches(): Promise<{
+  processed: number;
+  errors: number;
+  details: Array<{ walletId: string; success: boolean; error?: string }>;
+}> {
+  const details: Array<{ walletId: string; success: boolean; error?: string }> = [];
+  let processed = 0;
+  let errors = 0;
+
+  try {
+    // Obtener todas las configuraciones habilitadas
+    const configs = await prisma.batchProcessingConfig.findMany({
+      where: {
+        enabled: true,
+      },
+      include: {
+        wallet: {
+          include: {
+            pendingConsumptions: {
+              where: {
+                processed: false,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    for (const config of configs) {
+      const walletId = config.walletId;
+      const pending = config.wallet.pendingConsumptions;
+
+      if (pending.length === 0) {
+        continue;
+      }
+
+      // Calcular total acumulado
+      const totalAmount = pending.reduce((sum, p) => sum + Number(p.amount), 0);
+      const oldestPending = pending[0];
+      const ageSeconds = Math.floor(
+        (Date.now() - oldestPending.createdAt.getTime()) / 1000
+      );
+
+      // Verificar si se debe procesar
+      const shouldProcess =
+        totalAmount >= Number(config.maxAmount) ||
+        pending.length >= config.maxTransactions ||
+        ageSeconds >= config.maxTimeSeconds;
+
+      if (shouldProcess) {
+        const result = await processBatch(walletId);
+        if (result.success) {
+          processed++;
+          details.push({ walletId, success: true });
+        } else {
+          errors++;
+          details.push({ walletId, success: false, error: result.error });
+        }
+      }
+    }
+
+    return { processed, errors, details };
+  } catch (error: any) {
+    console.error('[Wallet] Error al procesar todos los lotes:', error);
+    return {
+      processed,
+      errors: errors + 1,
+      details: [
+        ...details,
+        { walletId: 'unknown', success: false, error: error.message },
+      ],
+    };
+  }
+}
+

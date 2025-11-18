@@ -28,26 +28,26 @@ export function useSidebarNavigation() {
   // Definir los elementos de navegación (solo Numbers tiene subopciones)
   const navigationItems: NavigationItem[] = [
     // Primera sección
-    { id: 'inbox', label: 'Inbox', href: '/inbox', iconName: 'inbox' },
-    { id: 'call-center', label: 'Call Center', href: '/call-center', iconName: 'phone' },
+    // { id: 'inbox', label: 'Inbox', href: '/inbox', iconName: 'inbox' },
+    // { id: 'call-center', label: 'Call Center', href: '/call-center', iconName: 'phone' },
     { id: 'contacts', label: 'Contacts', href: '/contacts', iconName: 'users' },
     
     // Segunda sección
     { id: 'knowledge', label: 'Knowledge', href: '/knowledge', iconName: 'book-open' },
     { id: 'assistants', label: 'Assistants', href: '/assistants', iconName: 'user-plus' },
-    { id: 'active-tags', label: 'Active Tags', href: '/active-tags', iconName: 'tag' },
-    { 
-      id: 'phone-numbers', 
-      label: 'Numbers', 
-      href: '/phone-numbers', 
-      iconName: 'smartphone', 
-      hasDropdown: true,
-      subItems: [
-        { id: 'numbers-all', label: 'All Numbers', href: '/phone-numbers', iconName: 'hash' },
-        { id: 'numbers-pools', label: 'Pools', href: '/phone-numbers/pools', iconName: 'grid-3x3' }
-      ]
-    },
-    { id: 'widgets', label: 'Widgets', href: '/widgets', iconName: 'grid-3x3' },
+    // { id: 'active-tags', label: 'Active Tags', href: '/active-tags', iconName: 'tag' },
+    // { 
+    //   id: 'phone-numbers', 
+    //   label: 'Numbers', 
+    //   href: '/phone-numbers', 
+    //   iconName: 'smartphone', 
+    //   hasDropdown: true,
+    //   subItems: [
+    //     { id: 'numbers-all', label: 'All Numbers', href: '/phone-numbers', iconName: 'hash' },
+    //     { id: 'numbers-pools', label: 'Pools', href: '/phone-numbers/pools', iconName: 'grid-3x3' }
+    //   ]
+    // },
+    // { id: 'widgets', label: 'Widgets', href: '/widgets', iconName: 'grid-3x3' },
     // Tercera sección
     { id: 'wallet', label: 'Wallet', href: '/wallet', iconName: 'wallet' },
     { id: 'settings', label: 'Settings', href: '/settings', iconName: 'settings' },
