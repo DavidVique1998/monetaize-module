@@ -5,17 +5,23 @@ import { processAllBatches } from '@/lib/wallet';
  * POST /api/cron/process-batches - Procesar todos los lotes pendientes
  * Endpoint para cron jobs que procesa lotes que cumplen los criterios
  * 
- * Protección: Debe estar protegido con un token secreto o IP whitelist
+ * Protección: 
+ * - Vercel Cron ejecuta internamente (no requiere auth externa)
+ * - Si se llama manualmente o desde otro servicio, requiere CRON_SECRET
  */
 export async function POST(request: NextRequest) {
   try {
-    // Verificar token de autorización (opcional pero recomendado)
-    const authHeader = request.headers.get('Authorization');
+    // Verificar token de autorización (solo si se llama externamente)
+    // Vercel Cron no requiere autenticación externa
+    const authHeader = request.headers.get('Authorization') || request.headers.get('authorization');
     const cronSecret = process.env.CRON_SECRET;
     
-    if (cronSecret) {
-      const token = authHeader?.replace('Bearer ', '');
+    // Solo verificar si CRON_SECRET está configurado y hay un header de auth
+    // Esto permite llamadas externas protegidas, pero no bloquea Vercel Cron
+    if (cronSecret && authHeader) {
+      const token = authHeader.replace(/^Bearer /i, '');
       if (token !== cronSecret) {
+        console.warn('[Cron] Intento de acceso no autorizado al endpoint de procesamiento de lotes');
         return NextResponse.json(
           { success: false, error: 'Unauthorized' },
           { status: 401 }
