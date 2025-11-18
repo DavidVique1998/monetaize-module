@@ -3,11 +3,11 @@
  * Los tokens incluyen userId y ghlLocationId en el payload
  */
 
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 
 // Obtener el secreto JWT de las variables de entorno
-const JWT_SECRET = process.env.JWT_SECRET || 'change-this-secret-in-production';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '30d'; // Por defecto 30 días
+const JWT_SECRET: string = process.env.JWT_SECRET || 'change-this-secret-in-production';
+const JWT_EXPIRES_IN: string = process.env.JWT_EXPIRES_IN || '30d'; // Por defecto 30 días
 
 export interface JWTPayload {
   userId: string;
@@ -28,6 +28,7 @@ export function generateToken(userId: string, ghlLocationId: string | null): str
     ghlLocationId,
   };
 
+  // @ts-ignore - jsonwebtoken types issue with expiresIn
   return jwt.sign(payload, JWT_SECRET, {
     expiresIn: JWT_EXPIRES_IN,
   });

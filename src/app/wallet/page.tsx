@@ -6,11 +6,11 @@ import { WalletTransactions } from '@/components/wallet/WalletTransactions';
 import { AutoRechargeSettings } from '@/components/wallet/AutoRechargeSettings';
 import { PaymentMethodManager } from '@/components/wallet/PaymentMethodManager';
 import { RechargeModal } from '@/components/wallet/RechargeModal';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { CheckCircle2, X } from 'lucide-react';
 
-export default function WalletPage() {
+function WalletContent() {
   const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [rechargeAmount, setRechargeAmount] = useState<string | null>(null);
@@ -116,6 +116,25 @@ export default function WalletPage() {
         />
       </div>
     </DashboardLayout>
+  );
+}
+
+export default function WalletPage() {
+  return (
+    <Suspense fallback={
+      <DashboardLayout>
+        <div className="p-4 md:p-6 min-h-full">
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-sm text-gray-600">Cargando...</p>
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
+    }>
+      <WalletContent />
+    </Suspense>
   );
 }
 

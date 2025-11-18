@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { LogIn, CheckCircle, AlertCircle, Loader2, Building2 } from 'lucide-react';
 
-export default function InstallGHLPage() {
+function InstallGHLContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -182,6 +182,23 @@ export default function InstallGHLPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function InstallGHLPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+          <div className="flex flex-col items-center justify-center py-8">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-4" />
+            <p className="text-sm text-gray-600">Cargando...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <InstallGHLContent />
+    </Suspense>
   );
 }
 
