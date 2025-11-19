@@ -86,6 +86,24 @@ export async function middleware(request: NextRequest) {
     response.headers.set('x-ghl-company-id', sessionData.ghlCompanyId);
   }
 
+  // Permitir que la aplicación se cargue en iframes (necesario para GoHighLevel)
+  // X-Frame-Options: ALLOWALL permite que cualquier sitio cargue la app en iframe
+  // Alternativamente puedes usar 'SAMEORIGIN' para solo permitir el mismo origen
+  // Para GoHighLevel necesitamos ALLOWALL o no incluir el header
+  // response.headers.set('X-Frame-Options', 'ALLOWALL'); // No estándar, mejor usar CSP
+  
+  // Content-Security-Policy: Permite cargar en iframes de GoHighLevel
+  // frame-ancestors permite especificar qué dominios pueden cargar la app en iframe
+  // Para GoHighLevel, necesitamos permitir *.gohighlevel.com y *.highlevel.com
+  const cspHeader = response.headers.get('Content-Security-Policy') || '';
+  if (!cspHeader.includes('frame-ancestors')) {
+    // Permitir iframes desde GoHighLevel y el mismo origen
+    response.headers.set(
+      'Content-Security-Policy',
+      `frame-ancestors 'self' https://*.gohighlevel.com https://*.highlevel.com; ${cspHeader}`
+    );
+  }
+
   return response;
 }
 

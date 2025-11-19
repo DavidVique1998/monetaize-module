@@ -17,3 +17,9 @@ import { WebhookContextImpl } from "twilio/lib/rest/conversations/v1/service/con
 
 STRIPE FORWART WEBHOOK
 stripe listen --forward-to localhost:3000/api/webhooks/stripe
+
+
+Destino1 Stripe whsec_hwep0uVo9OFfs2mJwOZocngAvNuibZnS
+Destino2 Stripe whsec_bZVhcb0h7MgWyA35P7ZTXHOBfLZuOQtq
+
+Mongo user: papivini124_db_user pass: G7nF4anN9ZIeiQo6

@@ -30,6 +30,9 @@ export const config = {
   },
 
   // MongoDB Configuration
+  // Nota: Para MongoDB Atlas, asegúrate de que la URL incluya parámetros SSL si experimentas errores SSL/TLS
+  // Ejemplo: mongodb+srv://user:pass@cluster.mongodb.net/database?tls=true&retryWrites=true&w=majority
+  // Consulta docs/GHL_SSL_ERROR_FIX.md para más información sobre errores SSL con MongoDB Atlas
   mongodb: {
     url: process.env.MONGODB_URL || 'mongodb://localhost:27017',
     database: process.env.MONGODB_DATABASE || 'ghl_sessions',

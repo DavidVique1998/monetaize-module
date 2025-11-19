@@ -25,10 +25,22 @@ export interface SessionUser {
 // Configuración de la sesión
 const SESSION_COOKIE_NAME = 'monetaize_session';
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 días en segundos
+
+// Configuración de cookies para iframes de terceros (como GoHighLevel)
+// IMPORTANTE: Para que las cookies funcionen en iframes de terceros:
+// 1. sameSite debe ser 'none' (permite cookies en contextos de terceros)
+// 2. secure debe ser true (requerido cuando sameSite es 'none', solo funciona en HTTPS)
+// 3. La aplicación debe estar en HTTPS en producción
+const isProduction = process.env.NODE_ENV === 'production';
+const enableIframeCookies = process.env.ENABLE_IFRAME_COOKIES === 'true' || isProduction;
+
 const SESSION_COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax' as const,
+  // secure: true es REQUERIDO cuando sameSite: 'none' (solo funciona en HTTPS)
+  secure: enableIframeCookies || isProduction,
+  // sameSite: 'none' permite cookies en iframes de terceros (como GoHighLevel)
+  // En desarrollo local sin HTTPS, usar 'lax'. En producción con HTTPS, usar 'none'
+  sameSite: (enableIframeCookies ? 'none' : 'lax') as 'lax' | 'none',
   maxAge: SESSION_MAX_AGE,
   path: '/',
 };

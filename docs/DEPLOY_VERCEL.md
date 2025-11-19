@@ -69,7 +69,8 @@ En la pantalla de configuración:
 - O especifica la carpeta si está en un subdirectorio
 
 **Build Command:**
-- Deja el predeterminado: `npm run build` o `pnpm build`
+- **IMPORTANTE:** Usa: `pnpm run build` (que ahora incluye `prisma generate`)
+- O alternativamente: `prisma generate && pnpm run build`
 
 **Output Directory:**
 - Deja el predeterminado: `.next`
@@ -147,6 +148,16 @@ openssl rand -hex 32
 
 **Nota:** Para obtener la URL de producción, espera a que se complete el primer despliegue.
 
+### 3.7 Configuración SSL/TLS para GoHighLevel (Solo Producción)
+
+Si experimentas errores SSL con GoHighLevel en producción, agrega esta variable:
+
+| Name | Value | Environments |
+|------|-------|--------------|
+| `NODE_OPTIONS` | `--tls-min-v1.2` | **Production only** |
+
+**⚠️ IMPORTANTE:** Solo agrega esta variable en **Production**, no en Development ni Preview, ya que puede causar problemas en desarrollo local.
+
 ---
 
 ## Paso 4: Configurar Base de Datos
@@ -199,25 +210,51 @@ Y cambiar el Build Command en Vercel a: `pnpm vercel-build` o `npm run vercel-bu
 
 ---
 
-## Paso 5: Desplegar
+## Paso 5: Configurar Versión de Node.js (Importante para SSL)
 
-### 5.1 Primer Despliegue
+### 5.1 Configurar Node.js 20 LTS en Vercel
+
+**⚠️ IMPORTANTE:** Si experimentas errores SSL con GoHighLevel, configura Node.js 20 LTS:
+
+1. Ve a tu proyecto en Vercel Dashboard
+2. Ve a **Settings** → **General**
+3. Busca la sección **"Node.js Version"**
+4. Selecciona **`20.x`** (LTS)
+5. Guarda los cambios
+
+**Alternativa:** El `package.json` ya especifica `"engines": { "node": ">=20.0.0 <23.0.0" }`, pero Vercel puede ignorarlo. Es mejor configurarlo explícitamente en Settings.
+
+### 5.2 Si el Error SSL Persiste
+
+Si después de configurar Node.js 20 aún tienes problemas SSL:
+
+1. Ve a **Settings** → **Environment Variables**
+2. Agrega la variable `NODE_OPTIONS` con valor `--tls-min-v1.2`
+3. **IMPORTANTE:** Selecciona solo **Production** (no Development ni Preview)
+4. Guarda y redespliega
+
+---
+
+## Paso 6: Desplegar
+
+### 6.1 Primer Despliegue
 
 1. En la pantalla de configuración de Vercel, haz clic en **"Deploy"**
 2. Espera a que se complete el build (puede tomar 2-5 minutos)
 3. Si hay errores, revisa los logs en la pestaña **"Deployments"**
 
-### 5.2 Verificar Despliegue
+### 6.2 Verificar Despliegue
 
 1. Una vez completado, verás la URL de tu aplicación
 2. Haz clic en la URL para abrirla
 3. Verifica que la aplicación cargue correctamente
+4. Prueba el login con GoHighLevel para verificar que no hay errores SSL
 
 ---
 
-## Paso 6: Configurar Cron Jobs
+## Paso 7: Configurar Cron Jobs
 
-### 6.1 Verificar vercel.json
+### 7.1 Verificar vercel.json
 
 El archivo `vercel.json` ya está configurado con:
 

@@ -1,6 +1,13 @@
 import { config } from "./config";
 import HighLevel, { LogLevel, MongoDBSessionStorage } from '@gohighlevel/api-client';
 
+// Nota sobre SSL/TLS:
+// Si experimentas errores SSL con GoHighLevel o MongoDB Atlas (error:0A000438), consulta
+// docs/GHL_SSL_ERROR_FIX.md para soluciones.
+// El problema suele ocurrir con Node.js 22+ debido a cambios en OpenSSL 3.x.
+// Solución recomendada: Usar Node.js 20 LTS o configurar NODE_OPTIONS=--tls-min-v1.2
+// Para MongoDB Atlas, también verifica que la URL incluya parámetros SSL correctos.
+
 // Tipos inferidos de las respuestas del SDK
 export interface GHLLocation {
   id: string;
