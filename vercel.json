@@ -8,6 +8,7 @@
       "path": "/api/cron/process-batches",
       "schedule": "0 0 * * *"
     }
-  ]
+  ],
+  "buildCommand": "pnpm run vercel-build"
 }
 
