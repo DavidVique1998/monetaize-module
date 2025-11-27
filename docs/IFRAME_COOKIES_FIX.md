@@ -158,3 +158,8 @@ En las DevTools → **Network** → Selecciona cualquier request → **Headers**
 - [MDN: Content-Security-Policy frame-ancestors](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors)
 - [Chrome: Cookies in iframes](https://www.chromium.org/updates/same-site)
 
+
+
+
+
+

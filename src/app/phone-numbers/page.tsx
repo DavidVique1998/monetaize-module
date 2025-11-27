@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { HeaderBar } from '@/components/dashboard/HeaderBar';
 import { ImportPhoneNumberModal } from '@/components/phone/ImportPhoneNumberModal';
+import { EditPhoneNumberModal } from '@/components/phone/EditPhoneNumberModal';
 import { Button } from '@/components/ui/button';
 import { usePhoneNumbers } from '@/hooks/usePhoneNumbers';
 import { ImportedPhoneNumber } from '@/lib/retell';
@@ -17,6 +18,8 @@ export default function PhoneNumbersPage() {
   const { phoneNumbers, loading, error, loadPhoneNumbers, importPhoneNumber } = usePhoneNumbers();
   const [agents, setAgents] = useState<Array<{ agent_id: string; agent_name: string }>>([]);
   const [showImportForm, setShowImportForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [selectedPhoneNumber, setSelectedPhoneNumber] = useState<ImportedPhoneNumber | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Cargar agentes
@@ -25,10 +28,16 @@ export default function PhoneNumbersPage() {
       const response = await fetch('/api/agents');
       const result = await response.json();
       if (result.success) {
-        setAgents(result.data.map((agent: any) => ({
-          agent_id: agent.agent_id,
-          agent_name: agent.agent_name,
-        })));
+        // Filtrar duplicados basándose en agent_id
+        const uniqueAgents = result.data
+          .map((agent: any) => ({
+            agent_id: agent.agent_id,
+            agent_name: agent.agent_name,
+          }))
+          .filter((agent: any, index: number, self: any[]) => 
+            index === self.findIndex((a) => a.agent_id === agent.agent_id)
+          );
+        setAgents(uniqueAgents);
       }
     } catch (err) {
       console.error('Error loading agents:', err);
@@ -43,11 +52,14 @@ export default function PhoneNumbersPage() {
   // Manejar importación exitosa
   const handleImportSuccess = async (phoneNumberData: any) => {
     try {
-      const newPhoneNumber = await importPhoneNumber(phoneNumberData);
+      console.log('Phone number created successfully:', phoneNumberData);
       setShowImportForm(false);
-      loadPhoneNumbers(); // Recargar la lista
+      // Recargar la lista para mostrar el nuevo número
+      await loadPhoneNumbers();
     } catch (err) {
-      console.error('Error importing phone number:', err);
+      console.error('Error handling import success:', err);
+      // Aún así recargar la lista por si el número se creó
+      await loadPhoneNumbers();
     }
   };
 
@@ -66,8 +78,23 @@ export default function PhoneNumbersPage() {
 
   // Manejar edición
   const handleEdit = (phoneNumber: ImportedPhoneNumber) => {
-    // TODO: Implementar edición
-    console.log('Edit phone number:', phoneNumber);
+    setSelectedPhoneNumber(phoneNumber);
+    setShowEditForm(true);
+  };
+
+  // Manejar actualización exitosa
+  const handleEditSuccess = async (phoneNumberData: any) => {
+    try {
+      console.log('Phone number updated successfully:', phoneNumberData);
+      setShowEditForm(false);
+      setSelectedPhoneNumber(null);
+      // Recargar la lista para mostrar los cambios
+      await loadPhoneNumbers();
+    } catch (err) {
+      console.error('Error handling edit success:', err);
+      // Aún así recargar la lista por si el número se actualizó
+      await loadPhoneNumbers();
+    }
   };
 
   // Manejar prueba
@@ -281,6 +308,18 @@ export default function PhoneNumbersPage() {
           isOpen={showImportForm}
           onClose={() => setShowImportForm(false)}
           onSuccess={handleImportSuccess}
+          agents={agents}
+        />
+
+        {/* Modal de edición */}
+        <EditPhoneNumberModal
+          isOpen={showEditForm}
+          onClose={() => {
+            setShowEditForm(false);
+            setSelectedPhoneNumber(null);
+          }}
+          onSuccess={handleEditSuccess}
+          phoneNumber={selectedPhoneNumber}
           agents={agents}
         />
         </div>

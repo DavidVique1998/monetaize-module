@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { SessionManager } from '@/lib/session';
 import { RetellService } from '@/lib/retell';
+import { RetellSyncService } from '@/lib/retell-sync';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export async function GET(
   request: NextRequest,
@@ -12,6 +17,25 @@ export async function GET(
   console.log('Received agentId in route:', agentId);
   
   try {
+    // Obtener usuario autenticado
+    const user = await SessionManager.requireAuth();
+    
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Verificar que el agente pertenece al usuario
+    const agentExists = await RetellSyncService.verifyAgentOwnership(user.id, agentId);
+    if (!agentExists) {
+      return NextResponse.json(
+        { success: false, error: 'Agent not found or does not belong to your account' },
+        { status: 404 }
+      );
+    }
+
     // Intentar obtener el agente con el prompt
     const agent = await RetellService.getAgentWithPrompt(agentId);
     return NextResponse.json({ success: true, data: agent });
@@ -41,6 +65,51 @@ export async function PATCH(
   const agentId = typeof resolvedParams.agentId === 'string' ? resolvedParams.agentId : String(resolvedParams.agentId);
   
   try {
+    // Obtener usuario autenticado
+    const user = await SessionManager.requireAuth();
+    
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Verificar que el agente pertenece al usuario
+    const agentExists = await RetellSyncService.verifyAgentOwnership(user.id, agentId);
+    if (!agentExists) {
+      console.error(`Agent ownership verification failed for PATCH:`, {
+        userId: user.id,
+        userEmail: user.email,
+        agentId: agentId,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Información adicional de debug
+      try {
+        const allUserAgents = await prisma.agent.findMany({
+          where: { userId: user.id },
+          select: { id: true, retellAgentId: true, name: true }
+        });
+        console.error('User agents in database:', allUserAgents);
+      } catch (debugError) {
+        console.error('Error getting debug info:', debugError);
+      }
+      
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Agent not found or does not belong to your account',
+          debug: {
+            userId: user.id,
+            agentId: agentId,
+            suggestion: 'Try using the debug endpoint /api/debug/agents to link the agent'
+          }
+        },
+        { status: 404 }
+      );
+    }
+
     const body = await request.json();
     console.log('API: Updating agent:', agentId);
     console.log('API: Update data:', body);
@@ -95,7 +164,38 @@ export async function DELETE(
   const agentId = typeof resolvedParams.agentId === 'string' ? resolvedParams.agentId : String(resolvedParams.agentId);
   
   try {
+    // Obtener usuario autenticado
+    const user = await SessionManager.requireAuth();
+    
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Verificar que el agente pertenece al usuario
+    const agentExists = await RetellSyncService.verifyAgentOwnership(user.id, agentId);
+    if (!agentExists) {
+      return NextResponse.json(
+        { success: false, error: 'Agent not found or does not belong to your account' },
+        { status: 404 }
+      );
+    }
+
+    // Eliminar de Retell
     await RetellService.deleteAgent(agentId);
+    
+    // Eliminar de la base de datos local
+    const { PrismaClient } = await import('@prisma/client');
+    const prisma = new PrismaClient();
+    await prisma.agent.deleteMany({
+      where: {
+        userId: user.id,
+        retellAgentId: agentId,
+      },
+    });
+    
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting agent:', error);

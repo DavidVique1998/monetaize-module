@@ -36,17 +36,18 @@ export function useSidebarNavigation() {
     { id: 'knowledge', label: 'Knowledge', href: '/knowledge', iconName: 'book-open' },
     { id: 'assistants', label: 'Assistants', href: '/assistants', iconName: 'user-plus' },
     // { id: 'active-tags', label: 'Active Tags', href: '/active-tags', iconName: 'tag' },
-    // { 
-    //   id: 'phone-numbers', 
-    //   label: 'Numbers', 
-    //   href: '/phone-numbers', 
-    //   iconName: 'smartphone', 
-    //   hasDropdown: true,
-    //   subItems: [
-    //     { id: 'numbers-all', label: 'All Numbers', href: '/phone-numbers', iconName: 'hash' },
-    //     { id: 'numbers-pools', label: 'Pools', href: '/phone-numbers/pools', iconName: 'grid-3x3' }
-    //   ]
-    // },
+    { 
+      id: 'phone-numbers', 
+      label: 'Numbers', 
+      href: '/phone-numbers', 
+      iconName: 'smartphone', 
+      hasDropdown: true,
+      subItems: [
+        { id: 'numbers-all', label: 'All Numbers', href: '/phone-numbers', iconName: 'hash' },
+        // { id: 'numbers-create', label: 'Create Number', href: '/phone-numbers/create', iconName: 'plus' },
+        // { id: 'numbers-pools', label: 'Pools', href: '/phone-numbers/pools', iconName: 'grid-3x3' }
+      ]
+    },
     // { id: 'widgets', label: 'Widgets', href: '/widgets', iconName: 'grid-3x3' },
     // Tercera sección
     { id: 'wallet', label: 'Wallet', href: '/wallet', iconName: 'wallet' },
@@ -63,7 +64,34 @@ export function useSidebarNavigation() {
     
     // Si estamos en una subopción, buscar la subsección específica
     if (currentItem?.hasDropdown && currentItem.subItems) {
-      const activeSubItem = currentItem.subItems.find(subItem => 
+      // Bug 1 Fix: Si el pathname coincide exactamente con el href del padre,
+      // usar el elemento padre en lugar de buscar subitems
+      if (pathname === currentItem.href) {
+        setActiveItem(currentItem.id);
+        setOpenDropdowns(prev => ({
+          ...prev,
+          [currentItem.id]: true
+        }));
+        return;
+      }
+      
+      // Bug 2 Fix: Ordenar subitems por especificidad (más específicos primero)
+      // 1. Coincidencias exactas primero
+      // 2. Luego por longitud de href (más largo = más específico)
+      const sortedSubItems = [...currentItem.subItems].sort((a, b) => {
+        const aExact = pathname === a.href;
+        const bExact = pathname === b.href;
+        
+        // Priorizar coincidencias exactas
+        if (aExact && !bExact) return -1;
+        if (!aExact && bExact) return 1;
+        
+        // Si ambos o ninguno son exactos, ordenar por longitud (más largo primero)
+        return b.href.length - a.href.length;
+      });
+      
+      // Buscar el subitem activo (ya ordenado por especificidad)
+      const activeSubItem = sortedSubItems.find(subItem => 
         pathname === subItem.href || pathname.startsWith(subItem.href + '/')
       );
       
@@ -76,8 +104,12 @@ export function useSidebarNavigation() {
           [currentItem.id]: true
         }));
       } else {
-        // Si estamos en la página principal del dropdown, marcar el elemento principal
+        // Si no hay subitem activo, usar el elemento principal
         setActiveItem(currentItem.id);
+        setOpenDropdowns(prev => ({
+          ...prev,
+          [currentItem.id]: true
+        }));
       }
     } else {
       // Para elementos sin dropdown, marcar normalmente

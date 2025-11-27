@@ -70,6 +70,7 @@ export default function EditAssistantPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
+  const [ownershipError, setOwnershipError] = useState<{ message: string; agentId: string } | null>(null);
   const [showCallSettings, setShowCallSettings] = useState(false);
   const [showVoiceSettings, setShowVoiceSettings] = useState(false);
 
@@ -161,9 +162,18 @@ export default function EditAssistantPage() {
       await updateAgent(agentId, allSettings);
       setIsSaved(true);
       setCallSettings(null); // Clear call settings after save
+      setOwnershipError(null); // Clear any previous ownership errors
       // No need to reload - updateAgent already updates the local state
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving agent:', error);
+      
+      // Manejar errores de ownership específicamente
+      if (error.isOwnershipError) {
+        setOwnershipError({
+          message: error.message,
+          agentId: error.agentId
+        });
+      }
     } finally {
       setIsSaving(false);
     }
@@ -390,6 +400,35 @@ export default function EditAssistantPage() {
                   <button
                     onClick={() => setPublishError(null)}
                     className="text-red-400 hover:text-red-600 transition-colors ml-2 flex-shrink-0"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Ownership Error Message - Fixed position */}
+            {ownershipError && (
+              <div className="fixed top-4 right-4 z-50 bg-orange-50 border border-orange-200 rounded-lg p-4 shadow-lg max-w-md animate-in slide-in-from-right duration-300">
+                <div className="flex items-start space-x-2">
+                  <AlertTriangle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm text-orange-800 font-medium">Agent Ownership Issue</p>
+                    <p className="text-xs text-orange-700 mt-1 break-words">
+                      Este agente no está vinculado correctamente con tu cuenta.
+                    </p>
+                    <button
+                      onClick={() => router.push('/debug/agents')}
+                      className="mt-2 text-xs bg-orange-600 hover:bg-orange-700 text-white px-2 py-1 rounded transition-colors"
+                    >
+                      Ir a Debug Tools
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => setOwnershipError(null)}
+                    className="text-orange-400 hover:text-orange-600 transition-colors ml-2 flex-shrink-0"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

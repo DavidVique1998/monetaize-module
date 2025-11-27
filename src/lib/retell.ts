@@ -570,16 +570,85 @@ export class RetellService {
   }
 
   /**
+   * Crear un nuevo número de teléfono en Retell AI
+   * Según la documentación: https://docs.retellai.com/api-references/create-phone-number
+   */
+  static async createPhoneNumber(data: {
+    area_code?: number;
+    phone_number?: string;
+    inbound_agent_id?: string | null;
+    outbound_agent_id?: string | null;
+    inbound_agent_version?: number | null;
+    outbound_agent_version?: number | null;
+    nickname?: string | null;
+    inbound_webhook_url?: string | null;
+    number_provider?: 'twilio' | 'telnyx';
+    country_code?: 'US' | 'CA';
+    toll_free?: boolean;
+  }): Promise<ImportedPhoneNumber> {
+    try {
+      console.log('RetellService: Creating phone number with data:', data);
+      
+      // Usar fetch directo ya que el SDK puede no tener este método
+      const response = await fetch('https://api.retellai.com/create-phone-number', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${config.retell.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          // Filtrar campos undefined/null para enviar solo los necesarios
+          ...Object.fromEntries(
+            Object.entries(data).filter(([_, value]) => value !== undefined && value !== null && value !== '')
+          )
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        console.error('RetellService: Error creating phone number:', errorData);
+        throw new Error(errorData.message || `HTTP ${response.status}: Failed to create phone number`);
+      }
+
+      const result = await response.json();
+      console.log('RetellService: Phone number created successfully:', result.phone_number);
+      return result;
+    } catch (error: any) {
+      console.error('RetellService: Error creating phone number:', error);
+      throw new Error(`Failed to create phone number: ${error.message || 'Unknown error'}`);
+    }
+  }
+
+  /**
    * Importar número de teléfono personalizado
    * Usando el SDK de Retell AI
    */
   static async importPhoneNumber(data: ImportPhoneNumberData): Promise<ImportedPhoneNumber> {
     try {
+      console.log('RetellService: Importing phone number with data:', data);
       const phoneNumberResponse = await retellClient.phoneNumber.import(data);
+      console.log('RetellService: Phone number imported successfully:', phoneNumberResponse.phone_number);
       return phoneNumberResponse;
-    } catch (error) {
-      console.error('Error importing phone number:', error);
-      throw new Error('Failed to import phone number');
+    } catch (error: any) {
+      console.error('RetellService: Error importing phone number:', error);
+      console.error('RetellService: Error details:', {
+        message: error?.message,
+        status: error?.status,
+        code: error?.code,
+        response: error?.response
+      });
+      
+      // Extraer mensaje de error más descriptivo
+      let errorMessage = 'Failed to import phone number';
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
+      throw new Error(errorMessage);
     }
   }
 
@@ -617,11 +686,31 @@ export class RetellService {
    */
   static async updatePhoneNumber(phoneNumber: string, data: Partial<ImportPhoneNumberData>): Promise<ImportedPhoneNumber> {
     try {
+      console.log('RetellService: Updating phone number:', phoneNumber);
+      console.log('RetellService: Update data:', data);
       const phoneNumberResponse = await retellClient.phoneNumber.update(phoneNumber, data);
+      console.log('RetellService: Phone number updated successfully:', phoneNumberResponse.phone_number);
       return phoneNumberResponse;
-    } catch (error) {
-      console.error('Error updating phone number:', error);
-      throw new Error('Failed to update phone number');
+    } catch (error: any) {
+      console.error('RetellService: Error updating phone number:', error);
+      console.error('RetellService: Error details:', {
+        message: error?.message,
+        status: error?.status,
+        code: error?.code,
+        response: error?.response
+      });
+      
+      // Extraer mensaje de error más descriptivo
+      let errorMessage = 'Failed to update phone number';
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
+      throw new Error(errorMessage);
     }
   }
 

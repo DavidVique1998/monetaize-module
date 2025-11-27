@@ -232,3 +232,8 @@ this.sessionStorage = new PostgresSessionStorage();
 - Los tokens OAuth deben almacenarse de forma segura (encriptados si es posible)
 - Considera implementar limpieza automática de sesiones expiradas
 
+
+
+
+
+

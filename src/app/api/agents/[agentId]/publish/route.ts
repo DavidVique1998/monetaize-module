@@ -1,14 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { SessionManager } from '@/lib/session';
 import { RetellService } from '@/lib/retell';
+import { RetellSyncService } from '@/lib/retell-sync';
 
 export async function POST(request: NextRequest) {
   try {
+    // Obtener usuario autenticado
+    const user = await SessionManager.requireAuth();
+    
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const { agentId } = await request.json();
 
     if (!agentId) {
       return NextResponse.json(
-        { error: 'Agent ID is required' },
+        { success: false, error: 'Agent ID is required' },
         { status: 400 }
+      );
+    }
+
+    // Verificar que el agente pertenece al usuario
+    const agentExists = await RetellSyncService.verifyAgentOwnership(user.id, agentId);
+    if (!agentExists) {
+      return NextResponse.json(
+        { success: false, error: 'Agent not found or does not belong to your account' },
+        { status: 404 }
       );
     }
 

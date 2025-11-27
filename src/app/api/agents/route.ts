@@ -1,13 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { RetellService } from '@/lib/retell';
+import { SessionManager } from '@/lib/session';
+import { RetellSyncService } from '@/lib/retell-sync';
 
 export async function GET(request: NextRequest) {
   try {
-    // Obtener agentes directamente de Retell
-    const retellAgents = await RetellService.getAgents();
-    return NextResponse.json({ success: true, data: retellAgents });
+    // Obtener usuario autenticado
+    const user = await SessionManager.requireAuth();
+    
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Obtener agentes del usuario (solo los que pertenecen a su cuenta)
+    const userAgents = await RetellSyncService.getUserAgents(user.id);
+    
+    return NextResponse.json({ success: true, data: userAgents });
   } catch (error) {
     console.error('Error in agents API:', error);
+    
+    // Si es error de autenticación
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
     return NextResponse.json(
       { success: false, error: 'Failed to fetch agents' },
       { status: 500 }
@@ -17,40 +38,43 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Obtener usuario autenticado
+    const user = await SessionManager.requireAuth();
+    
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     
-    // Crear en Retell usando directamente el método createAdvancedAgent para soportar todos los campos
-    const retellAgent = await RetellService.createAdvancedAgent(body);
+    // Crear agente en Retell y vincularlo con el usuario en la DB local
+    const { retellAgent, localAgent } = await RetellSyncService.createAgentForUser(
+      user.id,
+      body
+    );
     
-    // Opcional: guardar en la base de datos local (comentado por ahora)
-    /*
-    try {
-      await prisma.agent.create({
-        data: {
-          id: retellAgent.agent_id,
-          name: retellAgent.agent_name,
-          voiceId: retellAgent.voice_id,
-          language: retellAgent.language,
-          prompt: retellAgent.prompt,
-          llmId: retellAgent.response_engine?.llm_id,
-          llmType: retellAgent.response_engine?.type,
-          version: retellAgent.version,
-          retellAgentId: retellAgent.agent_id,
-          createdAt: new Date(retellAgent.last_modification_timestamp),
-          updatedAt: new Date(retellAgent.last_modification_timestamp),
-        },
-      });
-    } catch (dbError) {
-      console.error('Error saving agent to DB:', dbError);
-      // Continuar aunque falle la DB local
-    }
-    */
-    
-    return NextResponse.json({ success: true, data: retellAgent });
+    return NextResponse.json({ 
+      success: true, 
+      data: retellAgent,
+      localAgent: localAgent 
+    });
   } catch (error) {
     console.error('Error creating agent:', error);
+    
+    // Si es error de autenticación
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create agent';
     return NextResponse.json(
-      { success: false, error: 'Failed to create agent' },
+      { success: false, error: errorMessage },
       { status: 500 }
     );
   }

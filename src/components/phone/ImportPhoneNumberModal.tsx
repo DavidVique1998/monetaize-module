@@ -9,20 +9,29 @@ import { ChevronRight } from 'lucide-react';
 import { Phone, Plus, AlertCircle } from 'lucide-react';
 
 const phoneNumberSchema = z.object({
+  // Campo requerido para crear número nuevo
+  area_code: z.number()
+    .min(100, 'Código de área debe ser de 3 dígitos')
+    .max(999, 'Código de área debe ser de 3 dígitos'),
+  
+  // Campo opcional - si se proporciona, se usará ese número específico
   phone_number: z.string()
-    .min(1, 'Número de teléfono es requerido')
-    .regex(/^\+[1-9]\d{1,14}$/, 'Debe estar en formato E.164 (ej: +14157774444)'),
-  termination_uri: z.string()
-    .min(1, 'Termination URI es requerido')
-    .refine((uri) => uri.includes('.'), 'Debe ser una URI válida'),
-  sip_trunk_auth_username: z.string().optional(),
-  sip_trunk_auth_password: z.string().optional(),
+    .regex(/^\+[1-9]\d{1,14}$/, 'Debe estar en formato E.164 (ej: +14157774444)')
+    .optional()
+    .or(z.literal('')),
+  
+  // Campos de agentes
   inbound_agent_id: z.string().optional(),
   outbound_agent_id: z.string().optional(),
   inbound_agent_version: z.number().min(1).optional(),
   outbound_agent_version: z.number().min(1).optional(),
+  
+  // Campos opcionales
   nickname: z.string().optional(),
   inbound_webhook_url: z.string().url().optional().or(z.literal('')),
+  number_provider: z.enum(['twilio', 'telnyx']).optional(),
+  country_code: z.enum(['US', 'CA']).optional(),
+  toll_free: z.boolean().optional(),
 });
 
 type PhoneNumberFormData = z.infer<typeof phoneNumberSchema>;
@@ -51,6 +60,9 @@ export function ImportPhoneNumberModal({ isOpen, onClose, onSuccess, agents = []
       inbound_agent_version: 1,
       outbound_agent_version: 1,
       nickname: '',
+      number_provider: 'twilio',
+      country_code: 'US',
+      toll_free: false,
     },
   });
 
@@ -61,14 +73,49 @@ export function ImportPhoneNumberModal({ isOpen, onClose, onSuccess, agents = []
     setError(null);
 
     try {
-      // TODO: Implementar la llamada a la API
-      // const result = await fetch('/api/phone-numbers', { method: 'POST', body: data });
-      console.log('Importing phone number:', data);
-      onSuccess?.(data);
+      // Preparar datos para el backend
+      const requestData: any = {
+        // Campos requeridos para crear número
+        area_code: data.area_code,
+        ...(data.phone_number && { phone_number: data.phone_number }),
+        
+        // Campos de agentes
+        ...(data.inbound_agent_id && { inbound_agent_id: data.inbound_agent_id }),
+        ...(data.outbound_agent_id && { outbound_agent_id: data.outbound_agent_id }),
+        ...(data.inbound_agent_version && { inbound_agent_version: data.inbound_agent_version }),
+        ...(data.outbound_agent_version && { outbound_agent_version: data.outbound_agent_version }),
+        
+        // Campos opcionales
+        ...(data.nickname && { nickname: data.nickname }),
+        ...(data.inbound_webhook_url && { inbound_webhook_url: data.inbound_webhook_url }),
+        number_provider: data.number_provider || 'twilio',
+        country_code: data.country_code || 'US',
+        toll_free: data.toll_free || false,
+      };
+
+      // Llamada al endpoint del backend
+      const response = await fetch('/api/phone-numbers/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || `Error ${response.status}: ${response.statusText}`);
+      }
+
+      console.log('Phone number created successfully:', result.data);
+      
+      onSuccess?.(result.data);
       reset();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al importar el número');
+      console.error('Error creating phone number:', err);
+      setError(err instanceof Error ? err.message : 'Error al crear el número de teléfono');
     } finally {
       setIsLoading(false);
     }
@@ -106,8 +153,8 @@ export function ImportPhoneNumberModal({ isOpen, onClose, onSuccess, agents = []
               <Phone className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Import Phone Number</h2>
-              <p className="text-sm text-gray-500">Configure a custom number for your agents</p>
+              <h2 className="text-xl font-semibold text-gray-900">Crear Número de Teléfono</h2>
+              <p className="text-sm text-gray-500">Compra y configura un nuevo número para tus agentes</p>
             </div>
           </div>
           <button
@@ -131,10 +178,31 @@ export function ImportPhoneNumberModal({ isOpen, onClose, onSuccess, agents = []
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Phone Number */}
+            {/* Area Code */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Phone Number (E.164) *
+                Código de Área *
+              </label>
+              <input
+                {...register('area_code', { valueAsNumber: true })}
+                type="number"
+                placeholder="415"
+                min="100"
+                max="999"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              />
+              {errors.area_code && (
+                <p className="mt-1 text-sm text-red-600">{errors.area_code.message}</p>
+              )}
+              <p className="mt-1 text-xs text-gray-500">
+                Código de área de 3 dígitos para obtener un número (solo US actualmente)
+              </p>
+            </div>
+
+            {/* Phone Number (Optional - for specific number) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Número Específico (opcional)
               </label>
               <input
                 {...register('phone_number')}
@@ -149,22 +217,52 @@ export function ImportPhoneNumberModal({ isOpen, onClose, onSuccess, agents = []
               {errors.phone_number && (
                 <p className="mt-1 text-sm text-red-600">{errors.phone_number.message}</p>
               )}
+              <p className="mt-1 text-xs text-gray-500">
+                Deja vacío para obtener un número aleatorio del código de área
+              </p>
             </div>
 
-            {/* Termination URI */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Termination URI *
-              </label>
+            {/* Provider and Country */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Proveedor
+                </label>
+                <select
+                  {...register('number_provider')}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="twilio">Twilio</option>
+                  <option value="telnyx">Telnyx</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  País
+                </label>
+                <select
+                  {...register('country_code')}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="US">Estados Unidos</option>
+                  <option value="CA">Canadá</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Toll Free */}
+            <div className="flex items-center space-x-3">
               <input
-                {...register('termination_uri')}
-                type="text"
-                placeholder="someuri.pstn.twilio.com"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                {...register('toll_free')}
+                type="checkbox"
+                id="toll_free"
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
               />
-              {errors.termination_uri && (
-                <p className="mt-1 text-sm text-red-600">{errors.termination_uri.message}</p>
-              )}
+              <label htmlFor="toll_free" className="text-sm font-medium text-gray-700">
+                Número gratuito (toll-free)
+              </label>
+              <span className="text-xs text-gray-500">(costos más altos)</span>
             </div>
 
             {/* Nickname */}
@@ -180,35 +278,7 @@ export function ImportPhoneNumberModal({ isOpen, onClose, onSuccess, agents = []
               />
             </div>
 
-            {/* SIP Auth */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-medium text-gray-900">SIP Authentication (optional)</h3>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  SIP Username
-                </label>
-                <input
-                  {...register('sip_trunk_auth_username')}
-                  type="text"
-                  placeholder="username"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  SIP Password
-                </label>
-                <input
-                  {...register('sip_trunk_auth_password')}
-                  type="password"
-                  placeholder="123456"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                />
-              </div>
-            </div>
-
+          
             {/* Agents */}
             <div className="space-y-4">
               <h3 className="text-sm font-medium text-gray-900">Agent Configuration</h3>
@@ -223,8 +293,8 @@ export function ImportPhoneNumberModal({ isOpen, onClose, onSuccess, agents = []
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Select agent...</option>
-                    {agents.map((agent) => (
-                      <option key={agent.agent_id} value={agent.agent_id}>
+                    {agents.map((agent, index) => (
+                      <option key={`inbound-${agent.agent_id}-${index}`} value={agent.agent_id}>
                         {agent.agent_name}
                       </option>
                     ))}
@@ -240,8 +310,8 @@ export function ImportPhoneNumberModal({ isOpen, onClose, onSuccess, agents = []
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Select agent...</option>
-                    {agents.map((agent) => (
-                      <option key={agent.agent_id} value={agent.agent_id}>
+                    {agents.map((agent, index) => (
+                      <option key={`outbound-${agent.agent_id}-${index}`} value={agent.agent_id}>
                         {agent.agent_name}
                       </option>
                     ))}
@@ -278,12 +348,12 @@ export function ImportPhoneNumberModal({ isOpen, onClose, onSuccess, agents = []
             {isLoading ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                Importing...
+                Creando número...
               </>
             ) : (
               <>
                 <Plus className="w-4 h-4 mr-2" />
-                Import Phone Number
+                Crear Número de Teléfono
               </>
             )}
           </button>

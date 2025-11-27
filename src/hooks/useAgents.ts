@@ -138,6 +138,16 @@ export function useAgents() {
         console.log('useAgents: Agent updated in local state');
         return result.data;
       } else {
+        // Proporcionar información más útil para errores de ownership
+        if (response.status === 404 && result.error?.includes('does not belong to your account')) {
+          const enhancedError = new Error(
+            `${result.error}\n\nSolución sugerida: Ve a /debug/agents para vincular este agente con tu cuenta.`
+          );
+          (enhancedError as any).isOwnershipError = true;
+          (enhancedError as any).agentId = agentId;
+          (enhancedError as any).debugUrl = '/debug/agents';
+          throw enhancedError;
+        }
         throw new Error(result.error || 'Failed to update agent');
       }
     } catch (err: any) {
