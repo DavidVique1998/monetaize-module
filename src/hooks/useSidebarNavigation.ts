@@ -35,19 +35,8 @@ export function useSidebarNavigation() {
     // Segunda sección
     { id: 'knowledge', label: 'Knowledge', href: '/knowledge', iconName: 'book-open' },
     { id: 'assistants', label: 'Assistants', href: '/assistants', iconName: 'user-plus' },
+    { id: 'phone-numbers', label: 'Numbers', href: '/phone-numbers', iconName: 'smartphone' },
     // { id: 'active-tags', label: 'Active Tags', href: '/active-tags', iconName: 'tag' },
-    { 
-      id: 'phone-numbers', 
-      label: 'Numbers', 
-      href: '/phone-numbers', 
-      iconName: 'smartphone', 
-      hasDropdown: true,
-      subItems: [
-        { id: 'numbers-all', label: 'All Numbers', href: '/phone-numbers', iconName: 'hash' },
-        // { id: 'numbers-create', label: 'Create Number', href: '/phone-numbers/create', iconName: 'plus' },
-        // { id: 'numbers-pools', label: 'Pools', href: '/phone-numbers/pools', iconName: 'grid-3x3' }
-      ]
-    },
     // { id: 'widgets', label: 'Widgets', href: '/widgets', iconName: 'grid-3x3' },
     // Tercera sección
     { id: 'wallet', label: 'Wallet', href: '/wallet', iconName: 'wallet' },
