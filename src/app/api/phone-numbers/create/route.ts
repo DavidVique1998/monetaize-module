@@ -104,14 +104,14 @@ export async function POST(request: NextRequest) {
     // Validaciones para crear número
     if (isCreating) {
       if (typeof area_code !== 'number' || area_code < 100 || area_code > 999) {
-        return NextResponse.json(
-          { 
-            success: false, 
+      return NextResponse.json(
+        { 
+          success: false, 
             error: 'area_code debe ser un número de 3 dígitos (100-999)' 
-          },
-          { status: 400 }
-        );
-      }
+        },
+        { status: 400 }
+      );
+    }
 
       // Si se proporciona phone_number, validar formato E.164
       if (phone_number) {
@@ -130,23 +130,23 @@ export async function POST(request: NextRequest) {
 
     // Validaciones para importar número
     if (isImporting) {
-      const phoneRegex = /^\+[1-9]\d{1,14}$/;
-      if (!phoneRegex.test(phone_number)) {
-        return NextResponse.json(
-          { 
-            success: false, 
-            error: 'phone_number debe estar en formato E.164 (ej: +14157774444)' 
-          },
-          { status: 400 }
-        );
+    const phoneRegex = /^\+[1-9]\d{1,14}$/;
+    if (!phoneRegex.test(phone_number)) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'phone_number debe estar en formato E.164 (ej: +14157774444)' 
+        },
+        { status: 400 }
+      );
       }
     }
 
     // Verificar que los agentes existen y pertenecen al usuario
     if (inbound_agent_id) {
-      try {
+    try {
         const agentExists = await RetellSyncService.verifyAgentOwnership(user.id, inbound_agent_id);
-        if (!agentExists) {
+      if (!agentExists) {
           return NextResponse.json(
             { 
               success: false, 
@@ -175,20 +175,20 @@ export async function POST(request: NextRequest) {
             { 
               success: false, 
               error: `Agente saliente con ID ${outbound_agent_id} no encontrado o no pertenece a tu cuenta` 
-            },
-            { status: 404 }
-          );
-        }
-      } catch (error: any) {
-        console.error('Error verificando agente saliente:', error);
-        return NextResponse.json(
-          { 
-            success: false, 
-            error: `Error al verificar agente saliente: ${error.message || 'Agente no encontrado'}` 
           },
           { status: 404 }
         );
       }
+    } catch (error: any) {
+        console.error('Error verificando agente saliente:', error);
+      return NextResponse.json(
+        { 
+          success: false, 
+            error: `Error al verificar agente saliente: ${error.message || 'Agente no encontrado'}` 
+        },
+        { status: 404 }
+      );
+    }
     }
 
     // Preparar datos según el tipo de operación
@@ -217,12 +217,12 @@ export async function POST(request: NextRequest) {
         ...(outbound_agent_id && { outbound_agent_id }),
         ...(inbound_agent_version && { inbound_agent_version }),
         ...(outbound_agent_version && { outbound_agent_version }),
-        ...(nickname && { nickname }),
+      ...(nickname && { nickname }),
         ...(inbound_webhook_url && { inbound_webhook_url }),
-        ...(termination_uri && { termination_uri }),
-        ...(sip_trunk_auth_username && { sip_trunk_auth_username }),
-        ...(sip_trunk_auth_password && { sip_trunk_auth_password }),
-      };
+      ...(termination_uri && { termination_uri }),
+      ...(sip_trunk_auth_username && { sip_trunk_auth_username }),
+      ...(sip_trunk_auth_password && { sip_trunk_auth_password }),
+    };
     }
 
     console.log(`${isCreating ? 'Creando' : 'Importando'} número telefónico para usuario:`, {

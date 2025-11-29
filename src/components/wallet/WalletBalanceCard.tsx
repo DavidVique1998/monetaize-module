@@ -50,8 +50,8 @@ export function WalletBalanceCard({ className, onRechargeClick }: WalletBalanceC
 
   const isNegative = balance ? balance.balance < 0 : false;
   const formattedBalance = balance
-    ? `${isNegative ? '-' : ''}$${Math.abs(balance.balance).toFixed(2)}`
-    : '$0.00';
+    ? `${isNegative ? '-' : ''}$${Math.abs(balance.balance).toFixed(3)}`
+    : '$0.000';
 
   return (
     <div className={cn(

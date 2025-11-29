@@ -136,8 +136,8 @@ export async function POST(request: NextRequest) {
       hasMetadata: !!metadata
     });
 
-    // Crear la llamada usando Retell
-    const callResponse = await RetellService.createCall(callData);
+    // Crear la llamada usando Retell (con captura automática en BD)
+    const callResponse = await RetellService.createCall(callData, user.id);
 
     console.log('Llamada creada exitosamente:', callResponse.call_id);
 

@@ -237,10 +237,10 @@ export function ImportPhoneNumberModal({ isOpen, onClose, onSuccess, agents = []
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                   País
-                </label>
+              </label>
                 <select
                   {...register('country_code')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -278,7 +278,7 @@ export function ImportPhoneNumberModal({ isOpen, onClose, onSuccess, agents = []
               />
             </div>
 
-          
+
             {/* Agents */}
             <div className="space-y-4">
               <h3 className="text-sm font-medium text-gray-900">Agent Configuration</h3>

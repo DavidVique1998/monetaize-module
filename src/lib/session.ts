@@ -8,10 +8,18 @@
 
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import type { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 
-const prisma = new PrismaClient();
+// Lazy import de Prisma para evitar problemas en Edge Runtime
+// Solo se importa cuando se necesita (en métodos que usan la base de datos)
+let prisma: any = null;
+async function getPrisma() {
+  if (!prisma) {
+    const { PrismaClient } = await import('@prisma/client');
+    prisma = new PrismaClient();
+  }
+  return prisma;
+}
 
 export interface SessionUser {
   id: string;
@@ -157,6 +165,7 @@ export class SessionManager {
     }
 
     try {
+      const prisma = await getPrisma();
       const user = await prisma.user.findUnique({
         where: { id: userId },
         select: {
@@ -254,6 +263,7 @@ export class SessionManager {
    */
   static async createSessionFromUserId(response: NextResponse, userId: string): Promise<NextResponse> {
     try {
+      const prisma = await getPrisma();
       const user = await prisma.user.findUnique({
         where: { id: userId },
         select: {

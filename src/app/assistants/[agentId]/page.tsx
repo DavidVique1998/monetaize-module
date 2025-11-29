@@ -6,8 +6,8 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAgents, RetellAgent } from '@/hooks/useAgents';
 import { useVoices } from '@/hooks/useVoices';
 import { VoiceSelector } from '@/components/assistants/VoiceSelector';
-import { CallSettingsModal } from '@/components/assistants/CallSettingsModal';
-import { VoiceSettingsModal } from '@/components/assistants/VoiceSettingsModal';
+import { ModelConfigDrawer } from '@/components/assistants/ModelConfigDrawer';
+import { AgentConfigSidebar } from '@/components/assistants/AgentConfigSidebar';
 import { WebCallInterface } from '@/components/assistants/WebCallInterface';
 import { ChatLabInterface } from '@/components/assistants/ChatLabInterface';
 import { 
@@ -15,36 +15,30 @@ import {
   Pencil, 
   Copy, 
   Save, 
-  Phone, 
   Settings as SettingsIcon,
-  Volume2,
-  Tag,
   Sparkles,
   Info,
-  ChevronRight,
-  FlaskConical,
-  Users,
   Rocket,
-  RotateCw,
   AlertTriangle,
   Cloud,
-  Calendar,
   CheckCircle2,
-  Paperclip,
-  Search,
-  FileText,
-  BookOpen,
-  ChevronLeft,
-  ChevronRight as ChevronRightIcon,
-  Trash2,
-  Wrench,
-  ArrowUp,
-  ArrowDown,
-  Plus,
-  Image
+  X,
+  Tag
 } from 'lucide-react';
 
-type TabType = 'builder' | 'voice' | 'chat' | 'knowledge';
+// Idiomas disponibles según Retell AI
+const LANGUAGES = [
+  { code: 'en-US', name: 'English', flag: '🇺🇸' },
+  { code: 'es-ES', name: 'Spanish', flag: '🇪🇸' },
+  { code: 'es-MX', name: 'Spanish (Mexico)', flag: '🇲🇽' },
+  { code: 'fr-FR', name: 'French', flag: '🇫🇷' },
+  { code: 'de-DE', name: 'German', flag: '🇩🇪' },
+  { code: 'it-IT', name: 'Italian', flag: '🇮🇹' },
+  { code: 'pt-BR', name: 'Portuguese (Brazil)', flag: '🇧🇷' },
+  { code: 'ja-JP', name: 'Japanese', flag: '🇯🇵' },
+  { code: 'ko-KR', name: 'Korean', flag: '🇰🇷' },
+  { code: 'zh-CN', name: 'Chinese (Simplified)', flag: '🇨🇳' },
+];
 
 export default function EditAssistantPage() {
   const router = useRouter();
@@ -56,23 +50,30 @@ export default function EditAssistantPage() {
   
   const [agent, setAgent] = useState<(RetellAgent & { prompt?: string }) | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<TabType>('builder');
   const [prompt, setPrompt] = useState('');
   const [agentName, setAgentName] = useState('');
   const [isNameEditing, setIsNameEditing] = useState(false);
   const [voiceId, setVoiceId] = useState('');
   const [voiceModel, setVoiceModel] = useState<string | null>(null);
-  const [voiceTemperature, setVoiceTemperature] = useState(1);
-  const [voiceSpeed, setVoiceSpeed] = useState(1);
-  const [volume, setVolume] = useState(1);
+  const [language, setLanguage] = useState('en-US');
   const [llmId, setLlmId] = useState('gpt-4o');
   const [isSaved, setIsSaved] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
   const [ownershipError, setOwnershipError] = useState<{ message: string; agentId: string } | null>(null);
-  const [showCallSettings, setShowCallSettings] = useState(false);
-  const [showVoiceSettings, setShowVoiceSettings] = useState(false);
+  const [showModelDrawer, setShowModelDrawer] = useState(false);
+  const [additionalSettings, setAdditionalSettings] = useState<any>({});
+  const [activeTab, setActiveTab] = useState<'create' | 'simulation'>('create');
+  const [autoSaveTimer, setAutoSaveTimer] = useState<NodeJS.Timeout | null>(null);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [agentStats, setAgentStats] = useState<{
+    costPerMinute: string | null;
+    latency: string | null;
+    tokens: string | null;
+    totalCalls: number;
+  } | null>(null);
+  const [loadingStats, setLoadingStats] = useState(false);
 
   // Auto-hide error after 5 seconds
   useEffect(() => {
@@ -84,17 +85,29 @@ export default function EditAssistantPage() {
     }
   }, [publishError]);
 
-  const handleCallSettingsSave = (settings: any) => {
-    // Store settings without saving yet, just update state
-    setCallSettings(settings);
-    setIsSaved(false);
-  };
-
-  const [callSettings, setCallSettings] = useState<any>(null);
-
   useEffect(() => {
     loadAgent();
+    loadAgentStats();
   }, [agentId]);
+
+  const loadAgentStats = async () => {
+    if (!agentId) return;
+    
+    try {
+      setLoadingStats(true);
+      const response = await fetch(`/api/agents/${agentId}/stats`);
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          setAgentStats(result.data);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading agent stats:', error);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
 
   useEffect(() => {
     if (agent) {
@@ -102,23 +115,57 @@ export default function EditAssistantPage() {
       setAgentName(agent.agent_name || '');
       setVoiceId(agent.voice_id || '');
       setVoiceModel(agent.voice_model || null);
-      setVoiceTemperature(agent.voice_temperature || 1);
-      setVoiceSpeed(agent.voice_speed || 1);
-      setVolume(agent.volume || 1);
+      setLanguage(agent.language || 'en-US');
       
       // Acceder a llm_id de forma segura
       const responseEngine = agent.response_engine;
       if (responseEngine && typeof responseEngine === 'object' && 'llm_id' in responseEngine) {
         setLlmId(responseEngine.llm_id || 'gpt-4o');
       }
+
+      // Cargar configuraciones adicionales del agente
+      setAdditionalSettings({
+        responsiveness: agent.responsiveness,
+        interruption_sensitivity: agent.interruption_sensitivity,
+        enable_backchannel: agent.enable_backchannel,
+        voice_temperature: agent.voice_temperature,
+        voice_speed: agent.voice_speed,
+        volume: agent.volume,
+        stt_mode: agent.stt_mode,
+        vocab_specialization: agent.vocab_specialization,
+        denoising_mode: agent.denoising_mode,
+        max_call_duration_ms: agent.max_call_duration_ms,
+        end_call_after_silence_ms: agent.end_call_after_silence_ms,
+        ring_duration_ms: agent.ring_duration_ms,
+        begin_message_delay_ms: agent.begin_message_delay_ms,
+        allow_user_dtmf: agent.allow_user_dtmf,
+        ambient_sound: agent.ambient_sound,
+        post_call_analysis_model: agent.post_call_analysis_model,
+        data_storage_setting: agent.data_storage_setting,
+        opt_in_signed_url: agent.opt_in_signed_url,
+        normalize_for_speech: agent.normalize_for_speech,
+        webhook_url: agent.webhook_url,
+        webhook_timeout_ms: agent.webhook_timeout_ms,
+      });
     }
   }, [agent]);
 
   const loadAgent = async () => {
     try {
       setLoading(true);
-      const agentData = await getAgent(agentId);
+      // El endpoint GET ya devuelve el prompt usando getAgentWithPrompt
+      const response = await fetch(`/api/agents/${agentId}`);
+      if (!response.ok) {
+        throw new Error('Failed to load agent');
+      }
+      const result = await response.json();
+      const agentData = result.data;
       setAgent(agentData);
+      
+      // El prompt ya viene en agentData.prompt si existe
+      if (agentData.prompt) {
+        setPrompt(agentData.prompt);
+      }
       
       // Also update the agent in the main agents list to keep it in sync
       updateAgentStatus(agentId, {
@@ -139,35 +186,28 @@ export default function EditAssistantPage() {
     
     setIsSaving(true);
     try {
-      // Combine all settings
+      // Preparar datos según la documentación de Retell AI
       const allSettings: any = {
         agent_name: agentName,
-        prompt: prompt,
         voice_id: voiceId,
-        voice_model: voiceModel,
-        voice_temperature: voiceTemperature,
-        voice_speed: voiceSpeed,
-        volume: volume,
+        language: language,
+        prompt: prompt, // El endpoint de agentes maneja el prompt
+        ...(voiceModel && { voice_model: voiceModel }),
         response_engine: {
           ...agent.response_engine,
           llm_id: llmId,
         },
+        ...additionalSettings, // Incluir configuraciones adicionales del sidebar
       };
 
-      // Include call settings if they were modified
-      if (callSettings) {
-        Object.assign(allSettings, callSettings);
-      }
-
+      // Actualizar el agente (el endpoint maneja el prompt automáticamente)
       await updateAgent(agentId, allSettings);
+
       setIsSaved(true);
-      setCallSettings(null); // Clear call settings after save
-      setOwnershipError(null); // Clear any previous ownership errors
-      // No need to reload - updateAgent already updates the local state
+      setOwnershipError(null);
     } catch (error: any) {
       console.error('Error saving agent:', error);
       
-      // Manejar errores de ownership específicamente
       if (error.isOwnershipError) {
         setOwnershipError({
           message: error.message,
@@ -193,27 +233,16 @@ export default function EditAssistantPage() {
         body: JSON.stringify({ agentId }),
       });
 
-      console.log('Publish response status:', response.status);
-
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Publish API Error:', errorData);
         throw new Error(errorData.error || `HTTP ${response.status}: Failed to publish agent`);
       }
 
       const result = await response.json();
-      console.log('Publish result:', result);
       
       if (result.success) {
-        // Use the updated agent data returned from the API
-        console.log('Agent published successfully');
-        console.log('Updated agent data:', result.data);
-        
-        // Update the local agent state with the real data from Retell
         if (result.data) {
           setAgent(result.data);
-          
-          // Also update the agent in the main agents list
           updateAgentStatus(agentId, {
             version: result.data.version,
             is_published: result.data.is_published,
@@ -234,7 +263,59 @@ export default function EditAssistantPage() {
   const handlePromptChange = (value: string) => {
     setPrompt(value);
     setIsSaved(false);
+    // Auto-guardar después de 2 segundos de inactividad
+    scheduleAutoSave();
   };
+
+  const scheduleAutoSave = () => {
+    if (autoSaveTimer) {
+      clearTimeout(autoSaveTimer);
+    }
+    // Solo auto-guardar si hay cambios sin guardar
+    if (!isSaved) {
+      const timer = setTimeout(() => {
+        handleAutoSave();
+      }, 2000); // 2 segundos de debounce
+      setAutoSaveTimer(timer);
+    }
+  };
+
+  const handleAutoSave = async () => {
+    if (!agent || isSaving) return;
+    
+    try {
+      setIsAutoSaving(true);
+      const allSettings: any = {
+        agent_name: agentName,
+        voice_id: voiceId,
+        language: language,
+        prompt: prompt,
+        ...(voiceModel && { voice_model: voiceModel }),
+        response_engine: {
+          ...agent.response_engine,
+          llm_id: llmId,
+        },
+        ...additionalSettings,
+      };
+
+      await updateAgent(agentId, allSettings);
+      setIsSaved(true);
+    } catch (error: any) {
+      console.error('Error auto-saving:', error);
+      // No mostrar error al usuario en auto-save, solo log
+    } finally {
+      setIsAutoSaving(false);
+    }
+  };
+
+  // Limpiar timer al desmontar
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimer) {
+        clearTimeout(autoSaveTimer);
+      }
+    };
+  }, [autoSaveTimer]);
 
   const handleCopyId = () => {
     if (agent) {
@@ -242,9 +323,20 @@ export default function EditAssistantPage() {
     }
   };
 
+  const handleModelSave = (newLlmId: string) => {
+    setLlmId(newLlmId);
+    setIsSaved(false);
+  };
+
+  const selectedLanguage = LANGUAGES.find(lang => lang.code === language) || LANGUAGES[0];
   const selectedVoice = voices.find(v => v.voice_id === voiceId);
   const characterCount = prompt.length;
   const characterLimit = 8024;
+
+  // Obtener LLM ID para mostrar
+  const displayLlmId = agent?.response_engine && 'llm_id' in agent.response_engine 
+    ? agent.response_engine.llm_id 
+    : llmId;
 
   if (loading) {
     return (
@@ -272,10 +364,10 @@ export default function EditAssistantPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col h-full bg-white">
-        {/* Top Navigation with Tabs */}
-        <div className="border-b border-gray-200">
-          {/* Back button and Title */}
-          <div className="px-6 py-3 flex items-center justify-between border-b border-gray-200">
+        {/* Top Header */}
+        <div className="border-b border-gray-200 px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Left: Back button and Title */}
             <div className="flex items-center space-x-4 flex-1">
               <button
                 onClick={() => router.push('/assistants')}
@@ -283,6 +375,7 @@ export default function EditAssistantPage() {
               >
                 <ArrowLeft className="w-5 h-5 text-gray-600" />
               </button>
+              
               <div>
                 {isNameEditing ? (
                   <input
@@ -296,79 +389,77 @@ export default function EditAssistantPage() {
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') setIsNameEditing(false);
                     }}
-                    className="text-base font-semibold text-gray-900 border border-purple-500 rounded px-2 py-1"
+                    className="text-xl font-semibold text-gray-900 border border-purple-500 rounded px-3 py-1.5 bg-white"
                     autoFocus
                   />
                 ) : (
                   <div className="flex items-center space-x-2">
-                    <h1 className="text-base font-semibold text-gray-900">
-                      {agentName}
+                    <h1 className="text-xl font-semibold text-gray-900">
+                      {agentName || 'Unnamed Assistant'}
                     </h1>
                     <button
                       onClick={() => setIsNameEditing(true)}
                       className="p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
                     >
-                      <Pencil className="w-3 h-3 text-gray-500" />
+                      <Pencil className="w-4 h-4 text-gray-500" />
                     </button>
                   </div>
                 )}
-                <div className="flex items-center space-x-2 mt-1">
-                  <span className="text-sm text-gray-500">ID: {agent.agent_id.substring(0, 6)}...{agent.agent_id.substring(agent.agent_id.length - 4)}</span>
-                  <button
-                    onClick={handleCopyId}
-                    className="p-0.5 hover:bg-gray-100 rounded transition-colors cursor-pointer"
-                  >
-                    <Copy className="w-3 h-3 text-gray-400" />
-                  </button>
+                
+                {/* Agent Info */}
+                <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
+                  <div className="flex items-center space-x-1">
+                    <span className="font-medium">Agent ID:</span>
+                    <span className="font-mono">{agent.agent_id.substring(0, 6)}...{agent.agent_id.substring(agent.agent_id.length - 4)}</span>
+                    <button
+                      onClick={handleCopyId}
+                      className="p-0.5 hover:bg-gray-100 rounded transition-colors cursor-pointer ml-1"
+                    >
+                      <Copy className="w-3 h-3 text-gray-400" />
+                    </button>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <span className="font-medium">Retell LLM ID:</span>
+                    <span className="font-mono">{displayLlmId?.substring(0, 6)}...{displayLlmId?.substring(displayLlmId.length - 4)}</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    {loadingStats ? (
+                      <span className="text-gray-400">Loading...</span>
+                    ) : agentStats?.costPerMinute ? (
+                      <span>{agentStats.costPerMinute}</span>
+                    ) : (
+                      <span className="text-gray-400">No data</span>
+                    )}
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    {loadingStats ? (
+                      <span className="text-gray-400">Loading...</span>
+                    ) : agentStats?.latency ? (
+                      <span>{agentStats.latency}</span>
+                    ) : (
+                      <span className="text-gray-400">No data</span>
+                    )}
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    {loadingStats ? (
+                      <span className="text-gray-400">Loading...</span>
+                    ) : agentStats?.tokens ? (
+                      <span>{agentStats.tokens}</span>
+                    ) : (
+                      <span className="text-gray-400">No data</span>
+                    )}
+                  </div>
+                  {agentStats && agentStats.totalCalls > 0 && (
+                    <div className="flex items-center space-x-1 text-xs text-gray-500">
+                      <span>({agentStats.totalCalls} calls)</span>
+                    </div>
+                  )}
                 </div>
               </div>
-
             </div>
 
-            {/* Top Right Controls */}
-            <div className="flex items-center space-x-3 ml-4">
-              {/* Phone Control */}
-              <div className="flex items-center space-x-2 px-3 py-1.5 border border-gray-300 rounded-lg">
-                <Phone className="w-3 h-3 text-gray-400" />
-                <input
-                  type="text"
-                  value="-"
-                  readOnly
-                  className="text-sm text-gray-900 bg-transparent border-0 outline-0 w-8"
-                />
-                <button className="hover:bg-gray-100 rounded p-0.5 transition-colors cursor-pointer">
-                  <SettingsIcon className="w-3 h-3 text-gray-400" />
-                </button>
-              </div>
-
-              {/* Tag Selection */}
-              <div className="flex items-center space-x-2 px-3 py-1.5 border border-gray-300 rounded-lg">
-                <Tag className="w-3 h-3 text-gray-400" />
-                <select
-                  defaultValue=""
-                  className="text-sm font-medium text-gray-900 bg-transparent border-0 outline-0 cursor-pointer"
-                >
-                  <option value="">Select Tag</option>
-                  <option value="support">Support</option>
-                  <option value="sales">Sales</option>
-                  <option value="marketing">Marketing</option>
-                </select>
-                <button className="hover:bg-gray-100 rounded p-0.5 transition-colors cursor-pointer">
-                  <SettingsIcon className="w-3 h-3 text-gray-400" />
-                </button>
-              </div>
-
-              {/* Voice Selection */}
-              <VoiceSelector
-                voices={voices}
-                value={voiceId}
-                onChange={(voiceId) => {
-                  setVoiceId(voiceId);
-                  setIsSaved(false);
-                }}
-                onSettingsClick={voiceId ? () => setShowVoiceSettings(true) : undefined}
-              />
-
+            {/* Right: Controls */}
+            <div className="flex items-center space-x-3">
               <button
                 onClick={handleSave}
                 disabled={isSaved || isSaving}
@@ -387,494 +478,250 @@ export default function EditAssistantPage() {
                 {isPublishing ? 'Publishing...' : 'Publish Agent'}
               </button>
             </div>
-
-            {/* Publish Error Message - Fixed position to avoid layout shift */}
-            {publishError && (
-              <div className="fixed top-4 right-4 z-50 bg-red-50 border border-red-200 rounded-lg p-4 shadow-lg max-w-md animate-in slide-in-from-right duration-300">
-                <div className="flex items-start space-x-2">
-                  <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-sm text-red-800 font-medium">Failed to publish agent</p>
-                    <p className="text-xs text-red-700 mt-1 break-words">{publishError}</p>
-                  </div>
-                  <button
-                    onClick={() => setPublishError(null)}
-                    className="text-red-400 hover:text-red-600 transition-colors ml-2 flex-shrink-0"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Ownership Error Message - Fixed position */}
-            {ownershipError && (
-              <div className="fixed top-4 right-4 z-50 bg-orange-50 border border-orange-200 rounded-lg p-4 shadow-lg max-w-md animate-in slide-in-from-right duration-300">
-                <div className="flex items-start space-x-2">
-                  <AlertTriangle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-sm text-orange-800 font-medium">Agent Ownership Issue</p>
-                    <p className="text-xs text-orange-700 mt-1 break-words">
-                      Este agente no está vinculado correctamente con tu cuenta.
-                    </p>
-                    <button
-                      onClick={() => router.push('/debug/agents')}
-                      className="mt-2 text-xs bg-orange-600 hover:bg-orange-700 text-white px-2 py-1 rounded transition-colors"
-                    >
-                      Ir a Debug Tools
-                    </button>
-                  </div>
-                  <button
-                    onClick={() => setOwnershipError(null)}
-                    className="text-orange-400 hover:text-orange-600 transition-colors ml-2 flex-shrink-0"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Tabs with Controls */}
-          <div className="flex items-center justify-between px-6 border-t border-gray-200">
-            <div className="flex space-x-2">
-            <button
-              onClick={() => setActiveTab('builder')}
-              className={`px-4 py-2 text-sm font-medium transition-colors cursor-pointer rounded-t-lg ${
-                activeTab === 'builder'
-                  ? 'bg-white text-gray-900 border border-b-0 border-gray-200'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Builder
-            </button>
-            <button
-              onClick={() => setActiveTab('voice')}
-              className={`px-4 py-2 text-sm font-medium transition-colors cursor-pointer rounded-t-lg ${
-                activeTab === 'voice'
-                  ? 'bg-white text-gray-900 border border-b-0 border-gray-200'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Voice Lab
-            </button>
-            <button
-              onClick={() => setActiveTab('chat')}
-              className={`px-4 py-2 text-sm font-medium transition-colors cursor-pointer rounded-t-lg ${
-                activeTab === 'chat'
-                  ? 'bg-white text-gray-900 border border-b-0 border-gray-200'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Chat Lab
-            </button>
-            <button
-              onClick={() => setActiveTab('knowledge')}
-              className={`px-4 py-2 text-sm font-medium transition-colors cursor-pointer rounded-t-lg ${
-                activeTab === 'knowledge'
-                  ? 'bg-white text-gray-900 border border-b-0 border-gray-200'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Knowledge Lab
-            </button>
-            </div>
-
-            {/* Controls row - Saved, GPT-4o, Icons, Issues */}
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-1 text-sm text-green-600">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>{agent && (agent as any).is_published ? 'Published' : 'Saved'}</span>
-              </div>
-              <select
-                value={llmId}
-                onChange={(e) => {
-                  setLlmId(e.target.value);
-                  setIsSaved(false);
-                }}
-                className="px-3 py-1.5 text-sm font-medium border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none cursor-pointer"
-              >
-                <option value="gpt-4o">GPT-4o</option>
-                <option value="gpt-4">GPT-4</option>
-                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-              </select>
-              <div className="flex items-center space-x-1">
-                <FlaskConical className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600" />
-                <Users className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600" />
-                <Rocket className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600" />
-              </div>
-              <RotateCw className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600" />
-              <div className="flex items-center space-x-1 text-sm text-gray-600">
-                <AlertTriangle className="w-4 h-4 text-gray-400" />
-                <span>0 issues</span>
-              </div>
-            </div>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex overflow-hidden bg-white">
-          {/* Main Editor */}
+        <div className="flex-1 flex overflow-hidden">
+          {/* Left: Main Editor or Test Interface */}
           <div className="flex-1 flex flex-col overflow-hidden p-6">
-            {activeTab === 'builder' && (
-              <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
-                {/* Global Prompt Section Header */}
-                <div className="flex items-center justify-between border-b border-gray-200 pb-3 mb-4 flex-wrap gap-3">
-                  <div className="flex items-center space-x-2">
-                    <h2 className="text-lg font-semibold text-gray-900">Global Prompt</h2>
-                    <span className="text-sm text-gray-500">
-                      {characterCount} / {characterLimit} characters
-                    </span>
-                    <button className="p-1">
-                      <Info className="w-4 h-4 text-gray-400" />
-                    </button>
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
-                      <Tag className="w-3 h-3" />
-                      <span>Dynamic Greeting</span>
-                    </button>
-                    <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
-                      <Tag className="w-3 h-3" />
-                      <span>Fields & Values</span>
-                    </button>
-                    <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
-                      <Pencil className="w-3 h-3" />
-                      <span>Add Snippet</span>
-                    </button>
-                    <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
-                      <Sparkles className="w-3 h-3" />
-                      <span>Generate Prompt</span>
-                    </button>
-                  </div>
+            {activeTab === 'create' ? (
+              <>
+            {/* Controls Bar */}
+            <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200">
+              <div className="flex items-center space-x-3">
+                {/* Model Selector */}
+                <div className="relative">
+                  <select
+                    value={llmId}
+                    onChange={(e) => {
+                      setLlmId(e.target.value);
+                      setIsSaved(false);
+                    }}
+                    className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent cursor-pointer pr-8"
+                  >
+                    <option value="gpt-4o">GPT-4o</option>
+                    <option value="gpt-4">GPT-4</option>
+                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                    <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash</option>
+                    <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
+                  </select>
+                  <button
+                    onClick={() => setShowModelDrawer(true)}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded"
+                  >
+                    <SettingsIcon className="w-4 h-4 text-gray-500" />
+                  </button>
                 </div>
 
-                {/* Prompt textarea - fills remaining space */}
-                <textarea
-                  value={prompt}
-                  onChange={(e) => handlePromptChange(e.target.value)}
-                  placeholder="Enter your prompt here..."
-                  className="flex-1 w-full min-h-[500px] p-4 text-sm text-gray-900 placeholder-gray-400 focus:outline-none resize-none bg-white"
-                />
-              </div>
-            )}
-
-            {activeTab === 'voice' && (
-              <div className="flex-1 flex flex-col min-h-0 overflow-y-auto space-y-4">
-                {/* Web Call Interface */}
-                <WebCallInterface 
-                  agentId={agentId}
-                  agentName={agentName}
-                  onCallStart={() => console.log('Call started')}
-                  onCallEnd={() => console.log('Call ended')}
+                {/* Voice Selector */}
+                <VoiceSelector
+                  voices={voices}
+                  value={voiceId}
+                  onChange={(voiceId) => {
+                    setVoiceId(voiceId);
+                    setIsSaved(false);
+                    scheduleAutoSave();
+                  }}
                 />
 
-                {/* Warning Message */}
-                <div className="flex items-start space-x-3 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
-                  <p className="text-sm text-yellow-800">Voice Lab allows you to test your agent with real web calls. Make sure to save your voice settings before testing.</p>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'chat' && (
-              <ChatLabInterface agentId={agentId} agentName={agentName} />
-            )}
-
-            {activeTab === 'knowledge' && (
-              <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
-                {/* Knowledge Lab Content */}
-                <div className="bg-white border border-gray-200 rounded-lg p-6 flex flex-col h-full">
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Embedding playground</h3>
-                    <p className="text-sm text-gray-600">Testing BLCO KNOWLEDGE</p>
-                  </div>
-
-                  {/* Examples */}
-                  <div className="flex-1 space-y-4 overflow-y-auto mb-6 min-h-0">
-                    {/* Example 1 */}
-                    <div className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        <span className="text-sm font-medium text-gray-900">¿Cómo funciona el servicio de entrega?</span>
-                      </div>
-                      <div className="ml-6 border-l-2 border-purple-500 pl-4">
-                        <p className="text-sm text-gray-700 mb-2">
-                          Nuestro servicio de entrega funciona dentro de un radio de 50km del centro de la ciudad. Los pedidos se entregan en 24-48 horas hábiles.
-                        </p>
-                        <div className="flex items-center space-x-2 text-xs text-gray-500">
-                          <Image className="w-4 h-4" />
-                          <span>0% match -</span>
-                        </div>
-                      </div>
-                      <div className="flex justify-end space-x-2 mt-2">
-                        <button className="p-1 text-gray-400 hover:text-gray-600 cursor-pointer">
-                          <Plus className="w-4 h-4" />
-                        </button>
-                        <button className="p-1 text-gray-400 hover:text-gray-600 cursor-pointer">
-                          <ArrowUp className="w-4 h-4" />
-                        </button>
-                        <button className="p-1 text-gray-400 hover:text-gray-600 cursor-pointer">
-                          <ArrowDown className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Example 2 */}
-                    <div className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        <span className="text-sm font-medium text-gray-900">¿Cuáles son sus horarios de atención?</span>
-                      </div>
-                      <div className="ml-6 border-l-2 border-purple-500 pl-4">
-                        <p className="text-sm text-gray-700 mb-2">
-                          Atendemos de lunes a viernes de 9:00 AM a 7:00 PM, y los sábados de 10:00 AM a 2:00 PM. Los domingos cerrado.
-                        </p>
-                        <div className="flex items-center space-x-2 text-xs text-gray-500">
-                          <Image className="w-4 h-4" />
-                          <span>0% match -</span>
-                        </div>
-                      </div>
-                      <div className="flex justify-end space-x-2 mt-2">
-                        <button className="p-1 text-gray-400 hover:text-gray-600 cursor-pointer">
-                          <Plus className="w-4 h-4" />
-                        </button>
-                        <button className="p-1 text-gray-400 hover:text-gray-600 cursor-pointer">
-                          <ArrowUp className="w-4 h-4" />
-                        </button>
-                        <button className="p-1 text-gray-400 hover:text-gray-600 cursor-pointer">
-                          <ArrowDown className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Example 3 */}
-                    <div className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        <span className="text-sm font-medium text-gray-900">¿Qué métodos de pago aceptan?</span>
-                      </div>
-                      <div className="ml-6 border-l-2 border-purple-500 pl-4">
-                        <p className="text-sm text-gray-700 mb-2">
-                          Aceptamos tarjetas de crédito (Visa, Mastercard, Amex), transferencia bancaria y efectivo para entregas locales.
-                        </p>
-                        <div className="flex items-center space-x-2 text-xs text-gray-500">
-                          <Image className="w-4 h-4" />
-                          <span>0% match -</span>
-                        </div>
-                      </div>
-                      <div className="flex justify-end space-x-2 mt-2">
-                        <button className="p-1 text-gray-400 hover:text-gray-600 cursor-pointer">
-                          <Plus className="w-4 h-4" />
-                        </button>
-                        <button className="p-1 text-gray-400 hover:text-gray-600 cursor-pointer">
-                          <ArrowUp className="w-4 h-4" />
-                        </button>
-                        <button className="p-1 text-gray-400 hover:text-gray-600 cursor-pointer">
-                          <ArrowDown className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Example 4 */}
-                    <div className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        <span className="text-sm font-medium text-gray-900">¿Tienen garantía en sus productos?</span>
-                      </div>
-                      <div className="ml-6 border-l-2 border-purple-500 pl-4">
-                        <p className="text-sm text-gray-700 mb-2">
-                          Todos nuestros productos tienen garantía de 30 días. Si no estás satisfecho, puedes devolver el producto sin preguntas.
-                        </p>
-                        <div className="flex items-center space-x-2 text-xs text-gray-500">
-                          <Image className="w-4 h-4" />
-                          <span>0% match -</span>
-                        </div>
-                      </div>
-                      <div className="flex justify-end space-x-2 mt-2">
-                        <button className="p-1 text-gray-400 hover:text-gray-600 cursor-pointer">
-                          <Plus className="w-4 h-4" />
-                        </button>
-                        <button className="p-1 text-gray-400 hover:text-gray-600 cursor-pointer">
-                          <ArrowUp className="w-4 h-4" />
-                        </button>
-                        <button className="p-1 text-gray-400 hover:text-gray-600 cursor-pointer">
-                          <ArrowDown className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bottom Input Section */}
-                  <div className="border-t border-gray-200 pt-4 mt-auto">
-                    <div className="relative mb-4">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type="text"
-                        placeholder="Ask your knowledge base a question..."
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center justify-between">
-                      <button className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 transition-colors cursor-pointer">
-                        <RotateCw className="w-4 h-4" />
-                        <span>reset memory</span>
-                      </button>
-                      <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-2 rounded-lg transition-colors cursor-pointer">
-                        Submit
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Right Sidebar - Tool Kit */}
-          <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto p-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-gray-900">Tool Kit</h3>
-                <Info className="w-4 h-4 text-gray-400" />
-              </div>
-
-              {/* Tool Kit Items */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <Sparkles className="w-4 h-4 text-purple-600" />
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">Chat Settings</span>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
-                </div>
-
-                <div 
-                  onClick={() => setShowCallSettings(true)}
-                  className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Phone className="w-4 h-4 text-blue-600" />
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">Call Settings</span>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
-                </div>
-
-                <div className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                      <SettingsIcon className="w-4 h-4 text-green-600" />
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">Tools & APIs</span>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
-                </div>
-
-                <div className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                      <Pencil className="w-4 h-4 text-orange-600" />
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">Map Custom Fields</span>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
-                </div>
-
-                <div className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
-                      <BookOpen className="w-4 h-4 text-yellow-600" />
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">Knowledge Base</span>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
-                </div>
-
-                <div className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
-                      <Calendar className="w-4 h-4 text-indigo-600" />
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">Calendars</span>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
-                </div>
-
-                <div className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                      <Search className="w-4 h-4 text-red-600" />
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">Find & Replace</span>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
-                </div>
-
-                <div className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <FileText className="w-4 h-4 text-gray-600" />
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">Team Notes</span>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                {/* Language Selector */}
+                <div className="relative">
+                  <select
+                    value={language}
+                    onChange={(e) => {
+                      setLanguage(e.target.value);
+                      setIsSaved(false);
+                      scheduleAutoSave();
+                    }}
+                    className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent cursor-pointer flex items-center"
+                  >
+                    {LANGUAGES.map((lang) => (
+                      <option key={lang.code} value={lang.code}>
+                        {lang.flag} {lang.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
-              {/* Calendar Section */}
-              <div className="mt-6 border-t border-gray-200 pt-4">
-                <div className="flex items-center space-x-2 mb-3">
-                  <Calendar className="w-4 h-4 text-gray-500" />
-                  <h4 className="text-sm font-semibold text-gray-700">Calendar</h4>
-                </div>
-                <div className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-sm text-gray-900">Residential Calender Ai</span>
-                  <CheckCircle2 className="w-4 h-4 text-green-500 ml-auto" />
-                </div>
+              {/* Status Indicator */}
+              <div className="flex items-center space-x-2 text-sm">
+                {isAutoSaving ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-purple-600 font-medium">Auto-saving...</span>
+                  </>
+                ) : agent && (agent as any).is_published ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-green-600" />
+                    <span className="text-green-600 font-medium">Published</span>
+                  </>
+                ) : isSaved ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-green-600" />
+                    <span className="text-green-600 font-medium">Saved</span>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full" />
+                    <span className="text-yellow-600 font-medium">Unsaved changes</span>
+                  </>
+                )}
               </div>
             </div>
 
+            {/* Prompt Header */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <h2 className="text-lg font-semibold text-gray-900">Global Prompt</h2>
+                <span className="text-sm text-gray-500">
+                  {characterCount} / {characterLimit} characters
+                </span>
+                <button className="p-1">
+                  <Info className="w-4 h-4 text-gray-400" />
+                </button>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
+                  <Tag className="w-3 h-3" />
+                  <span>Dynamic Greeting</span>
+                </button>
+                <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
+                  <Tag className="w-3 h-3" />
+                  <span>Fields & Values</span>
+                </button>
+                <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
+                  <Pencil className="w-3 h-3" />
+                  <span>Add Snippet</span>
+                </button>
+                <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
+                  <Sparkles className="w-3 h-3" />
+                  <span>Generate Prompt</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Prompt Textarea */}
+            <textarea
+              value={prompt}
+              onChange={(e) => handlePromptChange(e.target.value)}
+              placeholder="Type in a universal prompt for your agent, such as its role, conversational style, objective, etc."
+              className="flex-1 w-full min-h-[500px] p-4 text-sm text-gray-900 placeholder-gray-400 focus:outline-none resize-none bg-white border border-gray-200 rounded-lg"
+            />
+              </>
+            ) : (
+              <div className="flex-1 flex flex-col space-y-4">
+                {/* Warning if unsaved changes */}
+                {!isSaved && (
+                  <div className="flex items-start space-x-3 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm text-yellow-800 font-medium">Unsaved Changes</p>
+                      <p className="text-xs text-yellow-700 mt-1">
+                        You have unsaved changes. Please save your agent before testing to ensure you're testing with the latest configuration.
+                      </p>
+                      <button
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        className="mt-2 text-xs bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1.5 rounded transition-colors disabled:opacity-50"
+                      >
+                        {isSaving ? 'Saving...' : 'Save Now'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Voice Lab - Web Call Interface */}
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Voice Lab</h3>
+                  <WebCallInterface 
+                    agentId={agentId}
+                    agentName={agentName}
+                    onCallStart={() => console.log('Call started')}
+                    onCallEnd={() => console.log('Call ended')}
+                  />
+                </div>
+
+                {/* Chat Lab */}
+                <div className="flex-1 border-t border-gray-200 pt-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Chat Lab</h3>
+                  <ChatLabInterface 
+                    agentId={agentId} 
+                    agentName={agentName} 
+                  />
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* Right Sidebar - Configuration Options */}
+          <AgentConfigSidebar
+            agent={agent}
+            settings={additionalSettings}
+            onSettingsChange={(settings) => {
+              setAdditionalSettings((prev: any) => ({ ...prev, ...settings }));
+              setIsSaved(false);
+            }}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
         </div>
-      </div>
 
-      {/* Call Settings Modal */}
-      <CallSettingsModal
-        isOpen={showCallSettings}
-        onClose={() => setShowCallSettings(false)}
-        agent={agent || undefined}
-        agentId={agentId}
-        onSave={handleCallSettingsSave}
-      />
+        {/* Error Messages */}
+        {publishError && (
+          <div className="fixed top-4 right-4 z-50 bg-red-50 border border-red-200 rounded-lg p-4 shadow-lg max-w-md animate-in slide-in-from-right duration-300">
+            <div className="flex items-start space-x-2">
+              <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm text-red-800 font-medium">Failed to publish agent</p>
+                <p className="text-xs text-red-700 mt-1 break-words">{publishError}</p>
+              </div>
+              <button
+                onClick={() => setPublishError(null)}
+                className="text-red-400 hover:text-red-600 transition-colors ml-2 flex-shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
 
-      {/* Voice Settings Modal */}
-        <VoiceSettingsModal
-          isOpen={showVoiceSettings}
-          onClose={() => setShowVoiceSettings(false)}
-          voiceModel={voiceModel}
-          voiceTemperature={voiceTemperature}
-          voiceSpeed={voiceSpeed}
-          volume={volume}
-          onSave={(settings) => {
-            // Update local states without saving yet
-            setVoiceModel(settings.voiceModel);
-            setVoiceTemperature(settings.voiceTemperature);
-            setVoiceSpeed(settings.voiceSpeed);
-            setVolume(settings.volume);
-            setIsSaved(false); // Activate Save Changes button
-          }}
+        {ownershipError && (
+          <div className="fixed top-4 right-4 z-50 bg-orange-50 border border-orange-200 rounded-lg p-4 shadow-lg max-w-md animate-in slide-in-from-right duration-300">
+            <div className="flex items-start space-x-2">
+              <AlertTriangle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm text-orange-800 font-medium">Agent Ownership Issue</p>
+                <p className="text-xs text-orange-700 mt-1 break-words">
+                  Este agente no está vinculado correctamente con tu cuenta.
+                </p>
+                <button
+                  onClick={() => router.push('/debug/agents')}
+                  className="mt-2 text-xs bg-orange-600 hover:bg-orange-700 text-white px-2 py-1 rounded transition-colors"
+                >
+                  Ir a Debug Tools
+                </button>
+              </div>
+              <button
+                onClick={() => setOwnershipError(null)}
+                className="text-orange-400 hover:text-orange-600 transition-colors ml-2 flex-shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Model Config Drawer */}
+        <ModelConfigDrawer
+          isOpen={showModelDrawer}
+          onClose={() => setShowModelDrawer(false)}
+          llmId={llmId}
+          onSave={handleModelSave}
         />
+      </div>
     </DashboardLayout>
   );
 }

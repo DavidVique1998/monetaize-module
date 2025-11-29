@@ -42,12 +42,12 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Registrar llamada con Retell
+    // Registrar llamada con Retell (sin userId ya que es una llamada entrante de Twilio)
     const retellCallResponse = await RetellService.createCall({
       from_number: fromNumber,
       to_number: toNumber,
       override_agent_id: config.retell.agentId
-    });
+    }, undefined);
     
     const retellCallId = retellCallResponse.call_id;
     

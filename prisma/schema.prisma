@@ -45,6 +45,7 @@ model User {
   agents       Agent[]
   phoneNumbers PhoneNumber[]
   wallet       Wallet?
+  calls        Call[]
 
   @@index([email])
   @@index([ghlLocationId])
@@ -209,6 +210,54 @@ model Conversation {
   @@index([agentId])
   @@index([contactId])
   @@index([createdAt])
+}
+
+// Call model for tracking Retell AI phone calls and web calls
+model Call {
+  id           String @id @default(uuid())
+  retellCallId String @unique // Retell call ID
+  callType     String // "phone" or "web"
+  direction    String @default("outbound") // "inbound" or "outbound"
+  status       String // "ringing", "ongoing", "ended", "failed", etc.
+
+  // Agent information
+  agentId      String?
+  agentVersion Int?
+
+  // Phone call specific
+  fromNumber String?
+  toNumber   String?
+
+  // Call metadata
+  duration     Int? // Duration in seconds
+  startTime    DateTime?
+  endTime      DateTime?
+  recordingUrl String?   @db.Text
+  transcript   String?   @db.Text
+
+  // Retell specific fields
+  retellMetadata       Json? // Store additional Retell call data
+  cost                 Decimal? @db.Decimal(10, 4) // Call cost in USD (combined_cost)
+  totalDurationSeconds Int? @map("total_duration_seconds") // Total duration in seconds from call_cost
+  tokensUsed           Int? @map("tokens_used") // Total tokens used from llm_token_usage
+  errorMessage         String?  @db.Text
+
+  // User ownership
+  userId String?
+  owner  User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([retellCallId])
+  @@index([agentId])
+  @@index([userId])
+  @@index([status])
+  @@index([callType])
+  @@index([direction])
+  @@index([createdAt])
+  @@index([fromNumber])
+  @@index([toNumber])
 }
 
 // Wallet model - Billetera vinculada al usuario/location

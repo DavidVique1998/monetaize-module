@@ -36,6 +36,7 @@ export function useSidebarNavigation() {
     { id: 'knowledge', label: 'Knowledge', href: '/knowledge', iconName: 'book-open' },
     { id: 'assistants', label: 'Assistants', href: '/assistants', iconName: 'user-plus' },
     { id: 'phone-numbers', label: 'Numbers', href: '/phone-numbers', iconName: 'smartphone' },
+    { id: 'call-history', label: 'Call History', href: '/call-history', iconName: 'phone' },
     // { id: 'active-tags', label: 'Active Tags', href: '/active-tags', iconName: 'tag' },
     // { id: 'widgets', label: 'Widgets', href: '/widgets', iconName: 'grid-3x3' },
     // Tercera sección

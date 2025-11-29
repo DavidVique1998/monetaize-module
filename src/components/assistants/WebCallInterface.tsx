@@ -22,6 +22,7 @@ export function WebCallInterface({
   const [callDuration, setCallDuration] = useState(0);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentCallId, setCurrentCallId] = useState<string | null>(null);
   
   const callDurationRef = useRef<NodeJS.Timeout | null>(null);
   const retellClientRef = useRef<any>(null);
@@ -41,15 +42,43 @@ export function WebCallInterface({
           console.log('Call started!');
         });
 
-        retellClientRef.current.on('call_ended', () => {
+        retellClientRef.current.on('call_ended', async () => {
           console.log('Call ended!');
           setIsCallActive(false);
+          
+          // Esperar un momento para que Retell procese los datos finales
+          // Luego actualizar datos finales de la llamada en la base de datos
+          if (currentCallId) {
+            setTimeout(async () => {
+              try {
+                const response = await fetch(`/api/calls/${currentCallId}/update`, {
+                  method: 'POST',
+                });
+                if (response.ok) {
+                  console.log('Call data updated successfully with final costs and tokens');
+                } else {
+                  console.warn('Failed to update call data, will retry...');
+                  // Reintentar después de 3 segundos más
+                  setTimeout(async () => {
+                    try {
+                      await fetch(`/api/calls/${currentCallId}/update`, {
+                        method: 'POST',
+                      });
+                      console.log('Call data updated on retry');
+                    } catch (error) {
+                      console.error('Error updating call data on retry:', error);
+                    }
+                  }, 3000);
+                }
+              } catch (error) {
+                console.error('Error updating call data:', error);
+              }
+            }, 2000); // Esperar 2 segundos para que Retell procese
+          }
+          
+          onCallEnd?.();
         });
 
-        retellClientRef.current.on('update', (update: any) => {
-          console.log('Call update:', update);
-          // Aquí puedes recibir transcripciones en tiempo real, estados, etc.
-        });
 
         retellClientRef.current.on('error', (error: any) => {
           console.error('Call error:', error);
@@ -105,7 +134,10 @@ export function WebCallInterface({
         throw new Error('Failed to get access token');
       }
 
-      const { access_token } = await response.json();
+      const { access_token, call_id } = await response.json();
+
+      // Guardar el call_id para actualizar cuando termine
+      setCurrentCallId(call_id);
 
       // Iniciar la llamada con el token de acceso
       await retellClientRef.current.startCall({
@@ -143,6 +175,37 @@ export function WebCallInterface({
         callDurationRef.current = null;
       }
       
+      // Actualizar datos finales de la llamada después de un delay
+      // para dar tiempo a Retell a procesar los datos finales
+      if (currentCallId) {
+        setTimeout(async () => {
+          try {
+            const response = await fetch(`/api/calls/${currentCallId}/update`, {
+              method: 'POST',
+            });
+            if (response.ok) {
+              console.log('Call data updated successfully with final costs and tokens');
+            } else {
+              console.warn('Failed to update call data, will retry...');
+              // Reintentar después de 3 segundos más
+              setTimeout(async () => {
+                try {
+                  await fetch(`/api/calls/${currentCallId}/update`, {
+                    method: 'POST',
+                  });
+                  console.log('Call data updated on retry');
+                } catch (error) {
+                  console.error('Error updating call data on retry:', error);
+                }
+              }, 3000);
+            }
+          } catch (error) {
+            console.error('Error updating call data:', error);
+          }
+        }, 2000); // Esperar 2 segundos para que Retell procese
+      }
+      
+      setCurrentCallId(null);
       onCallEnd?.();
     } catch (error) {
       console.error('Error ending call:', error);

@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { RetellService } from '@/lib/retell';
+import { SessionManager } from '@/lib/session';
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await SessionManager.requireAuth();
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const { agentId } = await request.json();
 
     if (!agentId) {
@@ -12,12 +22,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Crear la llamada web usando el servicio de Retell
-    const webCall = await RetellService.createWebCall(agentId);
+    // Crear la llamada web usando el servicio de Retell (con captura automática en BD)
+    const webCall = await RetellService.createWebCall(agentId, user.id);
 
     return NextResponse.json({
       access_token: webCall.access_token,
       call_id: webCall.call_id,
+      agent_id: webCall.agent_id,
     });
   } catch (error: any) {
     console.error('Error creating web call:', error);

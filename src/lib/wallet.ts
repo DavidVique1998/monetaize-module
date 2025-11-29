@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 
 export interface ConsumeCreditsParams {
   walletId: string;
-  amount: number; // Monto en dólares a consumir
+  amount: number; // Monto en dólares a consumir (externo). Internamente se guarda en centavos.
   metricType?: string; // Tipo de métrica: messages, tokens, conversations, minutes, etc.
   metricValue?: number; // Valor de la métrica consumida
   description?: string;
@@ -65,7 +65,8 @@ export async function getWalletBalance(userId: string): Promise<WalletBalance> {
   
   return {
     walletId: wallet.id,
-    balance: Number(wallet.balance),
+    // Internamente trabajamos en centavos, hacia fuera exponemos dólares
+    balance: Number(wallet.balance) / 100,
     currency: wallet.currency,
     userId: wallet.userId,
   };
@@ -103,8 +104,10 @@ export async function consumeCredits(params: ConsumeCreditsParams): Promise<{
         throw new Error('Wallet no encontrada');
       }
 
-      const currentBalance = Number(wallet.balance);
-      const newBalance = currentBalance - amount;
+      // Trabajar en centavos internamente
+      const amountInCents = Math.round(amount * 100);
+      const currentBalance = Number(wallet.balance); // centavos
+      const newBalance = currentBalance - amountInCents;
 
       // Verificar si hay suficiente saldo
       if (newBalance < 0) {
@@ -117,7 +120,7 @@ export async function consumeCredits(params: ConsumeCreditsParams): Promise<{
           walletId,
           type: TransactionType.CONSUMPTION,
           status: TransactionStatus.COMPLETED,
-          amount: amount,
+          amount: amountInCents,
           balanceBefore: currentBalance,
           balanceAfter: newBalance,
           metricType,
@@ -148,7 +151,8 @@ export async function consumeCredits(params: ConsumeCreditsParams): Promise<{
 
       return {
         success: true,
-        newBalance,
+        // Devolver nuevo balance en dólares
+        newBalance: newBalance / 100,
         transactionId: transaction.id,
       };
     });
@@ -196,8 +200,10 @@ export async function addCredits(
         throw new Error('Wallet no encontrada');
       }
 
-      const currentBalance = Number(wallet.balance);
-      const newBalance = currentBalance + amount;
+      // Trabajar en centavos internamente
+      const amountInCents = Math.round(amount * 100);
+      const currentBalance = Number(wallet.balance); // centavos
+      const newBalance = currentBalance + amountInCents;
 
       // Crear transacción de recarga
       const transaction = await tx.walletTransaction.create({
@@ -205,12 +211,12 @@ export async function addCredits(
           walletId,
           type: TransactionType.RECHARGE,
           status: TransactionStatus.COMPLETED,
-          amount: amount,
+          amount: amountInCents,
           balanceBefore: currentBalance,
           balanceAfter: newBalance,
           stripePaymentId,
           paymentLinkId,
-          description: `Recarga de $${amount.toFixed(2)}`,
+          description: `Recarga de $${amount.toFixed(3)}`,
         },
       });
 
@@ -222,7 +228,7 @@ export async function addCredits(
         },
       });
 
-      console.log(`[Wallet] Balance actualizado: $${currentBalance.toFixed(2)} → $${newBalance.toFixed(2)}`);
+      console.log(`[Wallet] Balance actualizado: $${(currentBalance / 100).toFixed(3)} → $${(newBalance / 100).toFixed(3)}`);
 
       // Si hay un payment link, actualizar su estado
       if (paymentLinkId) {
@@ -238,7 +244,8 @@ export async function addCredits(
 
       return {
         success: true,
-        newBalance,
+        // Devolver nuevo balance en dólares
+        newBalance: newBalance / 100,
         transactionId: transaction.id,
       };
     });
@@ -286,9 +293,10 @@ export async function getTransactionHistory(
   // Convertir Decimal a número para evitar errores en el frontend
   const formattedTransactions = transactions.map(transaction => ({
     ...transaction,
-    amount: Number(transaction.amount),
-    balanceBefore: Number(transaction.balanceBefore),
-    balanceAfter: Number(transaction.balanceAfter),
+    // Internamente en centavos, exponemos dólares
+    amount: Number(transaction.amount) / 100,
+    balanceBefore: Number(transaction.balanceBefore) / 100,
+    balanceAfter: Number(transaction.balanceAfter) / 100,
     metricValue: transaction.metricValue ? Number(transaction.metricValue) : null,
     paymentLink: transaction.paymentLink ? {
       ...transaction.paymentLink,
@@ -312,7 +320,10 @@ export async function hasSufficientBalance(
   amount: number
 ): Promise<boolean> {
   const wallet = await getOrCreateWallet(userId);
-  return Number(wallet.balance) >= amount;
+  // amount viene en dólares, balance está en centavos
+  const currentBalanceCents = Number(wallet.balance);
+  const amountInCents = Math.round(amount * 100);
+  return currentBalanceCents >= amountInCents;
 }
 
 /**
@@ -360,7 +371,8 @@ export async function getOrCreateBatchConfig(
       data: {
         walletId,
         enabled: true,
-        maxAmount: defaults?.maxAmount || 10, // $10 por defecto
+        // Guardar umbrales en centavos
+        maxAmount: (defaults?.maxAmount || 10) * 100, // $10 por defecto
         maxTransactions: defaults?.maxTransactions || 100,
         maxTimeSeconds: defaults?.maxTimeSeconds || 3600, // 5 minutos
       },
@@ -434,7 +446,8 @@ export async function addPendingConsumption(
       const pending = await tx.pendingConsumption.create({
         data: {
           walletId,
-          amount,
+          // Guardar en centavos
+          amount: Math.round(amount * 100),
           metricType,
           metricValue: metricValue ? metricValue : null,
           description,
@@ -453,7 +466,7 @@ export async function addPendingConsumption(
       const totalAmount = pendingConsumptions.reduce(
         (sum, p) => sum + Number(p.amount),
         0
-      );
+      ); // centavos
       const totalTransactions = pendingConsumptions.length;
 
       // Verificar umbrales
@@ -510,7 +523,7 @@ export async function processBatch(walletId: string): Promise<{
       }
 
       // Calcular total
-      const totalAmount = pendingConsumptions.reduce(
+      const totalAmountCents = pendingConsumptions.reduce(
         (sum, p) => sum + Number(p.amount),
         0
       );
@@ -524,8 +537,8 @@ export async function processBatch(walletId: string): Promise<{
         throw new Error('Wallet no encontrada');
       }
 
-      const currentBalance = Number(wallet.balance);
-      const newBalance = currentBalance - totalAmount;
+      const currentBalance = Number(wallet.balance); // centavos
+      const newBalance = currentBalance - totalAmountCents;
 
       // Verificar saldo suficiente
       if (newBalance < 0) {
@@ -553,12 +566,12 @@ export async function processBatch(walletId: string): Promise<{
           walletId,
           type: TransactionType.CONSUMPTION,
           status: TransactionStatus.COMPLETED,
-          amount: totalAmount,
+          amount: totalAmountCents,
           balanceBefore: currentBalance,
           balanceAfter: newBalance,
           metricType: 'batch_processed',
           metricValue: pendingConsumptions.length,
-          description: `Lote procesado: ${pendingConsumptions.length} consumos (${totalAmount.toFixed(2)} USD)`,
+          description: `Lote procesado: ${pendingConsumptions.length} consumos (${(totalAmountCents / 100).toFixed(3)} USD)`,
         },
       });
 
@@ -602,7 +615,8 @@ export async function processBatch(walletId: string): Promise<{
       return {
         success: true,
         processedCount: pendingConsumptions.length,
-        totalAmount,
+        // Exponer total en dólares
+        totalAmount: totalAmountCents / 100,
         transactionId: transaction.id,
       };
     });
@@ -658,7 +672,7 @@ export async function processAllBatches(): Promise<{
       }
 
       // Calcular total acumulado
-      const totalAmount = pending.reduce((sum, p) => sum + Number(p.amount), 0);
+      const totalAmount = pending.reduce((sum, p) => sum + Number(p.amount), 0); // centavos
       const oldestPending = pending[0];
       const ageSeconds = Math.floor(
         (Date.now() - oldestPending.createdAt.getTime()) / 1000

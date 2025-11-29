@@ -299,22 +299,22 @@ export class RetellSyncService {
       } else {
         // Crear nuevo registro en la base de datos local
         localPhone = await prisma.phoneNumber.create({
-          data: {
-            phoneNumber: retellPhone.phone_number,
-            phoneNumberPretty: retellPhone.phone_number_pretty || null,
-            phoneNumberType: retellPhone.phone_number_type || 'retell-twilio',
-            nickname: retellPhone.nickname || null,
+        data: {
+          phoneNumber: retellPhone.phone_number,
+          phoneNumberPretty: retellPhone.phone_number_pretty || null,
+          phoneNumberType: retellPhone.phone_number_type || 'retell-twilio',
+          nickname: retellPhone.nickname || null,
             areaCode: areaCode,
-            inboundAgentId: retellPhone.inbound_agent_id || null,
-            outboundAgentId: retellPhone.outbound_agent_id || null,
-            inboundAgentVersion: retellPhone.inbound_agent_version || null,
-            outboundAgentVersion: retellPhone.outbound_agent_version || null,
-            inboundWebhookUrl: retellPhone.inbound_webhook_url || null,
-            userId: userId,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-        });
+          inboundAgentId: retellPhone.inbound_agent_id || null,
+          outboundAgentId: retellPhone.outbound_agent_id || null,
+          inboundAgentVersion: retellPhone.inbound_agent_version || null,
+          outboundAgentVersion: retellPhone.outbound_agent_version || null,
+          inboundWebhookUrl: retellPhone.inbound_webhook_url || null,
+          userId: userId,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      });
       }
 
       console.log('Phone number saved to local DB successfully:', localPhone.phoneNumber);

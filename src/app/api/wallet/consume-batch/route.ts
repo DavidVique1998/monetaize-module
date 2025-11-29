@@ -4,6 +4,7 @@ import { addPendingConsumption, getOrCreateWallet, processBatch } from '@/lib/wa
 import { z } from 'zod';
 
 const consumeSchema = z.object({
+  // amount en centavos (entero positivo)
   amount: z.number().positive(),
   reason: z.string().min(1, 'El motivo del consumo es requerido'),
   metricType: z.string().optional(),
@@ -46,13 +47,16 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = consumeSchema.parse(body);
 
+    // El endpoint recibe amount en centavos, convertir a dólares para la lógica interna
+    const amountInDollars = validatedData.amount / 100;
+
     // Obtener wallet del usuario desde el token
     const wallet = await getOrCreateWallet(payload.userId);
 
     // Agregar consumo pendiente (acumulación)
     const result = await addPendingConsumption({
       walletId: wallet.id,
-      amount: validatedData.amount,
+      amount: amountInDollars,
       metricType: validatedData.metricType,
       metricValue: validatedData.metricValue,
       description: validatedData.reason,

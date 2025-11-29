@@ -249,10 +249,15 @@ export class RetellService {
 
   /**
    * Iniciar una llamada telefónica
+   * NO captura automáticamente en BD - se debe llamar a saveCallData() cuando termine
    */
-  static async createCall(data: CallData): Promise<CallResponse> {
+  static async createCall(data: CallData, userId?: string): Promise<CallResponse> {
     try {
       const call = await retellClient.call.createPhoneCall(data);
+      
+      // NO guardar en BD aquí - esperar a que termine la llamada para tener todos los datos
+      // El registro se creará cuando se llame a saveCallData() con los datos completos
+      
       return call;
     } catch (error) {
       console.error('Error creating call:', error);
@@ -262,8 +267,9 @@ export class RetellService {
 
   /**
    * Crear una llamada web para el cliente web
+   * NO captura automáticamente en BD - se debe llamar a saveCallData() cuando termine
    */
-  static async createWebCall(agentId: string): Promise<{
+  static async createWebCall(agentId: string, userId?: string): Promise<{
     access_token: string;
     call_id: string;
     agent_id: string;
@@ -276,10 +282,122 @@ export class RetellService {
       const response = await retellClient.call.createWebCall({
         agent_id: agentId,
       });
+      
+      // NO guardar en BD aquí - esperar a que termine la llamada para tener todos los datos
+      // El registro se creará cuando se llame a saveCallData() con los datos completos
+      
       return response;
     } catch (error) {
       console.error('Error creating web call:', error);
       throw new Error('Failed to create web call');
+    }
+  }
+
+  /**
+   * Guardar datos completos de una llamada en la base de datos
+   * Se debe llamar cuando la llamada termine para tener todos los datos (costo, tokens, etc.)
+   */
+  static async saveCallData(callId: string, userId?: string): Promise<void> {
+    try {
+      // Obtener datos completos de Retell
+      const retellCall = await retellClient.call.retrieve(callId);
+      const callData = retellCall as any;
+
+      // Extraer información según la documentación de Retell
+      let cost: number | undefined;
+      let totalDurationSeconds: number | undefined;
+      let tokensUsed: number | undefined;
+      let duration: number | undefined;
+      let status = callData.call_status || 'ended';
+
+      // Extraer costo desde call_cost.combined_cost
+      if (callData.call_cost?.combined_cost !== undefined) {
+        cost = callData.call_cost.combined_cost;
+      } else if (callData.call_cost) {
+        cost = typeof callData.call_cost === 'number' ? callData.call_cost : undefined;
+      } else if (callData.cost) {
+        cost = callData.cost;
+      }
+
+      // Extraer duración total desde call_cost.total_duration_seconds
+      if (callData.call_cost?.total_duration_seconds !== undefined) {
+        totalDurationSeconds = callData.call_cost.total_duration_seconds;
+      } else if (callData.duration_ms) {
+        totalDurationSeconds = Math.floor(callData.duration_ms / 1000);
+      }
+
+      // Calcular duración si hay start y end time
+      if (callData.start_timestamp && callData.end_timestamp) {
+        duration = Math.floor((callData.end_timestamp - callData.start_timestamp) / 1000);
+      } else if (totalDurationSeconds) {
+        duration = totalDurationSeconds;
+      }
+
+      // Extraer tokens desde llm_token_usage
+      if (callData.llm_token_usage) {
+        if (callData.llm_token_usage.average !== undefined) {
+          tokensUsed = callData.llm_token_usage.average;
+        } else if (Array.isArray(callData.llm_token_usage.values) && callData.llm_token_usage.values.length > 0) {
+          tokensUsed = callData.llm_token_usage.values.reduce((sum: number, val: number) => sum + val, 0);
+        } else if (typeof callData.llm_token_usage === 'number') {
+          tokensUsed = callData.llm_token_usage;
+        }
+      }
+
+      // Determinar tipo de llamada
+      const callType = callData.call_type === 'web_call' ? 'web' : 'phone';
+      
+      // Determinar dirección
+      const direction = callData.from_number ? 'outbound' : 'inbound';
+
+      // Guardar en la base de datos
+      const { CallService } = await import('./call-service');
+      
+      // Verificar si ya existe
+      const existingCall = await CallService.getCallByRetellId(callId);
+      
+      if (existingCall) {
+        // Actualizar registro existente con todos los datos finales
+        await CallService.updateCall(callId, {
+          status,
+          duration,
+          totalDurationSeconds,
+          startTime: callData.start_timestamp ? new Date(callData.start_timestamp) : undefined,
+          endTime: callData.end_timestamp ? new Date(callData.end_timestamp) : undefined,
+          recordingUrl: callData.recording_url || existingCall.recordingUrl,
+          transcript: callData.transcript || existingCall.transcript,
+          cost,
+          tokensUsed,
+          retellMetadata: callData,
+        });
+      } else {
+        // Crear nuevo registro con todos los datos completos
+        await CallService.createCall({
+          retellCallId: callId,
+          callType,
+          direction,
+          status,
+          agentId: callData.agent_id,
+          agentVersion: callData.agent_version,
+          fromNumber: callData.from_number || undefined,
+          toNumber: callData.to_number || undefined,
+          userId: userId || undefined,
+          cost: cost || undefined,
+          totalDurationSeconds: totalDurationSeconds || undefined,
+          tokensUsed: tokensUsed || undefined,
+          duration: duration || undefined,
+          startTime: callData.start_timestamp ? new Date(callData.start_timestamp) : new Date(),
+          endTime: callData.end_timestamp ? new Date(callData.end_timestamp) : undefined,
+          recordingUrl: callData.recording_url || undefined,
+          transcript: callData.transcript || undefined,
+          retellMetadata: callData,
+        });
+      }
+
+      console.log(`[RetellService] Call data saved successfully for ${callId}`);
+    } catch (error: any) {
+      console.error('[RetellService] Error saving call data:', error);
+      throw error;
     }
   }
 
@@ -557,7 +675,8 @@ export class RetellService {
   }
 
   /**
-   * Obtener información de una llamada
+   * Obtener información de una llamada desde Retell
+   * NO actualiza automáticamente la BD - usar saveCallData() para guardar
    */
   static async getCall(callId: string): Promise<Retell.Call.CallResponse> {
     try {
