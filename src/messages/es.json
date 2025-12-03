@@ -1,0 +1,524 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "search": "Buscar",
+    "refresh": "Actualizar",
+    "export": "Exportar",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "yes": "Sí",
+    "no": "No",
+    "all": "Todos",
+    "none": "Ninguno",
+    "actions": "Acciones",
+    "status": "Estado",
+    "date": "Fecha",
+    "time": "Hora",
+    "name": "Nombre",
+    "email": "Email",
+    "phone": "Teléfono",
+    "type": "Tipo",
+    "from": "Desde",
+    "to": "Hasta",
+    "clear": "Limpiar",
+    "clearAll": "Limpiar todo",
+    "activeFilters": "Filtros activos",
+    "noResults": "No se encontraron resultados",
+    "tryAdjustingFilters": "Intenta ajustar tus filtros",
+    "page": "Página",
+    "of": "de",
+    "results": "Resultados",
+    "showing": "Mostrando",
+    "to": "a",
+    "nA": "N/A"
+  },
+  "navigation": {
+    "contacts": "Contactos",
+    "knowledge": "Conocimiento",
+    "assistants": "Asistentes",
+    "phoneNumbers": "Números",
+    "callHistory": "Historial de Llamadas",
+    "wallet": "Billetera",
+    "settings": "Configuración",
+    "help": "Ayuda",
+    "inbox": "Bandeja de Entrada",
+    "callCenter": "Centro de Llamadas"
+  },
+  "userProfile": {
+    "viewProfile": "Ver Perfil",
+    "logout": "Cerrar Sesión",
+    "language": "Idioma",
+    "spanish": "Español",
+    "english": "Inglés"
+  },
+  "assistants": {
+    "title": "Asistentes",
+    "searchPlaceholder": "Buscar un asistente...",
+    "createFolder": "Crear Carpeta",
+    "createAssistant": "Crear Asistente",
+    "all": "Todos",
+    "favorites": "Favoritos",
+    "imported": "Importados",
+    "archived": "Archivados",
+    "tableHeaders": {
+      "name": "NOMBRE",
+      "metaData": "META DATA",
+      "updated": "ACTUALIZADO",
+      "created": "CREADO",
+      "status": "ESTADO",
+      "id": "ID"
+    },
+    "status": {
+      "published": "Publicado",
+      "draft": "Borrador"
+    },
+    "loading": "Cargando asistentes...",
+    "noAssistants": "No hay asistentes para mostrar",
+    "deleteConfirm": "¿Estás seguro de que quieres eliminar este asistente?",
+    "unnamedAssistant": "Asistente sin nombre",
+    "version": "v",
+    "showingResults": "Mostrando 1 - {count} {count} Resultados",
+    "pageOf": "Página {current} de {total}",
+    "createModal": {
+      "title": "Crear Asistente",
+      "question": "¿Cómo te gustaría crear tu próximo empleado?",
+      "assistantBuilder": "Assistant Builder",
+      "generate": {
+        "title": "Generar Asistente",
+        "description": "Genera un asistente basado en el perfil de tu negocio y una breve descripción."
+      },
+      "import": {
+        "title": "Importar con ID",
+        "description": "Importa un asistente usando el ID único para crear un duplicado en tu cuenta."
+      },
+      "blank": {
+        "title": "Lienzo en Blanco",
+        "description": "Crea un asistente sin configuración para comenzar a construir con un lienzo en blanco."
+      },
+      "flowbuilder": {
+        "title": "Flowbuilder",
+        "description": "Un constructor de rutas conversacionales basado en objetivos. Ayuda con rutas deterministas y enfoque de IA."
+      },
+      "close": "Cerrar",
+      "creating": "Creando...",
+      "error": "Error al crear asistente"
+    }
+  },
+  "callCenter": {
+    "title": "Centro de Llamadas",
+    "dataCenter": "Centro de Datos",
+    "callList": "Lista de Llamadas",
+    "metrics": {
+      "totalCalls": "Total de Llamadas",
+      "outboundCalls": "Llamadas Salientes",
+      "inboundCalls": "Llamadas Entrantes",
+      "webCalls": "Llamadas Web",
+      "costPerDial": "Costo por Llamada",
+      "costPerMinute": "Costo por Minuto",
+      "avgCallDuration": "Duración Promedio",
+      "avgHoldTime": "Tiempo de Espera Promedio",
+      "costPerBookedAppointment": "Costo por Cita Agendada",
+      "costPerTransfer": "Costo por Transferencia",
+      "totalMinutes": "Minutos Totales",
+      "totalConversations": "Conversaciones Totales",
+      "totalAppointments": "Citas Totales",
+      "totalTransfers": "Transferencias Totales",
+      "totalLeads": "Leads Totales"
+    },
+    "charts": {
+      "appointments": "Citas",
+      "contactSentiment": "Sentimiento del Contacto",
+      "hangupReasons": "Razones de Colgado",
+      "callVolume": "Volumen de Llamadas",
+      "callMinutes": "Minutos de Llamadas",
+      "last30Days": "Últimos 30 días"
+    },
+    "funnel": {
+      "dials": "Llamadas",
+      "answers": "Respuestas",
+      "conversations": "Conversaciones",
+      "appointments": "Citas"
+    },
+    "callList": {
+      "title": "Lista de Llamadas",
+      "description": "La funcionalidad de lista de llamadas se implementará aquí."
+    },
+    "mins": "mins",
+    "calls": "llamadas"
+  },
+  "callHistory": {
+    "title": "Historial de Llamadas",
+    "subtitle": "Historial completo de llamadas telefónicas y web",
+    "refresh": "Actualizar",
+    "export": "Exportar",
+    "stats": {
+      "totalCalls": "Total de Llamadas",
+      "completed": "Completadas",
+      "failed": "Fallidas",
+      "totalDuration": "Duración Total",
+      "totalCost": "Costo Total"
+    },
+    "filters": {
+      "search": "Buscar",
+      "searchPlaceholder": "Buscar por número, ID de llamada o agente...",
+      "status": "Estado",
+      "allStatus": "Todos los Estados",
+      "ringing": "Sonando",
+      "ongoing": "En Curso",
+      "ended": "Finalizada",
+      "failed": "Fallida",
+      "type": "Tipo",
+      "allTypes": "Todos los Tipos",
+      "phone": "Teléfono",
+      "web": "Web",
+      "direction": "Dirección",
+      "allDirections": "Todas las Direcciones",
+      "inbound": "Entrante",
+      "outbound": "Saliente",
+      "dateRange": "Rango de Fechas"
+    },
+    "table": {
+      "callId": "ID de Llamada",
+      "type": "Tipo",
+      "direction": "Dirección",
+      "fromTo": "Desde / Hasta",
+      "status": "Estado",
+      "duration": "Duración",
+      "cost": "Costo",
+      "costPerMin": "Costo/Min",
+      "tokens": "Tokens",
+      "date": "Fecha"
+    },
+    "status": {
+      "ringing": "Sonando",
+      "ongoing": "En Curso",
+      "ended": "Finalizada",
+      "failed": "Fallida"
+    },
+    "loading": "Cargando...",
+    "noCalls": "No se encontraron llamadas",
+    "tryAdjustingFilters": "Intenta ajustar tus filtros"
+  },
+  "contacts": {
+    "title": "Contactos",
+    "searchPlaceholder": "Buscar contactos...",
+    "newContact": "+ Nuevo Contacto",
+    "table": {
+      "name": "NOMBRE",
+      "email": "EMAIL",
+      "phone": "TELÉFONO",
+      "id": "ID",
+      "interactions": "INTERACCIONES"
+    },
+    "noContacts": "No hay contactos para mostrar",
+    "showing": "Mostrando 1 - 10",
+    "results": "Resultados",
+    "pageOf": "Página 1 de 1",
+    "modal": {
+      "title": "Nuevo Contacto",
+      "name": "Nombre",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "title": "Título",
+      "email": "Email",
+      "phone": "Teléfono",
+      "company": "Empresa",
+      "linkedin": "LinkedIn",
+      "linkedinPrefix": "linkedin.com/in/",
+      "owner": "Propietario",
+      "selectOwner": "Seleccionar propietario",
+      "currentUser": "Usuario actual",
+      "addContact": "Agregar Contacto"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Panel de administración de Retell AI",
+    "agents": {
+      "title": "Agentes",
+      "description": "Gestiona tus agentes de llamada"
+    },
+    "voices": {
+      "title": "Voces",
+      "description": "Configura las voces disponibles"
+    },
+    "numbers": {
+      "title": "Números",
+      "description": "Administra números de teléfono"
+    },
+    "recentActivity": {
+      "title": "Actividad Reciente",
+      "callCompleted": "Llamada completada",
+      "agentCreated": "Agente creado",
+      "numberImported": "Número importado",
+      "minutesAgo": "Hace {count} minutos",
+      "hoursAgo": "Hace {count} horas"
+    }
+  },
+  "help": {
+    "title": "Ayuda",
+    "subtitle": "Centro de ayuda y documentación"
+  },
+  "inbox": {
+    "title": "Bandeja de Entrada"
+  },
+  "installGhl": {
+    "title": "Conectar con GoHighLevel",
+    "subtitle": "Vincula tu location de GoHighLevel con Monetaize para comenzar",
+    "connectButton": "Conectar con GoHighLevel",
+    "processing": "Procesando...",
+    "checkingSession": "Verificando sesión...",
+    "loading": "Cargando...",
+    "success": {
+      "title": "Instalación exitosa. Redirigiendo...",
+      "message": "Instalación exitosa. Redirigiendo..."
+    },
+    "error": {
+      "title": "Error en la instalación",
+      "message": "Error en la instalación"
+    },
+    "info": "Al conectar, autorizas a Monetaize a acceder a tu location de GoHighLevel.\nTus datos están seguros y protegidos."
+  },
+  "knowledge": {
+    "title": "Knowledge Bases",
+    "subtitle": "Gestiona tus bases de conocimiento para proporcionar contexto a tus agentes",
+    "newKnowledgeBase": "Nueva Knowledge Base",
+    "loading": "Cargando...",
+    "empty": {
+      "title": "No hay Knowledge Bases",
+      "description": "Crea tu primera Knowledge Base para proporcionar contexto a tus agentes",
+      "createButton": "Crear Knowledge Base"
+    },
+    "status": {
+      "complete": "Completo",
+      "inProgress": "Procesando",
+      "error": "Error"
+    },
+    "sources": "Fuentes",
+    "autoRefreshEnabled": "Auto-refresh habilitado",
+    "lastUpdated": "Última actualización",
+    "addSources": "Agregar Fuentes",
+    "deleteConfirm": "¿Estás seguro de que deseas eliminar esta Knowledge Base?",
+    "deleteError": "Error al eliminar Knowledge Base",
+    "createModal": {
+      "title": "Nueva Knowledge Base",
+      "name": "Nombre de la Knowledge Base *",
+      "namePlaceholder": "Mi Knowledge Base",
+      "maxChars": "Máximo 39 caracteres ({count}/39)",
+      "autoRefresh": "Auto-refresh",
+      "autoRefreshDesc": "Actualizar automáticamente las URLs cada 12 horas",
+      "texts": "Textos",
+      "textTitle": "Título (opcional)",
+      "textPlaceholder": "Texto a agregar...",
+      "addText": "Agregar Texto",
+      "urls": "URLs",
+      "urlPlaceholder": "https://example.com",
+      "add": "Agregar",
+      "cancel": "Cancelar",
+      "create": "Crear Knowledge Base",
+      "creating": "Creando...",
+      "errors": {
+        "nameRequired": "El nombre de la Knowledge Base es requerido",
+        "nameTooLong": "El nombre debe tener menos de 40 caracteres",
+        "sourceRequired": "Debe agregar al menos una fuente (texto o URL)",
+        "createError": "Error al crear Knowledge Base"
+      }
+    },
+    "addSourcesModal": {
+      "title": "Agregar Fuentes",
+      "texts": "Textos",
+      "textTitle": "Título (opcional)",
+      "textPlaceholder": "Texto a agregar...",
+      "addText": "Agregar Texto",
+      "urls": "URLs",
+      "urlPlaceholder": "https://example.com",
+      "add": "Agregar",
+      "cancel": "Cancelar",
+      "addSources": "Agregar Fuentes",
+      "adding": "Agregando...",
+      "errors": {
+        "sourceRequired": "Debe agregar al menos una fuente (texto o URL)",
+        "addError": "Error al agregar fuentes"
+      }
+    }
+  },
+  "phoneNumbers": {
+    "title": "Números",
+    "searchPlaceholder": "Buscar números...",
+    "newNumber": "Nuevo Número",
+    "loading": "Cargando números de teléfono...",
+    "error": "Error",
+    "stats": {
+      "totalNumbers": "Total Números",
+      "twilio": "Twilio",
+      "telnyx": "Telnyx",
+      "custom": "Custom"
+    },
+    "table": {
+      "phoneNumber": "NÚMERO DE TELÉFONO",
+      "nickname": "APODO",
+      "type": "TIPO",
+      "inboundAgent": "AGENTE ENTRANTE",
+      "outboundAgent": "AGENTE SALIENTE",
+      "actions": "ACCIONES"
+    },
+    "noNumbers": "No hay números de teléfono para mostrar",
+    "deleteConfirm": "¿Estás seguro de que quieres eliminar este número?",
+    "showingResults": "Mostrando 1 - {count}",
+    "results": "Resultados",
+    "pageOf": "Página 1 de 1"
+  },
+  "profile": {
+    "title": "Mi Perfil",
+    "ghlInfo": {
+      "title": "Información de GoHighLevel",
+      "locationId": "Location ID",
+      "companyId": "Company ID",
+      "locationName": "Nombre de Location",
+      "address": "Dirección",
+      "cityState": "Ciudad, Estado",
+      "phone": "Teléfono",
+      "email": "Email",
+      "website": "Sitio Web",
+      "timezone": "Zona Horaria"
+    },
+    "jwtToken": {
+      "title": "Token JWT para API",
+      "description": "Genera un token para consumir créditos desde integraciones externas",
+      "generateButton": "Generar Token",
+      "generating": "Generando...",
+      "yourToken": "Tu Token JWT:",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "example": "Ejemplo de uso:",
+      "generateNew": "Generar nuevo token"
+    },
+    "personalInfo": {
+      "title": "Información Personal",
+      "namePlaceholder": "Tu nombre",
+      "emailPlaceholder": "tu@email.com"
+    },
+    "logout": "Cerrar Sesión",
+    "saveChanges": "Guardar Cambios",
+    "saving": "Guardando...",
+    "updateSuccess": "Perfil actualizado exitosamente",
+    "updateError": "Error al actualizar el perfil",
+    "tokenSuccess": "Token JWT generado exitosamente",
+    "tokenError": "Error al generar el token",
+    "copyError": "Error al copiar al portapapeles"
+  },
+  "settings": {
+    "title": "Configuración",
+    "subtitle": "Configuración del sistema y preferencias"
+  },
+  "voices": {
+    "title": "Configuración de Voces",
+    "subtitle": "Selecciona y configura las voces para tus agentes de llamada",
+    "update": "Actualizar",
+    "settings": "Configuración",
+    "stats": {
+      "totalVoices": "Total de Voces",
+      "elevenlabs": "ElevenLabs",
+      "openai": "OpenAI",
+      "deepgram": "Deepgram"
+    },
+    "loading": "Cargando voces disponibles...",
+    "error": {
+      "title": "Error al cargar las voces",
+      "retry": "Reintentar"
+    },
+    "selectedVoice": {
+      "title": "Información de la Voz Seleccionada",
+      "voiceId": "ID de Voz",
+      "provider": "Proveedor",
+      "gender": "Género",
+      "accent": "Acento",
+      "age": "Edad",
+      "previewAudio": "Preview de Audio",
+      "listenPreview": "Escuchar preview",
+      "notSpecified": "No especificado"
+    }
+  },
+  "wallet": {
+    "title": "Billetera",
+    "subtitle": "Gestiona tu saldo y configura recargas automáticas",
+    "rechargeSuccess": {
+      "title": "¡Recarga exitosa!",
+      "message": "Tu wallet ha sido recargada con {amount}. El saldo se actualizará automáticamente en breve."
+    },
+    "loading": "Cargando...",
+    "balanceCard": {
+      "title": "Balance de Wallet",
+      "availableBalance": "Saldo disponible",
+      "updateBalance": "Actualizar balance",
+      "rechargeBalance": "Recargar Saldo",
+      "balanceUpdated": "Saldo actualizado",
+      "errorLoading": "Error al cargar balance"
+    },
+    "transactions": {
+      "title": "Historial",
+      "subtitle": "Transacciones recientes",
+      "update": "Actualizar",
+      "noTransactions": "No hay transacciones aún",
+      "errorLoading": "Error al cargar transacciones",
+      "types": {
+        "recharge": "Recarga",
+        "consumption": "Consumo",
+        "refund": "Reembolso",
+        "adjustment": "Ajuste"
+      },
+      "status": {
+        "pending": "Pendiente",
+        "completed": "Completada",
+        "failed": "Fallida",
+        "cancelled": "Cancelada"
+      }
+    },
+    "autoRecharge": {
+      "title": "Recarga Automática",
+      "subtitle": "Configura recargas automáticas cuando el saldo sea bajo",
+      "enable": "Habilitar recarga automática",
+      "enableDescription": "Recarga automáticamente cuando el saldo llegue al umbral",
+      "threshold": "Umbral (USD)",
+      "amount": "Monto (USD)",
+      "save": "Guardar Configuración",
+      "saving": "Guardando...",
+      "saved": "Configuración guardada exitosamente",
+      "errorLoading": "Error al cargar configuración",
+      "errorSaving": "Error al guardar configuración",
+      "paymentMethodSaved": "Método de pago guardado. Las recargas se procesarán automáticamente.",
+      "paymentMethodRequired": "Método de pago requerido",
+      "paymentMethodRequiredDesc": "Para habilitar la recarga automática, primero debes guardar un método de pago.",
+      "paymentMethodRemoved": "El método de pago fue eliminado. La recarga automática ha sido deshabilitada.",
+      "mustSavePaymentFirst": "Primero debes guardar un método de pago",
+      "autoChargeInfo": "Se cobrará automáticamente {amount} cuando el balance baje de {threshold}",
+      "lastRecharge": "Última recarga"
+    },
+    "rechargeModal": {
+      "title": "Recargar Saldo",
+      "subtitle": "Agrega créditos a tu wallet",
+      "selectAmount": "Selecciona un monto",
+      "customAmount": "O ingresa un monto personalizado",
+      "amountToRecharge": "Monto a recargar:",
+      "cancel": "Cancelar",
+      "continue": "Continuar con Stripe",
+      "processing": "Procesando...",
+      "error": "El monto debe ser mayor a 0",
+      "errorCreating": "Error al crear link de pago",
+      "paymentLinkGenerated": "Link de pago generado. Redirigiendo a Stripe...",
+      "openPaymentLink": "Abrir link de pago"
+    }
+  },
+  "sidebar": {
+    "pinSidebar": "Anclar sidebar",
+    "unpinSidebar": "Desanclar sidebar"
+  }
+}
+

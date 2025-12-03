@@ -1,0 +1,371 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "search": "Buscar",
+    "refresh": "Actualizar",
+    "export": "Exportar",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "yes": "Sí",
+    "no": "No",
+    "all": "Todos",
+    "none": "Ninguno",
+    "actions": "Acciones",
+    "status": "Estado",
+    "date": "Fecha",
+    "time": "Hora",
+    "name": "Nombre",
+    "email": "Email",
+    "phone": "Teléfono",
+    "type": "Tipo",
+    "from": "Desde",
+    "to": "Hasta",
+    "clear": "Limpiar",
+    "clearAll": "Limpiar todo",
+    "activeFilters": "Filtros activos",
+    "noResults": "No se encontraron resultados",
+    "tryAdjustingFilters": "Intenta ajustar tus filtros",
+    "page": "Página",
+    "of": "de",
+    "results": "Resultados",
+    "showing": "Mostrando",
+    "to": "a",
+    "nA": "N/A"
+  },
+  "navigation": {
+    "contacts": "Contactos",
+    "knowledge": "Conocimiento",
+    "assistants": "Asistentes",
+    "phoneNumbers": "Números",
+    "callHistory": "Historial de Llamadas",
+    "wallet": "Billetera",
+    "settings": "Configuración",
+    "help": "Ayuda",
+    "inbox": "Bandeja de Entrada",
+    "callCenter": "Centro de Llamadas"
+  },
+  "userProfile": {
+    "viewProfile": "Ver Perfil",
+    "logout": "Cerrar Sesión",
+    "language": "Idioma",
+    "spanish": "Español",
+    "english": "Inglés"
+  },
+  "assistants": {
+    "title": "Asistentes",
+    "searchPlaceholder": "Buscar un asistente...",
+    "createFolder": "Crear Carpeta",
+    "createAssistant": "Crear Asistente",
+    "all": "Todos",
+    "favorites": "Favoritos",
+    "imported": "Importados",
+    "archived": "Archivados",
+    "tableHeaders": {
+      "name": "NOMBRE",
+      "metaData": "META DATA",
+      "updated": "ACTUALIZADO",
+      "created": "CREADO",
+      "status": "ESTADO",
+      "id": "ID"
+    },
+    "status": {
+      "published": "Publicado",
+      "draft": "Borrador"
+    },
+    "loading": "Cargando asistentes...",
+    "noAssistants": "No hay asistentes para mostrar",
+    "deleteConfirm": "¿Estás seguro de que quieres eliminar este asistente?",
+    "unnamedAssistant": "Asistente sin nombre",
+    "version": "v",
+    "showingResults": "Mostrando 1 - {count} {count} Resultados",
+    "pageOf": "Página {current} de {total}"
+  },
+  "callCenter": {
+    "title": "Centro de Llamadas",
+    "dataCenter": "Centro de Datos",
+    "callList": "Lista de Llamadas",
+    "metrics": {
+      "totalCalls": "Total de Llamadas",
+      "outboundCalls": "Llamadas Salientes",
+      "inboundCalls": "Llamadas Entrantes",
+      "webCalls": "Llamadas Web",
+      "costPerDial": "Costo por Llamada",
+      "costPerMinute": "Costo por Minuto",
+      "avgCallDuration": "Duración Promedio",
+      "avgHoldTime": "Tiempo de Espera Promedio",
+      "costPerBookedAppointment": "Costo por Cita Agendada",
+      "costPerTransfer": "Costo por Transferencia",
+      "totalMinutes": "Minutos Totales",
+      "totalConversations": "Conversaciones Totales",
+      "totalAppointments": "Citas Totales",
+      "totalTransfers": "Transferencias Totales",
+      "totalLeads": "Leads Totales"
+    },
+    "charts": {
+      "appointments": "Citas",
+      "contactSentiment": "Sentimiento del Contacto",
+      "hangupReasons": "Razones de Colgado",
+      "callVolume": "Volumen de Llamadas",
+      "callMinutes": "Minutos de Llamadas",
+      "last30Days": "Últimos 30 días"
+    },
+    "funnel": {
+      "dials": "Llamadas",
+      "answers": "Respuestas",
+      "conversations": "Conversaciones",
+      "appointments": "Citas"
+    },
+    "callList": {
+      "title": "Lista de Llamadas",
+      "description": "La funcionalidad de lista de llamadas se implementará aquí."
+    },
+    "mins": "mins",
+    "calls": "llamadas"
+  },
+  "callHistory": {
+    "title": "Historial de Llamadas",
+    "subtitle": "Historial completo de llamadas telefónicas y web",
+    "refresh": "Actualizar",
+    "export": "Exportar",
+    "stats": {
+      "totalCalls": "Total de Llamadas",
+      "completed": "Completadas",
+      "failed": "Fallidas",
+      "totalDuration": "Duración Total",
+      "totalCost": "Costo Total"
+    },
+    "filters": {
+      "search": "Buscar",
+      "searchPlaceholder": "Buscar por número, ID de llamada o agente...",
+      "status": "Estado",
+      "allStatus": "Todos los Estados",
+      "ringing": "Sonando",
+      "ongoing": "En Curso",
+      "ended": "Finalizada",
+      "failed": "Fallida",
+      "type": "Tipo",
+      "allTypes": "Todos los Tipos",
+      "phone": "Teléfono",
+      "web": "Web",
+      "direction": "Dirección",
+      "allDirections": "Todas las Direcciones",
+      "inbound": "Entrante",
+      "outbound": "Saliente",
+      "dateRange": "Rango de Fechas"
+    },
+    "table": {
+      "callId": "ID de Llamada",
+      "type": "Tipo",
+      "direction": "Dirección",
+      "fromTo": "Desde / Hasta",
+      "status": "Estado",
+      "duration": "Duración",
+      "cost": "Costo",
+      "costPerMin": "Costo/Min",
+      "tokens": "Tokens",
+      "date": "Fecha"
+    },
+    "status": {
+      "ringing": "Sonando",
+      "ongoing": "En Curso",
+      "ended": "Finalizada",
+      "failed": "Fallida"
+    },
+    "loading": "Cargando...",
+    "noCalls": "No se encontraron llamadas",
+    "tryAdjustingFilters": "Intenta ajustar tus filtros"
+  },
+  "contacts": {
+    "title": "Contactos",
+    "searchPlaceholder": "Buscar contactos...",
+    "newContact": "+ Nuevo Contacto"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Panel de administración de Retell AI",
+    "agents": {
+      "title": "Agentes",
+      "description": "Gestiona tus agentes de llamada"
+    },
+    "voices": {
+      "title": "Voces",
+      "description": "Configura las voces disponibles"
+    },
+    "numbers": {
+      "title": "Números",
+      "description": "Administra números de teléfono"
+    },
+    "recentActivity": {
+      "title": "Actividad Reciente",
+      "callCompleted": "Llamada completada",
+      "agentCreated": "Agente creado",
+      "numberImported": "Número importado",
+      "minutesAgo": "Hace {count} minutos",
+      "hoursAgo": "Hace {count} horas"
+    }
+  },
+  "help": {
+    "title": "Ayuda",
+    "subtitle": "Centro de ayuda y documentación"
+  },
+  "inbox": {
+    "title": "Bandeja de Entrada"
+  },
+  "installGhl": {
+    "title": "Conectar con GoHighLevel",
+    "subtitle": "Vincula tu location de GoHighLevel con Monetaize para comenzar",
+    "connectButton": "Conectar con GoHighLevel",
+    "processing": "Procesando...",
+    "checkingSession": "Verificando sesión...",
+    "loading": "Cargando...",
+    "success": {
+      "title": "Instalación exitosa. Redirigiendo...",
+      "message": "Instalación exitosa. Redirigiendo..."
+    },
+    "error": {
+      "title": "Error en la instalación",
+      "message": "Error en la instalación"
+    },
+    "info": "Al conectar, autorizas a Monetaize a acceder a tu location de GoHighLevel.\nTus datos están seguros y protegidos."
+  },
+  "knowledge": {
+    "title": "Knowledge Bases",
+    "subtitle": "Gestiona tus bases de conocimiento para proporcionar contexto a tus agentes",
+    "newKnowledgeBase": "Nueva Knowledge Base",
+    "loading": "Cargando...",
+    "empty": {
+      "title": "No hay Knowledge Bases",
+      "description": "Crea tu primera Knowledge Base para proporcionar contexto a tus agentes",
+      "createButton": "Crear Knowledge Base"
+    },
+    "status": {
+      "complete": "Completo",
+      "inProgress": "Procesando",
+      "error": "Error"
+    },
+    "sources": "Fuentes",
+    "autoRefreshEnabled": "Auto-refresh habilitado",
+    "lastUpdated": "Última actualización",
+    "addSources": "Agregar Fuentes",
+    "deleteConfirm": "¿Estás seguro de que deseas eliminar esta Knowledge Base?",
+    "deleteError": "Error al eliminar Knowledge Base"
+  },
+  "phoneNumbers": {
+    "title": "Números",
+    "searchPlaceholder": "Buscar números...",
+    "newNumber": "Nuevo Número",
+    "loading": "Cargando números de teléfono...",
+    "error": "Error",
+    "stats": {
+      "totalNumbers": "Total Números",
+      "twilio": "Twilio",
+      "telnyx": "Telnyx",
+      "custom": "Custom"
+    },
+    "table": {
+      "phoneNumber": "NÚMERO DE TELÉFONO",
+      "nickname": "APODO",
+      "type": "TIPO",
+      "inboundAgent": "AGENTE ENTRANTE",
+      "outboundAgent": "AGENTE SALIENTE",
+      "actions": "ACCIONES"
+    },
+    "noNumbers": "No hay números de teléfono para mostrar",
+    "deleteConfirm": "¿Estás seguro de que quieres eliminar este número?",
+    "showingResults": "Mostrando 1 - {count}",
+    "results": "Resultados",
+    "pageOf": "Página 1 de 1"
+  },
+  "profile": {
+    "title": "Mi Perfil",
+    "ghlInfo": {
+      "title": "Información de GoHighLevel",
+      "locationId": "Location ID",
+      "companyId": "Company ID",
+      "locationName": "Nombre de Location",
+      "address": "Dirección",
+      "cityState": "Ciudad, Estado",
+      "phone": "Teléfono",
+      "email": "Email",
+      "website": "Sitio Web",
+      "timezone": "Zona Horaria"
+    },
+    "jwtToken": {
+      "title": "Token JWT para API",
+      "description": "Genera un token para consumir créditos desde integraciones externas",
+      "generateButton": "Generar Token",
+      "generating": "Generando...",
+      "yourToken": "Tu Token JWT:",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "example": "Ejemplo de uso:",
+      "generateNew": "Generar nuevo token"
+    },
+    "personalInfo": {
+      "title": "Información Personal",
+      "namePlaceholder": "Tu nombre",
+      "emailPlaceholder": "tu@email.com"
+    },
+    "logout": "Cerrar Sesión",
+    "saveChanges": "Guardar Cambios",
+    "saving": "Guardando...",
+    "updateSuccess": "Perfil actualizado exitosamente",
+    "updateError": "Error al actualizar el perfil",
+    "tokenSuccess": "Token JWT generado exitosamente",
+    "tokenError": "Error al generar el token",
+    "copyError": "Error al copiar al portapapeles"
+  },
+  "settings": {
+    "title": "Configuración",
+    "subtitle": "Configuración del sistema y preferencias"
+  },
+  "voices": {
+    "title": "Configuración de Voces",
+    "subtitle": "Selecciona y configura las voces para tus agentes de llamada",
+    "update": "Actualizar",
+    "settings": "Configuración",
+    "stats": {
+      "totalVoices": "Total de Voces",
+      "elevenlabs": "ElevenLabs",
+      "openai": "OpenAI",
+      "deepgram": "Deepgram"
+    },
+    "loading": "Cargando voces disponibles...",
+    "error": {
+      "title": "Error al cargar las voces",
+      "retry": "Reintentar"
+    },
+    "selectedVoice": {
+      "title": "Información de la Voz Seleccionada",
+      "voiceId": "ID de Voz",
+      "provider": "Proveedor",
+      "gender": "Género",
+      "accent": "Acento",
+      "age": "Edad",
+      "previewAudio": "Preview de Audio",
+      "listenPreview": "Escuchar preview",
+      "notSpecified": "No especificado"
+    }
+  },
+  "wallet": {
+    "title": "Billetera",
+    "subtitle": "Gestiona tu saldo y configura recargas automáticas",
+    "rechargeSuccess": {
+      "title": "¡Recarga exitosa!",
+      "message": "Tu wallet ha sido recargada con ${amount}. El saldo se actualizará automáticamente en breve."
+    },
+    "loading": "Cargando..."
+  },
+  "sidebar": {
+    "pinSidebar": "Anclar sidebar",
+    "unpinSidebar": "Desanclar sidebar"
+  }
+}
+

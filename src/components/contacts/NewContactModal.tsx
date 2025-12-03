@@ -3,6 +3,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface NewContactModalProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface NewContactModalProps {
 }
 
 export function NewContactModal({ isOpen, onClose }: NewContactModalProps) {
+  const t = useTranslations('contacts.modal');
   if (!isOpen) return null;
 
   return (
@@ -29,7 +31,7 @@ export function NewContactModal({ isOpen, onClose }: NewContactModalProps) {
       >
         {/* Header with close button */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">New Contact</h2>
+          <h2 className="text-xl font-semibold text-gray-900">{t('title')}</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -43,17 +45,17 @@ export function NewContactModal({ isOpen, onClose }: NewContactModalProps) {
           {/* Name - First and Last */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Name
+              {t('name')}
             </label>
             <div className="grid grid-cols-2 gap-3">
               <input
                 type="text"
-                placeholder="First name"
+                placeholder={t('firstName')}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
               />
               <input
                 type="text"
-                placeholder="Last name"
+                placeholder={t('lastName')}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
               />
             </div>
@@ -62,11 +64,11 @@ export function NewContactModal({ isOpen, onClose }: NewContactModalProps) {
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Title
+              {t('title')}
             </label>
             <input
               type="text"
-              placeholder="Title"
+              placeholder={t('title')}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
             />
           </div>
@@ -74,11 +76,11 @@ export function NewContactModal({ isOpen, onClose }: NewContactModalProps) {
           {/* Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email
+              {t('email')}
             </label>
             <input
               type="email"
-              placeholder="Email"
+              placeholder={t('email')}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
             />
           </div>
@@ -86,11 +88,11 @@ export function NewContactModal({ isOpen, onClose }: NewContactModalProps) {
           {/* Phone */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Phone
+              {t('phone')}
             </label>
             <input
               type="tel"
-              placeholder="Phone"
+              placeholder={t('phone')}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
             />
           </div>
@@ -98,11 +100,11 @@ export function NewContactModal({ isOpen, onClose }: NewContactModalProps) {
           {/* Company */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Company
+              {t('company')}
             </label>
             <input
               type="text"
-              placeholder="Company"
+              placeholder={t('company')}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
             />
           </div>
@@ -110,11 +112,11 @@ export function NewContactModal({ isOpen, onClose }: NewContactModalProps) {
           {/* LinkedIn */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              LinkedIn
+              {t('linkedin')}
             </label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">
-                linkedin.com/in/
+                {t('linkedinPrefix')}
               </span>
               <input
                 type="text"
@@ -127,12 +129,12 @@ export function NewContactModal({ isOpen, onClose }: NewContactModalProps) {
           {/* Owner */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Owner
+              {t('owner')}
             </label>
             <div className="relative">
               <select className="appearance-none w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white pr-10">
-                <option>Select owner</option>
-                <option>Current user</option>
+                <option>{t('selectOwner')}</option>
+                <option>{t('currentUser')}</option>
                 <option>Team member 1</option>
                 <option>Team member 2</option>
               </select>
@@ -144,7 +146,7 @@ export function NewContactModal({ isOpen, onClose }: NewContactModalProps) {
         {/* Footer with button */}
         <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-200 bg-white">
           <button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
-            Add Contact
+            {t('addContact')}
           </button>
         </div>
       </div>

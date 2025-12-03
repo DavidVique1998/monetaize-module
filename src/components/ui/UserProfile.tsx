@@ -4,6 +4,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronDown, ChevronUp, User, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { LanguageSelector } from './LanguageSelector';
 
 interface UserProfileProps {
   name: string;
@@ -57,6 +59,7 @@ export function UserProfile({
   onClick
 }: UserProfileProps) {
   const router = useRouter();
+  const t = useTranslations('userProfile');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -167,12 +170,15 @@ export function UserProfile({
         <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg border border-gray-200 shadow-lg py-2 z-50 transform transition-all duration-200 ease-out opacity-100 translate-y-0">
           <MenuItem
             icon={<User className="w-4 h-4" />}
-            label="Ver Perfil"
+            label={t('viewProfile')}
             onClick={handleViewProfile}
           />
+          <div className="px-2 py-1">
+            <LanguageSelector />
+          </div>
           <MenuItem
             icon={<LogOut className="w-4 h-4" />}
-            label="Cerrar Sesión"
+            label={t('logout')}
             onClick={handleLogout}
             isDanger={true}
           />

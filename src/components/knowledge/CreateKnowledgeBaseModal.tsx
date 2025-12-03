@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface CreateKnowledgeBaseModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ export function CreateKnowledgeBaseModal({
   onClose,
   onSuccess,
 }: CreateKnowledgeBaseModalProps) {
+  const t = useTranslations('knowledge.createModal');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -68,17 +70,17 @@ export function CreateKnowledgeBaseModal({
     setError(null);
 
     if (!knowledgeBaseName.trim()) {
-      setError('El nombre de la Knowledge Base es requerido');
+      setError(t('errors.nameRequired'));
       return;
     }
 
     if (knowledgeBaseName.length >= 40) {
-      setError('El nombre debe tener menos de 40 caracteres');
+      setError(t('errors.nameTooLong'));
       return;
     }
 
     if (texts.length === 0 && urls.length === 0) {
-      setError('Debe agregar al menos una fuente (texto o URL)');
+      setError(t('errors.sourceRequired'));
       return;
     }
 
@@ -115,11 +117,11 @@ export function CreateKnowledgeBaseModal({
         setCurrentUrl('');
         onSuccess();
       } else {
-        setError(data.error || 'Error al crear Knowledge Base');
+        setError(data.error || t('errors.createError'));
       }
     } catch (error: any) {
       console.error('Error creating knowledge base:', error);
-      setError('Error al crear Knowledge Base: ' + (error.message || 'Unknown error'));
+      setError(t('errors.createError') + ': ' + (error.message || 'Unknown error'));
     } finally {
       setIsLoading(false);
     }
@@ -137,7 +139,7 @@ export function CreateKnowledgeBaseModal({
       <div className="fixed right-0 top-0 h-full w-full max-w-2xl bg-white shadow-2xl flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Nueva Knowledge Base</h2>
+          <h2 className="text-xl font-semibold text-gray-900">{t('title')}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -158,19 +160,19 @@ export function CreateKnowledgeBaseModal({
             {/* Nombre */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre de la Knowledge Base *
+                {t('name')}
               </label>
               <input
                 type="text"
                 value={knowledgeBaseName}
                 onChange={(e) => setKnowledgeBaseName(e.target.value)}
-                placeholder="Mi Knowledge Base"
+                placeholder={t('namePlaceholder')}
                 maxLength={39}
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 required
               />
               <p className="text-xs text-gray-500 mt-1">
-                Máximo 39 caracteres ({knowledgeBaseName.length}/39)
+                {t('maxChars', { count: knowledgeBaseName.length })}
               </p>
             </div>
 
@@ -178,10 +180,10 @@ export function CreateKnowledgeBaseModal({
             <div className="flex items-center justify-between">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Auto-refresh
+                  {t('autoRefresh')}
                 </label>
                 <p className="text-xs text-gray-500">
-                  Actualizar automáticamente las URLs cada 12 horas
+                  {t('autoRefreshDesc')}
                 </p>
               </div>
               <input
@@ -195,7 +197,7 @@ export function CreateKnowledgeBaseModal({
             {/* Textos */}
             <div className="border-t border-gray-200 pt-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Textos
+                {t('texts')}
               </label>
               
               <div className="space-y-2 mb-3">
@@ -230,13 +232,13 @@ export function CreateKnowledgeBaseModal({
                   type="text"
                   value={currentTextTitle}
                   onChange={(e) => setCurrentTextTitle(e.target.value)}
-                  placeholder="Título (opcional)"
+                  placeholder={t('textTitle')}
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
                 <textarea
                   value={currentText}
                   onChange={(e) => setCurrentText(e.target.value)}
-                  placeholder="Texto a agregar..."
+                  placeholder={t('textPlaceholder')}
                   rows={3}
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
@@ -246,7 +248,7 @@ export function CreateKnowledgeBaseModal({
                   className="w-full px-3 py-2 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors flex items-center justify-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
-                  Agregar Texto
+                  {t('addText')}
                 </button>
               </div>
             </div>
@@ -254,7 +256,7 @@ export function CreateKnowledgeBaseModal({
             {/* URLs */}
             <div className="border-t border-gray-200 pt-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                URLs
+                {t('urls')}
               </label>
               
               <div className="space-y-2 mb-3">
@@ -282,7 +284,7 @@ export function CreateKnowledgeBaseModal({
                   type="url"
                   value={currentUrl}
                   onChange={(e) => setCurrentUrl(e.target.value)}
-                  placeholder="https://example.com"
+                  placeholder={t('urlPlaceholder')}
                   className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
                 <button
@@ -291,7 +293,7 @@ export function CreateKnowledgeBaseModal({
                   className="px-4 py-2 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
-                  Agregar
+                  {t('add')}
                 </button>
               </div>
             </div>
@@ -305,7 +307,7 @@ export function CreateKnowledgeBaseModal({
             onClick={onClose}
             className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
           >
-            Cancelar
+            {t('cancel')}
           </button>
           <button
             type="submit"
@@ -313,7 +315,7 @@ export function CreateKnowledgeBaseModal({
             disabled={isLoading}
             className="flex-1 px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? 'Creando...' : 'Crear Knowledge Base'}
+            {isLoading ? t('creating') : t('create')}
           </button>
         </div>
       </div>

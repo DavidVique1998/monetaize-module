@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Settings, Loader2, CheckCircle2, AlertCircle, CreditCard } from 'lucide-react';
 import { PaymentMethodManager } from './PaymentMethodManager';
+import { useTranslations } from 'next-intl';
 
 interface AutoRechargeSettingsProps {
   className?: string;
@@ -18,6 +19,7 @@ interface AutoRechargeData {
 }
 
 export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
+  const t = useTranslations('wallet.autoRecharge');
   const [settings, setSettings] = useState<AutoRechargeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -46,11 +48,11 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
         setThreshold(Number(settingsData.threshold));
         setRechargeAmount(Number(settingsData.rechargeAmount));
       } else {
-        setError(data.error || 'Error al cargar configuración');
+        setError(data.error || t('errorLoading'));
       }
     } catch (err) {
       console.error('Error fetching auto-recharge settings:', err);
-      setError('Error al cargar configuración');
+      setError(t('errorLoading'));
     } finally {
       setLoading(false);
     }
@@ -59,7 +61,7 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
   const handleSave = async () => {
     // Validar que si está habilitado, tenga método de pago
     if (enabled && !settings?.paymentMethodId) {
-      setError('Debes guardar un método de pago antes de habilitar la recarga automática');
+      setError(t('mustSavePaymentFirst'));
       return;
     }
 
@@ -91,11 +93,11 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
         // Recargar configuración para obtener el paymentMethodId actualizado
         await fetchSettings();
       } else {
-        setError(data.error || 'Error al guardar configuración');
+        setError(data.error || t('errorSaving'));
       }
     } catch (err) {
       console.error('Error saving auto-recharge settings:', err);
-      setError('Error al guardar configuración');
+      setError(t('errorSaving'));
     } finally {
       setSaving(false);
     }
@@ -110,7 +112,7 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
     // Si se elimina el método de pago y está habilitado, deshabilitar
     if (enabled) {
       setEnabled(false);
-      setError('El método de pago fue eliminado. La recarga automática ha sido deshabilitada.');
+      setError(t('paymentMethodRemoved'));
     }
     fetchSettings();
   };
@@ -132,8 +134,8 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
           <Settings className="w-4 h-4 text-purple-600" />
         </div>
         <div>
-          <h3 className="text-base font-semibold text-gray-900">Recarga Automática</h3>
-          <p className="text-xs text-gray-500">Configura recargas automáticas cuando el saldo sea bajo</p>
+          <h3 className="text-base font-semibold text-gray-900">{t('title')}</h3>
+          <p className="text-xs text-gray-500">{t('subtitle')}</p>
         </div>
       </div>
 
@@ -155,7 +157,7 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
       {success && (
         <div className="mb-3 bg-green-50 border border-green-200 rounded-lg p-2 flex items-start">
           <CheckCircle2 className="w-4 h-4 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-          <p className="text-md text-green-600">Configuración guardada exitosamente</p>
+          <p className="text-md text-green-600">{t('saved')}</p>
         </div>
       )}
 
@@ -165,7 +167,7 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
           <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center space-x-2">
             <CreditCard className="w-4 h-4 text-green-600 flex-shrink-0" />
             <p className="text-sm text-green-700 flex-1">
-              Método de pago guardado. Las recargas se procesarán automáticamente.
+              {t('paymentMethodSaved')}
             </p>
           </div>
         )}
@@ -175,10 +177,10 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
             <AlertCircle className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className="text-sm font-medium text-yellow-800">
-                Método de pago requerido
+                {t('paymentMethodRequired')}
               </p>
               <p className="text-xs text-yellow-700 mt-1">
-                Para habilitar la recarga automática, primero debes guardar un método de pago.
+                {t('paymentMethodRequiredDesc')}
               </p>
             </div>
           </div>
@@ -187,13 +189,13 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
         {/* Toggle habilitado */}
         <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
           <div className="flex-1">
-            <label className="text-md font-medium text-gray-900">Habilitar recarga automática</label>
+            <label className="text-md font-medium text-gray-900">{t('enable')}</label>
             <p className="text-md text-gray-500 mt-0.5">
-              Recarga automáticamente cuando el saldo llegue al umbral
+              {t('enableDescription')}
             </p>
             {enabled && settings?.paymentMethodId && (
               <p className="text-xs text-blue-600 mt-1">
-                Se cobrará automáticamente ${rechargeAmount} cuando el balance baje de ${threshold}
+                {t('autoChargeInfo', { amount: `$${rechargeAmount}`, threshold: `$${threshold}` })}
               </p>
             )}
           </div>
@@ -203,7 +205,7 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
               checked={enabled}
               onChange={(e) => {
                 if (e.target.checked && !settings?.paymentMethodId) {
-                  setError('Primero debes guardar un método de pago');
+                  setError(t('mustSavePaymentFirst'));
                   return;
                 }
                 setEnabled(e.target.checked);
@@ -219,7 +221,7 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-md font-medium text-gray-700 mb-1">
-              Umbral (USD)
+              {t('threshold')}
             </label>
             <div className="relative">
               <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 z-10 pointer-events-none text-sm">$</span>
@@ -238,7 +240,7 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
 
           <div>
             <label className="block text-md font-medium text-gray-700 mb-1">
-              Monto (USD)
+              {t('amount')}
             </label>
             <div className="relative">
               <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 z-10 pointer-events-none text-sm">$</span>
@@ -260,7 +262,7 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
         {settings?.lastRechargeAt && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
             <p className="text-sm text-blue-700">
-              Última recarga: {new Date(settings.lastRechargeAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+              {t('lastRecharge')}: {new Date(settings.lastRechargeAt).toLocaleDateString(document.documentElement.lang === 'es' ? 'es-ES' : 'en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
         )}
@@ -274,10 +276,10 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
           {saving ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Guardando...
+              {t('saving')}
             </>
           ) : (
-            'Guardar Configuración'
+            t('save')
           )}
         </button>
       </div>

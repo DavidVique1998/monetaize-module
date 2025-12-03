@@ -7,11 +7,13 @@ import { HeaderBar } from '@/components/dashboard/HeaderBar';
 import { CreateAssistantModal } from '@/components/assistants/CreateAssistantModal';
 import { useAgents, RetellAgent } from '@/hooks/useAgents';
 import { Search, Bot, FolderPlus, MoreVertical, Trash2, Star, Archive } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 type FilterTab = 'all' | 'favorites' | 'imported' | 'archived';
 
 export default function AssistantsPage() {
   const router = useRouter();
+  const t = useTranslations('assistants');
   const { agents, loading, error, loadAgents } = useAgents();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
@@ -47,7 +49,7 @@ export default function AssistantsPage() {
     );
 
   const handleDelete = async (agentId: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este asistente?')) return;
+    if (!confirm(t('deleteConfirm'))) return;
     
     try {
       // TODO: Implement API endpoint for deletion
@@ -110,7 +112,7 @@ export default function AssistantsPage() {
     <DashboardLayout>
       <div className="flex flex-col h-full bg-gray-50">
         {/* Header */}
-        <HeaderBar title="Assistants" />
+        <HeaderBar title={t('title')} />
         
         {/* Main Content */}
         <div className="flex-1 p-6 space-y-6 overflow-y-auto">
@@ -120,7 +122,7 @@ export default function AssistantsPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search for an assistant..."
+                placeholder={t('searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 pr-4 py-2 w-96 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
@@ -134,14 +136,14 @@ export default function AssistantsPage() {
                 className="bg-black hover:bg-gray-800 text-white font-semibold px-6 py-2 rounded-lg transition-colors flex items-center cursor-pointer"
               >
                 <FolderPlus className="w-4 h-4 mr-2" />
-                Create Folder
+                {t('createFolder')}
               </button>
               <button
                 onClick={handleCreateAssistant}
                 className="bg-black hover:bg-gray-800 text-white font-semibold px-6 py-2 rounded-lg transition-colors flex items-center cursor-pointer"
               >
                 <Bot className="w-4 h-4 mr-2" />
-                Create Assistant
+                {t('createAssistant')}
               </button>
             </div>
           </div>
@@ -156,7 +158,7 @@ export default function AssistantsPage() {
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              All ({agents.length})
+              {t('all')} ({agents.length})
             </button>
             <button
               onClick={() => setActiveTab('favorites')}
@@ -166,7 +168,7 @@ export default function AssistantsPage() {
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              Favorites (0)
+              {t('favorites')} (0)
             </button>
             <button
               onClick={() => setActiveTab('imported')}
@@ -176,7 +178,7 @@ export default function AssistantsPage() {
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              Imported (0)
+              {t('imported')} (0)
             </button>
             <button
               onClick={() => setActiveTab('archived')}
@@ -186,7 +188,7 @@ export default function AssistantsPage() {
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              Archived (0)
+              {t('archived')} (0)
             </button>
           </div>
 
@@ -195,12 +197,12 @@ export default function AssistantsPage() {
             {/* Table Header */}
             <div className="px-6 py-4 border-b border-gray-200">
               <div className="grid grid-cols-6 gap-4 text-sm font-semibold text-gray-700">
-                <div>NAME</div>
-                <div>META DATA</div>
-                <div>UPDATED</div>
-                <div>CREATED</div>
-                <div>STATUS</div>
-                <div>ID</div>
+                <div>{t('tableHeaders.name')}</div>
+                <div>{t('tableHeaders.metaData')}</div>
+                <div>{t('tableHeaders.updated')}</div>
+                <div>{t('tableHeaders.created')}</div>
+                <div>{t('tableHeaders.status')}</div>
+                <div>{t('tableHeaders.id')}</div>
               </div>
             </div>
 
@@ -209,13 +211,13 @@ export default function AssistantsPage() {
               <div className="flex items-center justify-center py-20">
                 <div className="text-center">
                   <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                  <p className="text-gray-600">Loading assistants...</p>
+                  <p className="text-gray-600">{t('loading')}</p>
                 </div>
               </div>
             ) : filteredAgents.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20">
                 <Bot className="w-12 h-12 text-gray-300 mb-4" />
-                <p className="text-gray-500 font-medium">No assistants to display</p>
+                <p className="text-gray-500 font-medium">{t('noAssistants')}</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-200">
@@ -230,7 +232,7 @@ export default function AssistantsPage() {
                       <div className="flex items-center space-x-3">
                         <Bot className="w-5 h-5 text-gray-400" />
                         <p className="text-sm font-medium text-gray-900 truncate">
-                          {agent.agent_name || 'Unnamed Assistant'}
+                          {agent.agent_name || t('unnamedAssistant')}
                         </p>
                       </div>
                       
@@ -265,17 +267,17 @@ export default function AssistantsPage() {
                           {(agent as any).is_published ? (
                             <>
                               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                              <span className="text-sm text-green-600 font-medium">Published</span>
+                              <span className="text-sm text-green-600 font-medium">{t('status.published')}</span>
                             </>
                           ) : (
                             <>
                               <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                              <span className="text-sm text-yellow-600 font-medium">Draft</span>
+                              <span className="text-sm text-yellow-600 font-medium">{t('status.draft')}</span>
                             </>
                           )}
                         </div>
                         <p className="text-xs text-gray-500 mt-1">
-                          v{(agent as any).version || 0}
+                          {t('version')}{(agent as any).version || 0}
                         </p>
                       </div>
                       

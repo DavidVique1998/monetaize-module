@@ -3,6 +3,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Search, Bell, Link } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface HeaderBarProps {
   title: string;
@@ -10,6 +11,8 @@ interface HeaderBarProps {
 }
 
 export function HeaderBar({ title, className }: HeaderBarProps) {
+  const t = useTranslations('common');
+  
   return (
     <div className={cn(
       "flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200",
@@ -25,7 +28,7 @@ export function HeaderBar({ title, className }: HeaderBarProps) {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search for anything..."
+            placeholder={`${t('search')}...`}
             className="pl-10 pr-4 py-2 w-64 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
           />
         </div>

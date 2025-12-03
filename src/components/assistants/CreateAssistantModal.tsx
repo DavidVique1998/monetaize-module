@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { X, Sparkles, Download, Box, Rocket, Info, Loader2 } from 'lucide-react';
 import { createBlankAssistant } from '@/app/actions/assistants';
+import { useTranslations } from 'next-intl';
 
 interface CreateAssistantModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface CreateAssistantModalProps {
 type AssistantOption = 'generate' | 'import' | 'blank' | 'flowbuilder';
 
 export function CreateAssistantModal({ isOpen, onClose, onSelectOption, onAgentCreated }: CreateAssistantModalProps) {
+  const t = useTranslations('assistants.createModal');
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,7 +45,7 @@ export function CreateAssistantModal({ isOpen, onClose, onSelectOption, onAgentC
             // Navigate to the edit page
             window.location.href = `/assistants/${result.data.agent_id}`;
           } else {
-            const errorMsg = result.error || 'Failed to create assistant';
+            const errorMsg = result.error || t('error');
             setError(errorMsg);
             console.error('Agent creation failed:', {
               error: errorMsg,
@@ -52,12 +54,12 @@ export function CreateAssistantModal({ isOpen, onClose, onSelectOption, onAgentC
           }
         } catch (serverError) {
           console.error('Server action error:', serverError);
-          setError(serverError instanceof Error ? serverError.message : 'Server error occurred');
+          setError(serverError instanceof Error ? serverError.message : t('error'));
         }
       }
     } catch (error: any) {
       console.error('Error creating assistant:', error);
-      setError(error.message || 'An unexpected error occurred');
+      setError(error.message || t('error'));
     } finally {
       setIsCreating(false);
     }
@@ -82,7 +84,7 @@ export function CreateAssistantModal({ isOpen, onClose, onSelectOption, onAgentC
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
-          <h2 className="text-2xl font-semibold text-gray-900">Create Assistant</h2>
+          <h2 className="text-2xl font-semibold text-gray-900">{t('title')}</h2>
           <button
             onClick={handleClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
@@ -98,11 +100,11 @@ export function CreateAssistantModal({ isOpen, onClose, onSelectOption, onAgentC
               <p className="text-sm text-red-800">{error}</p>
             </div>
           )}
-          <p className="text-lg text-gray-700">How would you like to create your next employee?</p>
+          <p className="text-lg text-gray-700">{t('question')}</p>
 
           {/* Assistant Builder Section */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Assistant Builder</h3>
+            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">{t('assistantBuilder')}</h3>
             
             {/* Generate Assistant */}
             <div 
@@ -117,9 +119,9 @@ export function CreateAssistantModal({ isOpen, onClose, onSelectOption, onAgentC
                   <Sparkles className="w-6 h-6 text-purple-600" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900 mb-2">Generate Assistant</h4>
+                  <h4 className="font-semibold text-gray-900 mb-2">{t('generate.title')}</h4>
                   <p className="text-sm text-gray-600">
-                    Generate an assistant based off of your business's profile and a brief description.
+                    {t('generate.description')}
                   </p>
                 </div>
               </div>
@@ -138,9 +140,9 @@ export function CreateAssistantModal({ isOpen, onClose, onSelectOption, onAgentC
                   <Download className="w-6 h-6 text-purple-600" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900 mb-2">Import With ID</h4>
+                  <h4 className="font-semibold text-gray-900 mb-2">{t('import.title')}</h4>
                   <p className="text-sm text-gray-600">
-                    Import an assistant using the unique ID to create a duplicate in your account.
+                    {t('import.description')}
                   </p>
                 </div>
               </div>
@@ -159,9 +161,9 @@ export function CreateAssistantModal({ isOpen, onClose, onSelectOption, onAgentC
                   <Box className="w-6 h-6 text-purple-600" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900 mb-2">Blank Canvas</h4>
+                  <h4 className="font-semibold text-gray-900 mb-2">{t('blank.title')}</h4>
                   <p className="text-sm text-gray-600">
-                    Create an assistant with no configuration to start building with a blank canvas.
+                    {t('blank.description')}
                   </p>
                 </div>
               </div>
@@ -186,11 +188,11 @@ export function CreateAssistantModal({ isOpen, onClose, onSelectOption, onAgentC
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
-                    <h4 className="font-semibold text-gray-900">Flowbuilder</h4>
+                    <h4 className="font-semibold text-gray-900">{t('flowbuilder.title')}</h4>
                     <span className="bg-purple-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full">BETA</span>
                   </div>
                   <p className="text-sm text-gray-600">
-                    An objective-based conversational pathway builder. Helps with deterministic routes and AI focus.
+                    {t('flowbuilder.description')}
                   </p>
                 </div>
               </div>
@@ -208,10 +210,10 @@ export function CreateAssistantModal({ isOpen, onClose, onSelectOption, onAgentC
             {isCreating ? (
               <span className="flex items-center justify-center">
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Creating...
+                {t('creating')}
               </span>
             ) : (
-              'Close'
+              t('close')
             )}
           </button>
         </div>

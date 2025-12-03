@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { SessionManager } from '@/lib/session';
+import { routing } from './i18n/routing';
 
 /**
  * Middleware para controlar el acceso a las rutas de la aplicación
@@ -16,69 +17,87 @@ import { SessionManager } from '@/lib/session';
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Excluir rutas de API y archivos estáticos
+  if (
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/favicon.ico') ||
+    pathname.match(/\.(svg|png|jpg|jpeg|gif|webp|ico)$/)
+  ) {
+    // Para rutas de API, solo manejar autenticación si es necesario
+    const publicApiRoutes = [
+      '/api/oauth',
+      '/api/webhooks',
+      '/api/auth/me',
+      '/api/wallet/consume-token',
+      '/api/wallet/consume-batch',
+    ];
+
+    if (!publicApiRoutes.some(route => pathname.startsWith(route))) {
+      // Verificar autenticación para rutas de API protegidas
+      const sessionData = SessionManager.getSessionUserFromRequest(request.cookies as any);
+      if (sessionData) {
+        const response = NextResponse.next();
+        response.headers.set('x-user-id', sessionData.userId);
+        response.headers.set('x-user-email', sessionData.email);
+        response.headers.set('x-user-role', sessionData.role);
+        if (sessionData.ghlLocationId) {
+          response.headers.set('x-ghl-location-id', sessionData.ghlLocationId);
+        }
+        if (sessionData.ghlCompanyId) {
+          response.headers.set('x-ghl-company-id', sessionData.ghlCompanyId);
+        }
+        return response;
+      }
+    }
+    
+    return NextResponse.next();
+  }
+
+  // Obtener locale de la cookie o usar default
+  const locale = request.cookies.get('NEXT_LOCALE')?.value || routing.defaultLocale;
+  
+  // Crear respuesta base
+  const response = NextResponse.next();
+  
+  // Establecer header de locale para que next-intl lo use
+  response.headers.set('x-next-intl-locale', locale);
+  
+  // Si no hay cookie de locale, establecerla
+  if (!request.cookies.get('NEXT_LOCALE')) {
+    response.cookies.set('NEXT_LOCALE', locale, {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 365, // 1 año
+      sameSite: 'lax'
+    });
+  }
+
   // Rutas públicas que no requieren autenticación
-  const publicRoutes = [
-    '/install_ghl',
-    '/api/oauth',
-    '/api/webhooks',
-    '/api/auth/me', // Permitir verificar sesión sin autenticación
-    '/api/wallet/consume-token', // Endpoint público que usa JWT para autenticación
-    '/api/wallet/consume-batch', // Endpoint público que usa JWT para autenticación (batch processing)
-  ];
-
-  // Verificar si la ruta es pública
-  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
-
-  // Si es una ruta pública, verificar si hay sesión para redirigir
   if (pathname === '/install_ghl') {
-    // Verificar sesión sin usar Prisma (Edge Runtime compatible)
     const sessionData = SessionManager.getSessionUserFromRequest(request.cookies as any);
     
-    // Si hay sesión activa, redirigir al dashboard
     if (sessionData) {
-      const redirectTo = request.nextUrl.searchParams.get('redirect') || '/';
-      console.log('[Middleware] Usuario autenticado, redirigiendo desde /install_ghl a:', redirectTo);
+      const redirectTo = request.nextUrl.searchParams.get('redirect') || '/wallet';
       return NextResponse.redirect(new URL(redirectTo, request.url));
     }
     
-    // Si no hay sesión, permitir acceso a la página de instalación
-    return NextResponse.next();
-  }
-
-  // Permitir acceso a rutas de API públicas (OAuth, webhooks, auth/me, consume-token, y consume-batch)
-  if (isPublicRoute && (
-    pathname.startsWith('/api/oauth') || 
-    pathname.startsWith('/api/webhooks') ||
-    pathname === '/api/auth/me' ||
-    pathname === '/api/wallet/consume-token' ||
-    pathname === '/api/wallet/consume-batch'
-  )) {
-    return NextResponse.next();
+    return response;
   }
 
   // Para todas las demás rutas, verificar autenticación
-  // Verificar sesión sin usar Prisma (Edge Runtime compatible)
   const sessionData = SessionManager.getSessionUserFromRequest(request.cookies as any);
 
-  // Si no hay usuario autenticado, redirigir a install_ghl
   if (!sessionData) {
     const loginUrl = new URL('/install_ghl', request.url);
-    // Preservar la URL original para redirigir después del login
     loginUrl.searchParams.set('redirect', pathname);
-    console.log('[Middleware] Usuario no autenticado, redirigiendo a:', loginUrl.toString());
     return NextResponse.redirect(loginUrl);
   }
 
-  // Usuario autenticado, agregar información de sesión a los headers
-  // Esto permite acceder fácilmente al locationId en cualquier API route
-  const response = NextResponse.next();
-  
-  // Agregar headers con información de la sesión para fácil acceso
+  // Agregar headers con información de la sesión
   response.headers.set('x-user-id', sessionData.userId);
   response.headers.set('x-user-email', sessionData.email);
   response.headers.set('x-user-role', sessionData.role);
   
-  // Agregar locationId si está disponible (importante para GHL)
   if (sessionData.ghlLocationId) {
     response.headers.set('x-ghl-location-id', sessionData.ghlLocationId);
   }
@@ -86,18 +105,9 @@ export async function middleware(request: NextRequest) {
     response.headers.set('x-ghl-company-id', sessionData.ghlCompanyId);
   }
 
-  // Permitir que la aplicación se cargue en iframes (necesario para GoHighLevel)
-  // X-Frame-Options: ALLOWALL permite que cualquier sitio cargue la app en iframe
-  // Alternativamente puedes usar 'SAMEORIGIN' para solo permitir el mismo origen
-  // Para GoHighLevel necesitamos ALLOWALL o no incluir el header
-  // response.headers.set('X-Frame-Options', 'ALLOWALL'); // No estándar, mejor usar CSP
-  
-  // Content-Security-Policy: Permite cargar en iframes de GoHighLevel
-  // frame-ancestors permite especificar qué dominios pueden cargar la app en iframe
-  // Para GoHighLevel, necesitamos permitir *.gohighlevel.com y *.highlevel.com
+  // Content-Security-Policy para iframes de GoHighLevel
   const cspHeader = response.headers.get('Content-Security-Policy') || '';
   if (!cspHeader.includes('frame-ancestors')) {
-    // Permitir iframes desde GoHighLevel y el mismo origen
     response.headers.set(
       'Content-Security-Policy',
       `frame-ancestors 'self' https://*.gohighlevel.com https://*.highlevel.com; ${cspHeader}`

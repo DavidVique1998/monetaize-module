@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { X, CreditCard, Loader2, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface RechargeModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface RechargeModalProps {
 const PREDEFINED_AMOUNTS = [10, 25, 50, 100, 250, 500];
 
 export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps) {
+  const t = useTranslations('wallet.rechargeModal');
   const [amount, setAmount] = useState<number>(50);
   const [customAmount, setCustomAmount] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -36,7 +38,7 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
 
   const handleRecharge = async () => {
     if (amount <= 0) {
-      setError('El monto debe ser mayor a 0');
+      setError(t('error'));
       return;
     }
 
@@ -72,11 +74,11 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
           setCustomAmount('');
         }, 2000);
       } else {
-        setError(data.error || 'Error al crear link de pago');
+        setError(data.error || t('errorCreating'));
       }
     } catch (err) {
       console.error('Error creating payment link:', err);
-      setError('Error al crear link de pago');
+      setError(t('errorCreating'));
     } finally {
       setLoading(false);
     }
@@ -116,8 +118,8 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
               <CreditCard className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Recargar Saldo</h2>
-              <p className="text-xs text-gray-500">Agrega créditos a tu wallet</p>
+              <h2 className="text-lg font-semibold text-gray-900">{t('title')}</h2>
+              <p className="text-xs text-gray-500">{t('subtitle')}</p>
             </div>
           </div>
           <button
@@ -134,7 +136,7 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
           {/* Montos predefinidos */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              Selecciona un monto
+              {t('selectAmount')}
             </label>
             <div className="grid grid-cols-3 gap-3">
               {PREDEFINED_AMOUNTS.map((value) => (
@@ -158,7 +160,7 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
           {/* Monto personalizado */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              O ingresa un monto personalizado
+              {t('customAmount')}
             </label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 z-10 pointer-events-none">$</span>
@@ -179,7 +181,7 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
           {/* Monto total */}
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Monto a recargar:</span>
+              <span className="text-sm font-medium text-gray-700">{t('amountToRecharge')}</span>
               <span className="text-xl font-bold text-gray-900">
                 ${amount.toFixed(2)}
               </span>
@@ -197,7 +199,7 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
           {paymentUrl && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-3">
               <p className="text-sm text-green-600 mb-2">
-                Link de pago generado. Redirigiendo a Stripe...
+                {t('paymentLinkGenerated')}
               </p>
               <a
                 href={paymentUrl}
@@ -205,7 +207,7 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
                 rel="noopener noreferrer"
                 className="text-sm text-green-700 hover:underline flex items-center"
               >
-                Abrir link de pago <ExternalLink className="w-3 h-3 ml-1" />
+                {t('openPaymentLink')} <ExternalLink className="w-3 h-3 ml-1" />
               </a>
             </div>
           )}
@@ -217,7 +219,7 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
               disabled={loading}
               className="flex-1 bg-white hover:bg-gray-50 disabled:bg-gray-100 text-gray-700 font-semibold px-4 py-2 rounded-lg border-2 border-gray-300 transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
             >
-              Cancelar
+              {t('cancel')}
             </button>
             <button
               onClick={handleRecharge}
@@ -227,12 +229,12 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Procesando...
+                  {t('processing')}
                 </>
               ) : (
                 <>
                   <CreditCard className="w-4 h-4 mr-2" />
-                  Continuar con Stripe
+                  {t('continue')}
                 </>
               )}
             </button>

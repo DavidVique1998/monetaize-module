@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Wallet, RefreshCw, AlertCircle, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface WalletBalanceCardProps {
   className?: string;
@@ -17,6 +18,7 @@ interface BalanceData {
 }
 
 export function WalletBalanceCard({ className, onRechargeClick }: WalletBalanceCardProps) {
+  const t = useTranslations('wallet.balanceCard');
   const [balance, setBalance] = useState<BalanceData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,11 +33,11 @@ export function WalletBalanceCard({ className, onRechargeClick }: WalletBalanceC
       if (data.success) {
         setBalance(data.data);
       } else {
-        setError(data.error || 'Error al cargar balance');
+        setError(data.error || t('errorLoading'));
       }
     } catch (err) {
       console.error('Error fetching balance:', err);
-      setError('Error al cargar balance');
+      setError(t('errorLoading'));
     } finally {
       setLoading(false);
     }
@@ -65,15 +67,15 @@ export function WalletBalanceCard({ className, onRechargeClick }: WalletBalanceC
             <Wallet className="w-4 h-4 text-blue-600" />
           </div>
           <div>
-            <h3 className="text-base font-semibold text-gray-900">Balance de Wallet</h3>
-            <p className="text-xs text-gray-500">Saldo disponible</p>
+            <h3 className="text-base font-semibold text-gray-900">{t('title')}</h3>
+            <p className="text-xs text-gray-500">{t('availableBalance')}</p>
           </div>
         </div>
         <button
           onClick={fetchBalance}
           disabled={loading}
           className="p-1.5 hover:bg-white/50 rounded-lg transition-colors"
-          title="Actualizar balance"
+          title={t('updateBalance')}
         >
           <RefreshCw className={cn(
             "w-4 h-4 text-blue-600",
@@ -99,7 +101,7 @@ export function WalletBalanceCard({ className, onRechargeClick }: WalletBalanceC
             </div>
             <div className="flex items-center text-sm text-gray-600">
               <TrendingUp className="w-4 h-4 mr-1" />
-              <span>Saldo actualizado</span>
+              <span>{t('balanceUpdated')}</span>
             </div>
           </div>
 
@@ -109,7 +111,7 @@ export function WalletBalanceCard({ className, onRechargeClick }: WalletBalanceC
               onClick={onRechargeClick}
               className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed shadow-md hover:shadow-lg"
             >
-              Recargar Saldo
+              {t('rechargeBalance')}
             </button>
           )}
         </>

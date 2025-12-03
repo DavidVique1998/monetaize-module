@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { History, ArrowDownCircle, ArrowUpCircle, Loader2, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { useTranslations } from 'next-intl';
 
 interface WalletTransactionsProps {
   className?: string;
@@ -35,6 +36,7 @@ interface TransactionHistory {
 }
 
 export function WalletTransactions({ className, limit = 20 }: WalletTransactionsProps) {
+  const t = useTranslations('wallet.transactions');
   const [history, setHistory] = useState<TransactionHistory | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,11 +51,11 @@ export function WalletTransactions({ className, limit = 20 }: WalletTransactions
       if (data.success) {
         setHistory(data.data);
       } else {
-        setError(data.error || 'Error al cargar transacciones');
+        setError(data.error || t('errorLoading'));
       }
     } catch (err) {
       console.error('Error fetching transactions:', err);
-      setError('Error al cargar transacciones');
+      setError(t('errorLoading'));
     } finally {
       setLoading(false);
     }
@@ -77,13 +79,13 @@ export function WalletTransactions({ className, limit = 20 }: WalletTransactions
   const getTransactionLabel = (type: string) => {
     switch (type) {
       case 'RECHARGE':
-        return 'Recarga';
+        return t('types.recharge');
       case 'CONSUMPTION':
-        return 'Consumo';
+        return t('types.consumption');
       case 'REFUND':
-        return 'Reembolso';
+        return t('types.refund');
       case 'ADJUSTMENT':
-        return 'Ajuste';
+        return t('types.adjustment');
       default:
         return type;
     }
@@ -91,7 +93,8 @@ export function WalletTransactions({ className, limit = 20 }: WalletTransactions
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString('es-ES', {
+    const locale = document.documentElement.lang || 'en';
+    return date.toLocaleString(locale === 'es' ? 'es-ES' : 'en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -108,15 +111,15 @@ export function WalletTransactions({ className, limit = 20 }: WalletTransactions
             <History className="w-4 h-4 text-purple-600" />
           </div>
           <div>
-            <h3 className="text-base font-semibold text-gray-900">Historial</h3>
-            <p className="text-xs text-gray-500">Transacciones recientes</p>
+            <h3 className="text-base font-semibold text-gray-900">{t('title')}</h3>
+            <p className="text-xs text-gray-500">{t('subtitle')}</p>
           </div>
         </div>
         <button
           onClick={fetchTransactions}
           disabled={loading}
           className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-          title="Actualizar"
+          title={t('update')}
         >
           <RefreshCw className={cn(
             "w-4 h-4 text-gray-400",
@@ -165,7 +168,7 @@ export function WalletTransactions({ className, limit = 20 }: WalletTransactions
                           ? "bg-red-100 text-red-700"
                           : "bg-gray-100 text-gray-700"
                       )}>
-                        {transaction.status}
+                        {t(`status.${transaction.status.toLowerCase()}`)}
                       </span>
                     </div>
                     {transaction.description && (
@@ -196,7 +199,7 @@ export function WalletTransactions({ className, limit = 20 }: WalletTransactions
         ) : (
           <div className="text-center py-8">
             <History className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-sm text-gray-500">No hay transacciones aún</p>
+            <p className="text-sm text-gray-500">{t('noTransactions')}</p>
           </div>
         )}
       </div>

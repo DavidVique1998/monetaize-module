@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 export interface NavigationItem {
   id: string;
@@ -22,27 +23,28 @@ export interface SubNavigationItem {
 export function useSidebarNavigation() {
   const router = useRouter();
   const pathname = usePathname();
+  const t = useTranslations('navigation');
   const [activeItem, setActiveItem] = useState<string>('');
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
 
   // Definir los elementos de navegación (solo Numbers tiene subopciones)
   const navigationItems: NavigationItem[] = [
     // Primera sección
-    // { id: 'inbox', label: 'Inbox', href: '/inbox', iconName: 'inbox' },
-    // { id: 'call-center', label: 'Call Center', href: '/call-center', iconName: 'phone' },
-    { id: 'contacts', label: 'Contacts', href: '/contacts', iconName: 'users' },
+    // { id: 'inbox', label: t('inbox'), href: '/inbox', iconName: 'inbox' },
+    // { id: 'call-center', label: t('callCenter'), href: '/call-center', iconName: 'phone' },
+    { id: 'contacts', label: t('contacts'), href: '/contacts', iconName: 'users' },
     
     // Segunda sección
-    { id: 'knowledge', label: 'Knowledge', href: '/knowledge', iconName: 'book-open' },
-    { id: 'assistants', label: 'Assistants', href: '/assistants', iconName: 'user-plus' },
-    { id: 'phone-numbers', label: 'Numbers', href: '/phone-numbers', iconName: 'smartphone' },
-    { id: 'call-history', label: 'Call History', href: '/call-history', iconName: 'phone' },
+    { id: 'knowledge', label: t('knowledge'), href: '/knowledge', iconName: 'book-open' },
+    { id: 'assistants', label: t('assistants'), href: '/assistants', iconName: 'user-plus' },
+    { id: 'phone-numbers', label: t('phoneNumbers'), href: '/phone-numbers', iconName: 'smartphone' },
+    { id: 'call-history', label: t('callHistory'), href: '/call-history', iconName: 'phone' },
     // { id: 'active-tags', label: 'Active Tags', href: '/active-tags', iconName: 'tag' },
     // { id: 'widgets', label: 'Widgets', href: '/widgets', iconName: 'grid-3x3' },
     // Tercera sección
-    { id: 'wallet', label: 'Wallet', href: '/wallet', iconName: 'wallet' },
-    { id: 'settings', label: 'Settings', href: '/settings', iconName: 'settings' },
-    { id: 'help', label: 'Help', href: '/help', iconName: 'help-circle' },
+    { id: 'wallet', label: t('wallet'), href: '/wallet', iconName: 'wallet' },
+    { id: 'settings', label: t('settings'), href: '/settings', iconName: 'settings' },
+    { id: 'help', label: t('help'), href: '/help', iconName: 'help-circle' },
   ];
 
   // Detectar el elemento activo basado en la ruta actual

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Wallet, RefreshCw, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface WalletBalanceProps {
   className?: string;
@@ -18,6 +19,7 @@ interface BalanceData {
 }
 
 export function WalletBalance({ className, isCollapsed = false, onRechargeClick }: WalletBalanceProps) {
+  const t = useTranslations('wallet.balanceCard');
   const [balance, setBalance] = useState<BalanceData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,11 +34,11 @@ export function WalletBalance({ className, isCollapsed = false, onRechargeClick 
       if (data.success) {
         setBalance(data.data);
       } else {
-        setError(data.error || 'Error al cargar balance');
+        setError(data.error || t('errorLoading'));
       }
     } catch (err) {
       console.error('Error fetching balance:', err);
-      setError('Error al cargar balance');
+      setError(t('errorLoading'));
     } finally {
       setLoading(false);
     }
@@ -84,7 +86,7 @@ export function WalletBalance({ className, isCollapsed = false, onRechargeClick 
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center">
           <Wallet className="w-4 h-4 text-blue-500 mr-2" />
-          <span className="text-md font-medium text-gray-700">Balance</span>
+          <span className="text-md font-medium text-gray-700">{t('title')}</span>
         </div>
         <button
           onClick={fetchBalance}
@@ -116,7 +118,7 @@ export function WalletBalance({ className, isCollapsed = false, onRechargeClick 
               onClick={onRechargeClick}
               className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed mt-auto"
             >
-              Recargar Saldo
+              {t('rechargeBalance')}
             </button>
           )}
         </>

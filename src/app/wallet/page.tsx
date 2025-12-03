@@ -9,8 +9,10 @@ import { RechargeModal } from '@/components/wallet/RechargeModal';
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { CheckCircle2, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 function WalletContent() {
+  const t = useTranslations('wallet');
   const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [rechargeAmount, setRechargeAmount] = useState<string | null>(null);
@@ -53,9 +55,9 @@ function WalletContent() {
       <div className="p-4 md:p-6 min-h-full">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Wallet</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Gestiona tu saldo y configura recargas automáticas
+            {t('subtitle')}
           </p>
         </div>
 
@@ -66,10 +68,10 @@ function WalletContent() {
               <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
                 <h3 className="text-sm font-semibold text-green-900">
-                  ¡Recarga exitosa!
+                  {t('rechargeSuccess.title')}
                 </h3>
                 <p className="text-sm text-green-700 mt-1">
-                  Tu wallet ha sido recargada con ${rechargeAmount}. El saldo se actualizará automáticamente en breve.
+                  {t('rechargeSuccess.message', { amount: rechargeAmount ? `$${rechargeAmount}` : '$0' })}
                 </p>
               </div>
             </div>
@@ -119,20 +121,26 @@ function WalletContent() {
   );
 }
 
-export default function WalletPage() {
+function WalletPageFallback() {
+  const t = useTranslations('wallet');
+  
   return (
-    <Suspense fallback={
-      <DashboardLayout>
-        <div className="p-4 md:p-6 min-h-full">
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-sm text-gray-600">Cargando...</p>
-            </div>
+    <DashboardLayout>
+      <div className="p-4 md:p-6 min-h-full">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-sm text-gray-600">{t('loading')}</p>
           </div>
         </div>
-      </DashboardLayout>
-    }>
+      </div>
+    </DashboardLayout>
+  );
+}
+
+export default function WalletPage() {
+  return (
+    <Suspense fallback={<WalletPageFallback />}>
       <WalletContent />
     </Suspense>
   );
