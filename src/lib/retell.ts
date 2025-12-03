@@ -248,6 +248,118 @@ export class RetellService {
   }
 
   /**
+   * Obtener tools de un LLM
+   */
+  static async getLLMTools(llmId: string): Promise<any[]> {
+    try {
+      const llm = await retellClient.llm.retrieve(llmId);
+      return (llm as any).general_tools || [];
+    } catch (error) {
+      console.error('Error fetching LLM tools:', error);
+      throw new Error('Failed to fetch LLM tools');
+    }
+  }
+
+  /**
+   * Agregar un tool a un LLM
+   */
+  static async addToolToLLM(llmId: string, tool: any): Promise<Retell.Llm.LlmResponse> {
+    try {
+      // Obtener el LLM actual
+      const currentLLM = await retellClient.llm.retrieve(llmId);
+      const currentTools = (currentLLM as any).general_tools || [];
+      
+      // Agregar el nuevo tool
+      const updatedTools = [...currentTools, tool];
+      
+      // Actualizar el LLM con los nuevos tools
+      const updatedLLM = await retellClient.llm.update(llmId, {
+        general_tools: updatedTools,
+      } as any);
+      
+      return updatedLLM;
+    } catch (error) {
+      console.error('Error adding tool to LLM:', error);
+      throw new Error('Failed to add tool to LLM');
+    }
+  }
+
+  /**
+   * Actualizar un tool específico en un LLM
+   */
+  static async updateToolInLLM(llmId: string, toolIndex: number, tool: any): Promise<Retell.Llm.LlmResponse> {
+    try {
+      // Obtener el LLM actual
+      const currentLLM = await retellClient.llm.retrieve(llmId);
+      const currentTools = (currentLLM as any).general_tools || [];
+      
+      // Validar índice
+      if (toolIndex < 0 || toolIndex >= currentTools.length) {
+        throw new Error('Invalid tool index');
+      }
+      
+      // Actualizar el tool en la posición especificada
+      const updatedTools = [...currentTools];
+      updatedTools[toolIndex] = tool;
+      
+      // Actualizar el LLM
+      const updatedLLM = await retellClient.llm.update(llmId, {
+        general_tools: updatedTools,
+      } as any);
+      
+      return updatedLLM;
+    } catch (error) {
+      console.error('Error updating tool in LLM:', error);
+      throw new Error('Failed to update tool in LLM');
+    }
+  }
+
+  /**
+   * Eliminar un tool de un LLM
+   */
+  static async removeToolFromLLM(llmId: string, toolIndex: number): Promise<Retell.Llm.LlmResponse> {
+    try {
+      // Obtener el LLM actual
+      const currentLLM = await retellClient.llm.retrieve(llmId);
+      const currentTools = (currentLLM as any).general_tools || [];
+      
+      // Validar índice
+      if (toolIndex < 0 || toolIndex >= currentTools.length) {
+        throw new Error('Invalid tool index');
+      }
+      
+      // Eliminar el tool
+      const updatedTools = currentTools.filter((_: any, index: number) => index !== toolIndex);
+      
+      // Actualizar el LLM
+      const updatedLLM = await retellClient.llm.update(llmId, {
+        general_tools: updatedTools,
+      } as any);
+      
+      return updatedLLM;
+    } catch (error) {
+      console.error('Error removing tool from LLM:', error);
+      throw new Error('Failed to remove tool from LLM');
+    }
+  }
+
+  /**
+   * Reemplazar todos los tools de un LLM
+   */
+  static async replaceLLMTools(llmId: string, tools: any[]): Promise<Retell.Llm.LlmResponse> {
+    try {
+      const updatedLLM = await retellClient.llm.update(llmId, {
+        general_tools: tools,
+      } as any);
+      
+      return updatedLLM;
+    } catch (error) {
+      console.error('Error replacing LLM tools:', error);
+      throw new Error('Failed to replace LLM tools');
+    }
+  }
+
+  /**
    * Iniciar una llamada telefónica
    * NO captura automáticamente en BD - se debe llamar a saveCallData() cuando termine
    */
@@ -350,6 +462,14 @@ export class RetellService {
       // Determinar dirección
       const direction = callData.from_number ? 'outbound' : 'inbound';
 
+      // Calcular costo con margen (beneficio) trabajando explícitamente en centavos.
+      // IMPORTANTe: combined_cost de Retell ya viene en centavos, no en dólares.
+      // 1) Tomamos el costo base en centavos
+      const baseCostCents = Math.round(cost ?? 0); // costo real de Retell en centavos
+      // 2) Aplicamos el porcentaje de rendimiento sobre los centavos
+      const profitPercent = (config as any).pricing?.callProfitPercent ?? 0;
+      const finalCostCents = Math.round(baseCostCents * (1 + (profitPercent / 100)));
+
       // Guardar en la base de datos
       const { CallService } = await import('./call-service');
       
@@ -366,7 +486,8 @@ export class RetellService {
           endTime: callData.end_timestamp ? new Date(callData.end_timestamp) : undefined,
           recordingUrl: callData.recording_url || existingCall.recordingUrl,
           transcript: callData.transcript || existingCall.transcript,
-          cost,
+          // Guardar costo ya con margen en centavos
+          cost: finalCostCents || undefined,
           tokensUsed,
           retellMetadata: callData,
         });
@@ -382,7 +503,8 @@ export class RetellService {
           fromNumber: callData.from_number || undefined,
           toNumber: callData.to_number || undefined,
           userId: userId || undefined,
-          cost: cost || undefined,
+          // Guardar costo ya con margen en centavos
+          cost: finalCostCents || undefined,
           totalDurationSeconds: totalDurationSeconds || undefined,
           tokensUsed: tokensUsed || undefined,
           duration: duration || undefined,
@@ -392,6 +514,27 @@ export class RetellService {
           transcript: callData.transcript || undefined,
           retellMetadata: callData,
         });
+      }
+
+      // Descontar de la wallet usando el costo con margen, solo la primera vez que se registra la llamada
+      try {
+        if (userId && finalCostCents > 0 && !existingCall) {
+          const { getOrCreateWallet, consumeCredits } = await import('./wallet');
+          const wallet = await getOrCreateWallet(userId);
+          // Convertir los centavos finales a dólares solo para la API interna de wallet
+          const finalCostUsdForWallet = finalCostCents / 100;
+          await consumeCredits({
+            walletId: wallet.id,
+            // consumeCredits trabaja en dólares, internamente convierte a centavos
+            amount: finalCostUsdForWallet,
+            metricType: 'call',
+            metricValue: duration,
+            description: `Llamada Retell ${callId}`,
+            conversationId: callId,
+          });
+        }
+      } catch (walletError) {
+        console.error('[RetellService] Error descontando créditos de la wallet para la llamada:', callId, walletError);
       }
 
       console.log(`[RetellService] Call data saved successfully for ${callId}`);

@@ -93,6 +93,12 @@ export const config = {
     enabled: process.env.ENABLE_CACHE === 'true',
   },
 
+  // Pricing / Calls
+  pricing: {
+    // Porcentaje de rendimiento sobre el costo real de la llamada (0-100+)
+    callProfitPercent: parseFloat(process.env.CALL_PROFIT_PERCENT || '0'),
+  },
+
   // Development helpers
   isDevelopment: process.env.NODE_ENV === 'development',
   isProduction: process.env.NODE_ENV === 'production',

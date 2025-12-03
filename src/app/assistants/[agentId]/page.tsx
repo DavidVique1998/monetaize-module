@@ -411,12 +411,12 @@ export default function EditAssistantPage() {
                   <div className="flex items-center space-x-1">
                     <span className="font-medium">Agent ID:</span>
                     <span className="font-mono">{agent.agent_id.substring(0, 6)}...{agent.agent_id.substring(agent.agent_id.length - 4)}</span>
-                    <button
-                      onClick={handleCopyId}
+                  <button
+                    onClick={handleCopyId}
                       className="p-0.5 hover:bg-gray-100 rounded transition-colors cursor-pointer ml-1"
-                    >
-                      <Copy className="w-3 h-3 text-gray-400" />
-                    </button>
+                  >
+                    <Copy className="w-3 h-3 text-gray-400" />
+                  </button>
                   </div>
                   <div className="flex items-center space-x-1">
                     <span className="font-medium">Retell LLM ID:</span>
@@ -479,7 +479,7 @@ export default function EditAssistantPage() {
               </button>
             </div>
           </div>
-        </div>
+            </div>
 
         {/* Main Content */}
         <div className="flex-1 flex overflow-hidden">
@@ -489,20 +489,20 @@ export default function EditAssistantPage() {
               <>
             {/* Controls Bar */}
             <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200">
-              <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3">
                 {/* Model Selector */}
                 <div className="relative">
-                  <select
-                    value={llmId}
-                    onChange={(e) => {
-                      setLlmId(e.target.value);
-                      setIsSaved(false);
-                    }}
+              <select
+                value={llmId}
+                onChange={(e) => {
+                  setLlmId(e.target.value);
+                  setIsSaved(false);
+                }}
                     className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent cursor-pointer pr-8"
-                  >
-                    <option value="gpt-4o">GPT-4o</option>
-                    <option value="gpt-4">GPT-4</option>
-                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+              >
+                <option value="gpt-4o">GPT-4o</option>
+                <option value="gpt-4">GPT-4</option>
+                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
                     <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash</option>
                     <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
                   </select>
@@ -541,7 +541,7 @@ export default function EditAssistantPage() {
                         {lang.flag} {lang.name}
                       </option>
                     ))}
-                  </select>
+              </select>
                 </div>
               </div>
 
@@ -568,48 +568,48 @@ export default function EditAssistantPage() {
                     <span className="text-yellow-600 font-medium">Unsaved changes</span>
                   </>
                 )}
-              </div>
-            </div>
+          </div>
+        </div>
 
             {/* Prompt Header */}
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <h2 className="text-lg font-semibold text-gray-900">Global Prompt</h2>
-                <span className="text-sm text-gray-500">
-                  {characterCount} / {characterLimit} characters
-                </span>
-                <button className="p-1">
-                  <Info className="w-4 h-4 text-gray-400" />
-                </button>
-              </div>
+                  <div className="flex items-center space-x-2">
+                    <h2 className="text-lg font-semibold text-gray-900">Global Prompt</h2>
+                    <span className="text-sm text-gray-500">
+                      {characterCount} / {characterLimit} characters
+                    </span>
+                    <button className="p-1">
+                      <Info className="w-4 h-4 text-gray-400" />
+                    </button>
+                  </div>
 
-              <div className="flex items-center space-x-2">
-                <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
-                  <Tag className="w-3 h-3" />
-                  <span>Dynamic Greeting</span>
-                </button>
-                <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
-                  <Tag className="w-3 h-3" />
-                  <span>Fields & Values</span>
-                </button>
-                <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
-                  <Pencil className="w-3 h-3" />
-                  <span>Add Snippet</span>
-                </button>
-                <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
-                  <Sparkles className="w-3 h-3" />
-                  <span>Generate Prompt</span>
-                </button>
-              </div>
-            </div>
+                  <div className="flex items-center space-x-2">
+                    <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
+                      <Tag className="w-3 h-3" />
+                      <span>Dynamic Greeting</span>
+                    </button>
+                    <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
+                      <Tag className="w-3 h-3" />
+                      <span>Fields & Values</span>
+                    </button>
+                    <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
+                      <Pencil className="w-3 h-3" />
+                      <span>Add Snippet</span>
+                    </button>
+                    <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
+                      <Sparkles className="w-3 h-3" />
+                      <span>Generate Prompt</span>
+                    </button>
+                  </div>
+                </div>
 
             {/* Prompt Textarea */}
-            <textarea
-              value={prompt}
-              onChange={(e) => handlePromptChange(e.target.value)}
+                <textarea
+                  value={prompt}
+                  onChange={(e) => handlePromptChange(e.target.value)}
               placeholder="Type in a universal prompt for your agent, such as its role, conversational style, objective, etc."
               className="flex-1 w-full min-h-[500px] p-4 text-sm text-gray-900 placeholder-gray-400 focus:outline-none resize-none bg-white border border-gray-200 rounded-lg"
-            />
+                />
               </>
             ) : (
               <div className="flex-1 flex flex-col space-y-4">
@@ -630,18 +630,18 @@ export default function EditAssistantPage() {
                         {isSaving ? 'Saving...' : 'Save Now'}
                       </button>
                     </div>
-                  </div>
-                )}
+              </div>
+            )}
 
                 {/* Voice Lab - Web Call Interface */}
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Voice Lab</h3>
-                  <WebCallInterface 
-                    agentId={agentId}
-                    agentName={agentName}
-                    onCallStart={() => console.log('Call started')}
-                    onCallEnd={() => console.log('Call ended')}
-                  />
+                <WebCallInterface 
+                  agentId={agentId}
+                  agentName={agentName}
+                  onCallStart={() => console.log('Call started')}
+                  onCallEnd={() => console.log('Call ended')}
+                />
                 </div>
 
                 {/* Chat Lab */}
@@ -684,8 +684,8 @@ export default function EditAssistantPage() {
               >
                 <X className="w-4 h-4" />
               </button>
-            </div>
-          </div>
+                    </div>
+                  </div>
         )}
 
         {ownershipError && (
