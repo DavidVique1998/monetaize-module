@@ -91,11 +91,43 @@ export function AgentConfigSidebar({
   const [isLoadingTools, setIsLoadingTools] = useState(false);
   const [showToolModal, setShowToolModal] = useState(false);
   const [editingToolIndex, setEditingToolIndex] = useState<number | null>(null);
-  const [toolForm, setToolForm] = useState<Partial<RetellTool>>({
-    type: 'mcp',
+  const [toolForm, setToolForm] = useState<Partial<RetellTool> & {
+    type?: RetellToolType;
+    method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+    headers?: Record<string, string>;
+    query_params?: Record<string, string>;
+    speak_after_execution?: boolean;
+    speak_during_execution?: boolean;
+    execution_message_description?: string;
+    timeout_ms?: number;
+    response_variables?: Record<string, string>;
+    transfer_destination?: {
+      type: 'predefined' | 'agent';
+      number?: string;
+      agent_id?: string;
+      ignore_e164_validation?: boolean;
+    };
+    transfer_option?: {
+      type: 'cold_transfer' | 'warm_transfer';
+      show_transferee_as_caller?: boolean;
+    };
+    cal_api_key?: string;
+    event_type_id?: number;
+    timezone?: string;
+    sms_content?: string;
+  }>({
+    type: 'custom' as RetellToolType,
     name: '',
     description: '',
     url: '',
+    method: 'POST',
+    headers: {},
+    query_params: {},
+    speak_after_execution: true,
+    speak_during_execution: false,
+    execution_message_description: '',
+    timeout_ms: 120000,
+    response_variables: {},
     webhook_url: '',
     parameters: [],
   });
@@ -151,14 +183,22 @@ export function AgentConfigSidebar({
 
   const handleAddTool = () => {
     setEditingToolIndex(null);
-    setToolForm({
-      type: 'mcp',
-      name: '',
-      description: '',
-      url: '',
-      webhook_url: '',
-      parameters: [],
-    });
+                    setToolForm({
+                      type: 'custom' as RetellToolType,
+                      name: '',
+                      description: '',
+                      url: '',
+                      method: 'POST',
+                      headers: {},
+                      query_params: {},
+                      speak_after_execution: true,
+                      speak_during_execution: false,
+                      execution_message_description: '',
+                      timeout_ms: 120000,
+                      response_variables: {},
+                      webhook_url: '',
+                      parameters: [],
+                    });
     setParameterForm({
       name: '',
       type: 'string',
@@ -287,9 +327,44 @@ export function AgentConfigSidebar({
       return;
     }
 
-    if (toolForm.type === 'mcp' && !toolForm.url && !toolForm.webhook_url) {
+    const toolType = toolForm.type as RetellToolType;
+    
+    // Validaciones específicas por tipo
+    if ((toolType === 'custom' || toolType === 'function') && !toolForm.url) {
+      alert('La URL del endpoint es requerida para tools de tipo Custom/Function');
+      return;
+    }
+    
+    if ((toolType === 'custom' || toolType === 'function') && toolForm.speak_after_execution === undefined) {
+      alert('Speak after execution es requerido para tools de tipo Custom/Function');
+      return;
+    }
+
+    if (toolType === 'mcp' && !toolForm.url && !toolForm.webhook_url) {
       alert('La URL del webhook es requerida para tools de tipo MCP');
       return;
+    }
+
+    if (toolType === 'transfer_call') {
+      if (!toolForm.transfer_destination) {
+        alert('La configuración de destino es requerida para Transfer Call');
+        return;
+      }
+      if (toolForm.transfer_destination.type === 'predefined' && !toolForm.transfer_destination.number) {
+        alert('El número de teléfono es requerido para Transfer Call con destino predefinido');
+        return;
+      }
+      if (toolForm.transfer_destination.type === 'agent' && !toolForm.transfer_destination.agent_id) {
+        alert('El Agent ID es requerido para Transfer Call con destino agente');
+        return;
+      }
+    }
+
+    if (toolType === 'book_appointment_cal') {
+      if (!toolForm.cal_api_key || !toolForm.event_type_id || !toolForm.timezone) {
+        alert('Cal API Key, Event Type ID y Timezone son requeridos para Book Appointment Cal');
+        return;
+      }
     }
 
     // Convertir el tool al formato que Retell espera
@@ -299,8 +374,64 @@ export function AgentConfigSidebar({
       description: toolForm.description,
     };
 
-    // Para tools tipo MCP, necesitamos url y variables
-    if (toolForm.type === 'mcp') {
+    // Para tools tipo Custom/Function (HTTP) - Option 6
+    if (toolType === 'custom' || toolType === 'function') {
+      // Convertir 'function' a 'custom' según documentación Retell AI
+      toolToSave.type = 'custom';
+      toolToSave.url = toolForm.url;
+      toolToSave.description = toolForm.description;
+      toolToSave.speak_after_execution = toolForm.speak_after_execution ?? true;
+      
+      if (toolForm.method) {
+        toolToSave.method = toolForm.method;
+      }
+      
+      if (toolForm.headers && Object.keys(toolForm.headers).length > 0) {
+        toolToSave.headers = toolForm.headers;
+      }
+      
+      if (toolForm.query_params && Object.keys(toolForm.query_params).length > 0) {
+        toolToSave.query_params = toolForm.query_params;
+      }
+      
+      // Para custom tools, Retell espera parameters con schema JSON
+      if (toolForm.parameters && toolForm.parameters.length > 0) {
+        toolToSave.parameters = {
+          type: 'object',
+          properties: {},
+          required: [] as string[],
+        };
+        toolForm.parameters.forEach((param: any) => {
+          (toolToSave.parameters.properties as any)[param.name] = {
+            type: param.type,
+            description: param.description,
+            ...(param.enum && param.enum.length > 0 ? { enum: param.enum } : {}),
+          };
+          if (param.required) {
+            toolToSave.parameters.required.push(param.name);
+          }
+        });
+      }
+      
+      if (toolForm.speak_during_execution !== undefined) {
+        toolToSave.speak_during_execution = toolForm.speak_during_execution;
+      }
+      
+      if (toolForm.execution_message_description) {
+        toolToSave.execution_message_description = toolForm.execution_message_description;
+      }
+      
+      if (toolForm.timeout_ms && toolForm.timeout_ms >= 1000 && toolForm.timeout_ms <= 600000) {
+        toolToSave.timeout_ms = toolForm.timeout_ms;
+      }
+      
+      if (toolForm.response_variables && Object.keys(toolForm.response_variables).length > 0) {
+        toolToSave.response_variables = toolForm.response_variables;
+      }
+    }
+
+    // Para tools tipo MCP
+    if (toolType === 'mcp') {
       toolToSave.url = toolForm.url || toolForm.webhook_url;
       
       // Convertir parameters a variables (formato que Retell espera)
@@ -312,10 +443,28 @@ export function AgentConfigSidebar({
         });
         toolToSave.variables = variables;
       } else {
-        // Si no hay parámetros, al menos necesitamos un objeto vacío o no incluirlo
-        // Pero Retell puede requerir variables, así que mejor incluirlo vacío
         toolToSave.variables = {};
       }
+    }
+
+    // Para tools tipo Transfer Call
+    if (toolType === 'transfer_call') {
+      toolToSave.transfer_destination = toolForm.transfer_destination;
+      if (toolForm.transfer_option) {
+        toolToSave.transfer_option = toolForm.transfer_option;
+      }
+    }
+
+    // Para tools tipo Book Appointment Cal
+    if (toolType === 'book_appointment_cal') {
+      toolToSave.cal_api_key = toolForm.cal_api_key;
+      toolToSave.event_type_id = toolForm.event_type_id;
+      toolToSave.timezone = toolForm.timezone;
+    }
+
+    // Para tools tipo Press Digit
+    if (toolType === 'press_digit' && toolForm.sms_content) {
+      toolToSave.sms_content = toolForm.sms_content;
     }
 
     try {
@@ -343,14 +492,22 @@ export function AgentConfigSidebar({
 
       if (data.success) {
         setShowToolModal(false);
-        setToolForm({
-          type: 'mcp',
-          name: '',
-          description: '',
-          url: '',
-          webhook_url: '',
-          parameters: [],
-        });
+                    setToolForm({
+                      type: 'custom' as RetellToolType,
+                      name: '',
+                      description: '',
+                      url: '',
+                      method: 'POST',
+                      headers: {},
+                      query_params: {},
+                      speak_after_execution: true,
+                      speak_during_execution: false,
+                      execution_message_description: '',
+                      timeout_ms: 120000,
+                      response_variables: {},
+                      webhook_url: '',
+                      parameters: [],
+                    });
         setParameterForm({
           name: '',
           type: 'string',
@@ -918,13 +1075,22 @@ export function AgentConfigSidebar({
               <button
                 onClick={() => {
                   setShowToolModal(false);
-                  setToolForm({
-                    type: 'mcp',
-                    name: '',
-                    description: '',
-                    webhook_url: '',
-                    parameters: [],
-                  });
+                    setToolForm({
+                      type: 'custom' as RetellToolType,
+                      name: '',
+                      description: '',
+                      url: '',
+                      method: 'POST',
+                      headers: {},
+                      query_params: {},
+                      speak_after_execution: true,
+                      speak_during_execution: false,
+                      execution_message_description: '',
+                      timeout_ms: 120000,
+                      response_variables: {},
+                      webhook_url: '',
+                      parameters: [],
+                    });
                   setParameterForm({
                     name: '',
                     type: 'string',
@@ -945,26 +1111,74 @@ export function AgentConfigSidebar({
                   Tipo de Tool *
                 </label>
                 <select
-                  value={toolForm.type || 'mcp'}
+                  value={toolForm.type || 'custom'}
                   onChange={(e) => {
                     const newType = e.target.value as RetellToolType;
                     // Resetear campos específicos cuando cambia el tipo
+                    const resetForm: Partial<RetellTool> & {
+                      type?: RetellToolType;
+                      method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+                      headers?: Record<string, string>;
+                      query_params?: Record<string, string>;
+                      speak_after_execution?: boolean;
+                      speak_during_execution?: boolean;
+                      execution_message_description?: string;
+                      timeout_ms?: number;
+                      response_variables?: Record<string, string>;
+                      transfer_destination?: any;
+                      transfer_option?: any;
+                      cal_api_key?: string;
+                      event_type_id?: number;
+                      timezone?: string;
+                      sms_content?: string;
+                    } = {
+                      type: newType,
+                      name: toolForm.name || '',
+                      description: toolForm.description || '',
+                    };
+                    
                     if (newType === 'mcp') {
-                      setToolForm({ ...toolForm, type: newType, url: toolForm.webhook_url || '' });
-                    } else {
-                      setToolForm({ ...toolForm, type: newType });
+                      resetForm.url = toolForm.webhook_url || '';
+                    } else if (newType === 'custom' || newType === 'function') {
+                      resetForm.url = '';
+                      resetForm.method = 'POST';
+                      resetForm.headers = {};
+                      resetForm.query_params = {};
+                      resetForm.speak_after_execution = true;
+                      resetForm.speak_during_execution = false;
+                      resetForm.execution_message_description = '';
+                      resetForm.timeout_ms = 120000;
+                      resetForm.response_variables = {};
+                      resetForm.parameters = [];
+                    } else if (newType === 'transfer_call') {
+                      resetForm.transfer_destination = { type: 'predefined' };
+                      resetForm.transfer_option = { type: 'cold_transfer' };
+                    } else if (newType === 'book_appointment_cal') {
+                      resetForm.cal_api_key = '';
+                      resetForm.event_type_id = undefined;
+                      resetForm.timezone = '';
+                    } else if (newType === 'press_digit') {
+                      resetForm.sms_content = '';
                     }
+                    
+                    setToolForm(resetForm);
                   }}
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="end_call">End Call</option>
-                  <option value="mcp">Custom Function (MCP)</option>
+                  <option value="custom">Custom Function (HTTP)</option>
+                  {/* <option value="mcp">Custom Function (MCP)</option> */}
+                  <option value="transfer_call">Transfer Call</option>
                   <option value="bridge_transfer">Bridge Transfer</option>
                   <option value="cancel_transfer">Cancel Transfer</option>
+                  <option value="book_appointment_cal">Book Appointment (Cal.com)</option>
                   <option value="press_digit">Press Digit</option>
                 </select>
                 <p className="text-xs text-gray-500 mt-1">
-                  Para funciones personalizadas con webhook, usa "Custom Function (MCP)"
+                  {(toolForm.type as RetellToolType) === 'custom' && 'Custom function tool con HTTP'}
+                  {(toolForm.type as RetellToolType) === 'transfer_call' && 'Para transferir llamadas a otro número o agente'}
+                  {(toolForm.type as RetellToolType) === 'book_appointment_cal' && 'Para agendar citas usando Cal.com'}
+                  {!toolForm.type && 'Selecciona el tipo de tool'}
                 </p>
               </div>
 
@@ -1000,7 +1214,190 @@ export function AgentConfigSidebar({
                 </p>
               </div>
 
-              {toolForm.type === 'mcp' && (
+              {/* Custom Function (HTTP) - Option 6 */}
+              {((toolForm.type as RetellToolType) === 'custom' || (toolForm.type as RetellToolType) === 'function') && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      URL del Endpoint *
+                    </label>
+                    <input
+                      type="url"
+                      value={toolForm.url || ''}
+                      onChange={(e) => setToolForm({ ...toolForm, url: e.target.value })}
+                      placeholder="https://api.example.com/endpoint"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Método HTTP
+                    </label>
+                    <select
+                      value={toolForm.method || 'POST'}
+                      onChange={(e) => setToolForm({ ...toolForm, method: e.target.value as any })}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                      <option value="GET">GET</option>
+                      <option value="POST">POST</option>
+                      <option value="PUT">PUT</option>
+                      <option value="DELETE">DELETE</option>
+                      <option value="PATCH">PATCH</option>
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Default: POST
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Headers HTTP (JSON opcional)
+                    </label>
+                    <textarea
+                      value={toolForm.headers ? JSON.stringify(toolForm.headers, null, 2) : ''}
+                      onChange={(e) => {
+                        try {
+                          const headers = e.target.value ? JSON.parse(e.target.value) : {};
+                          setToolForm({ ...toolForm, headers });
+                        } catch {
+                          // Ignorar JSON inválido mientras se escribe
+                        }
+                      }}
+                      placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'
+                      rows={3}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-xs"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Formato JSON con los headers HTTP a enviar
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Query Parameters (JSON opcional)
+                    </label>
+                    <textarea
+                      value={toolForm.query_params ? JSON.stringify(toolForm.query_params, null, 2) : ''}
+                      onChange={(e) => {
+                        try {
+                          const queryParams = e.target.value ? JSON.parse(e.target.value) : {};
+                          setToolForm({ ...toolForm, query_params: queryParams });
+                        } catch {
+                          // Ignorar JSON inválido mientras se escribe
+                        }
+                      }}
+                      placeholder='{"page": "1", "sort": "asc"}'
+                      rows={2}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-xs"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Query parameters a agregar a la URL
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Speak After Execution *
+                      </label>
+                      <p className="text-xs text-gray-500">
+                        El agente llamará al LLM nuevamente y hablará cuando se obtenga el resultado
+                      </p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={toolForm.speak_after_execution ?? true}
+                      onChange={(e) => setToolForm({ ...toolForm, speak_after_execution: e.target.checked })}
+                      className="w-4 h-4 text-purple-600"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Speak During Execution
+                      </label>
+                      <p className="text-xs text-gray-500">
+                        El agente dirá algo como "Un momento, déjame verificar eso" durante la ejecución
+                      </p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={toolForm.speak_during_execution ?? false}
+                      onChange={(e) => setToolForm({ ...toolForm, speak_during_execution: e.target.checked })}
+                      className="w-4 h-4 text-purple-600"
+                    />
+                  </div>
+
+                  {toolForm.speak_during_execution && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Execution Message Description
+                      </label>
+                      <textarea
+                        value={toolForm.execution_message_description || ''}
+                        onChange={(e) => setToolForm({ ...toolForm, execution_message_description: e.target.value })}
+                        placeholder="El mensaje que el agente dirá al llamar este tool. Asegúrate de que encaje suavemente en la conversación."
+                        rows={2}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Descripción del mensaje que el agente dirá durante la ejecución
+                      </p>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Timeout (ms)
+                    </label>
+                    <input
+                      type="number"
+                      min="1000"
+                      max="600000"
+                      step="1000"
+                      value={toolForm.timeout_ms || 120000}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value);
+                        if (value >= 1000 && value <= 600000) {
+                          setToolForm({ ...toolForm, timeout_ms: value });
+                        }
+                      }}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Tiempo máximo en milisegundos (1000-600000, default: 120000 = 2 min)
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Response Variables (JSON opcional)
+                    </label>
+                    <textarea
+                      value={toolForm.response_variables ? JSON.stringify(toolForm.response_variables, null, 2) : ''}
+                      onChange={(e) => {
+                        try {
+                          const responseVars = e.target.value ? JSON.parse(e.target.value) : {};
+                          setToolForm({ ...toolForm, response_variables: responseVars });
+                        } catch {
+                          // Ignorar JSON inválido mientras se escribe
+                        }
+                      }}
+                      placeholder='{"user_name": "data.user.name", "order_status": "data.status"}'
+                      rows={3}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-xs"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Mapeo de nombres de variables a JSON paths en la respuesta. Estos valores estarán disponibles como variables dinámicas.
+                    </p>
+                  </div>
+                </>
+              )}
+
+              {/* MCP Tool */}
+              {(toolForm.type as RetellToolType) === 'mcp' && (
                 <>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1023,7 +1420,169 @@ export function AgentConfigSidebar({
                       URL que se llamará cuando el agente use este tool (MCP endpoint)
                     </p>
                   </div>
+                </>
+              )}
 
+              {/* Transfer Call */}
+              {(toolForm.type as RetellToolType) === 'transfer_call' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Tipo de Destino *
+                    </label>
+                    <select
+                      value={toolForm.transfer_destination?.type || 'predefined'}
+                      onChange={(e) => {
+                        setToolForm({
+                          ...toolForm,
+                          transfer_destination: {
+                            type: e.target.value as 'predefined' | 'agent',
+                            number: toolForm.transfer_destination?.number,
+                            agent_id: toolForm.transfer_destination?.agent_id,
+                            ignore_e164_validation: toolForm.transfer_destination?.ignore_e164_validation,
+                          }
+                        });
+                      }}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                      <option value="predefined">Número Predefinido</option>
+                      <option value="agent">Agente</option>
+                    </select>
+                  </div>
+
+                  {toolForm.transfer_destination?.type === 'predefined' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Número de Teléfono *
+                      </label>
+                      <input
+                        type="tel"
+                        value={toolForm.transfer_destination?.number || ''}
+                        onChange={(e) => {
+                          setToolForm({
+                            ...toolForm,
+                            transfer_destination: {
+                              ...toolForm.transfer_destination!,
+                              number: e.target.value,
+                            }
+                          });
+                        }}
+                        placeholder="+14157774444"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                  )}
+
+                  {toolForm.transfer_destination?.type === 'agent' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Agent ID *
+                      </label>
+                      <input
+                        type="text"
+                        value={toolForm.transfer_destination?.agent_id || ''}
+                        onChange={(e) => {
+                          setToolForm({
+                            ...toolForm,
+                            transfer_destination: {
+                              ...toolForm.transfer_destination!,
+                              agent_id: e.target.value,
+                            }
+                          });
+                        }}
+                        placeholder="agent_id"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Tipo de Transferencia
+                    </label>
+                    <select
+                      value={toolForm.transfer_option?.type || 'cold_transfer'}
+                      onChange={(e) => {
+                        setToolForm({
+                          ...toolForm,
+                          transfer_option: {
+                            type: e.target.value as 'cold_transfer' | 'warm_transfer',
+                            show_transferee_as_caller: toolForm.transfer_option?.show_transferee_as_caller,
+                          }
+                        });
+                      }}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                      <option value="cold_transfer">Cold Transfer</option>
+                      <option value="warm_transfer">Warm Transfer</option>
+                    </select>
+                  </div>
+                </>
+              )}
+
+              {/* Book Appointment Cal */}
+              {(toolForm.type as RetellToolType) === 'book_appointment_cal' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Cal.com API Key *
+                    </label>
+                    <input
+                      type="text"
+                      value={toolForm.cal_api_key || ''}
+                      onChange={(e) => setToolForm({ ...toolForm, cal_api_key: e.target.value })}
+                      placeholder="cal_live_xxxxxxxxxxxx"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Event Type ID *
+                    </label>
+                    <input
+                      type="number"
+                      value={toolForm.event_type_id || ''}
+                      onChange={(e) => setToolForm({ ...toolForm, event_type_id: parseInt(e.target.value) || undefined })}
+                      placeholder="60444"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Timezone *
+                    </label>
+                    <input
+                      type="text"
+                      value={toolForm.timezone || ''}
+                      onChange={(e) => setToolForm({ ...toolForm, timezone: e.target.value })}
+                      placeholder="America/Los_Angeles"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Press Digit */}
+              {(toolForm.type as RetellToolType) === 'press_digit' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    SMS Content (Opcional)
+                  </label>
+                  <textarea
+                    value={toolForm.sms_content || ''}
+                    onChange={(e) => setToolForm({ ...toolForm, sms_content: e.target.value })}
+                    placeholder="Contenido del SMS"
+                    rows={3}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+              )}
+
+              {/* Parámetros para custom/function y mcp */}
+              {((toolForm.type as RetellToolType) === 'custom' || (toolForm.type as RetellToolType) === 'function' || (toolForm.type as RetellToolType) === 'mcp') && (
+                <>
                   {/* Parámetros */}
                   <div className="border-t border-gray-200 pt-4">
                     <div className="flex items-center justify-between mb-3">
@@ -1214,10 +1773,12 @@ export function AgentConfigSidebar({
                   onClick={() => {
                     setShowToolModal(false);
                     setToolForm({
-                      type: 'mcp',
+                      type: 'function' as RetellToolType,
                       name: '',
                       description: '',
                       url: '',
+                      method: 'POST',
+                      headers: {},
                       webhook_url: '',
                       parameters: [],
                     });

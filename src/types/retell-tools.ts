@@ -7,17 +7,24 @@
  * Tipos de tools disponibles en Retell AI
  * Según la API de Retell, los tipos válidos son:
  * - end_call: Terminar la llamada
+ * - function: Custom function tool (para llamadas HTTP con métodos GET, POST, etc.)
  * - mcp: Model Context Protocol (para custom tools con webhook)
- * - bridge_transfer: Transferir llamada (requiere transfer_destination, cal_api_key, agent_id)
+ * - transfer_call: Transferir llamada
+ * - bridge_transfer: Transferir llamada (bridge)
  * - cancel_transfer: Cancelar transferencia
- * - press_digit: Presionar dígitos (requiere sms_content)
+ * - press_digit: Presionar dígitos
+ * - book_appointment_cal: Agendar cita con Cal.com
  */
 export type RetellToolType = 
-  | 'end_call'           // Terminar la llamada
-  | 'mcp'                // Custom tool usando MCP (para funciones personalizadas con webhook)
-  | 'bridge_transfer'    // Transferir llamada
-  | 'cancel_transfer'    // Cancelar transferencia
-  | 'press_digit';       // Presionar dígitos
+  | 'end_call'              // Terminar la llamada
+  | 'custom'                // Custom function tool (HTTP calls) - Option 6
+  | 'function'              // Custom function tool (HTTP calls) - alias para custom
+  | 'mcp'                   // Model Context Protocol (para custom tools con webhook)
+  | 'transfer_call'         // Transferir llamada
+  | 'bridge_transfer'       // Transferir llamada (bridge)
+  | 'cancel_transfer'       // Cancelar transferencia
+  | 'press_digit'           // Presionar dígitos
+  | 'book_appointment_cal'; // Agendar cita con Cal.com
 
 /**
  * Estructura base de un tool en Retell AI
@@ -39,7 +46,7 @@ export interface RetellTool {
   description: string;
   
   /**
-   * Parámetros del tool (para tools de tipo 'mcp')
+   * Parámetros del tool (para tools de tipo 'function' y 'mcp')
    */
   parameters?: RetellToolParameter[];
   
@@ -50,9 +57,50 @@ export interface RetellTool {
   webhook_url?: string;
   
   /**
-   * URL del servidor MCP o webhook (requerido para tipo 'mcp')
+   * URL del servidor MCP, webhook o endpoint HTTP (requerido para tipo 'mcp' y 'function')
    */
   url?: string;
+  
+  /**
+   * Método HTTP para tools tipo 'custom'/'function' (GET, POST, PUT, DELETE, PATCH)
+   */
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+  
+  /**
+   * Headers HTTP para tools tipo 'custom'/'function'
+   */
+  headers?: Record<string, string>;
+  
+  /**
+   * Query parameters para tools tipo 'custom'/'function'
+   */
+  query_params?: Record<string, string>;
+  
+  /**
+   * Speak after execution para tools tipo 'custom'/'function'
+   */
+  speak_after_execution?: boolean;
+  
+  /**
+   * Speak during execution para tools tipo 'custom'/'function'
+   */
+  speak_during_execution?: boolean;
+  
+  /**
+   * Execution message description para tools tipo 'custom'/'function'
+   */
+  execution_message_description?: string;
+  
+  /**
+   * Timeout en milisegundos para tools tipo 'custom'/'function'
+   */
+  timeout_ms?: number;
+  
+  /**
+   * Response variables para tools tipo 'custom'/'function'
+   * Mapeo de nombres de variables a JSON paths en la respuesta
+   */
+  response_variables?: Record<string, string>;
   
   /**
    * Variables para tools tipo MCP (formato: { "variable_name": "description" })
@@ -63,6 +111,26 @@ export interface RetellTool {
    * Configuración adicional específica del tipo de tool
    */
   config?: Record<string, any>;
+  
+  // Campos específicos para transfer_call
+  transfer_destination?: {
+    type: 'predefined' | 'agent';
+    number?: string;
+    agent_id?: string;
+    ignore_e164_validation?: boolean;
+  };
+  transfer_option?: {
+    type: 'cold_transfer' | 'warm_transfer';
+    show_transferee_as_caller?: boolean;
+  };
+  
+  // Campos específicos para book_appointment_cal
+  cal_api_key?: string;
+  event_type_id?: number;
+  timezone?: string;
+  
+  // Campos específicos para press_digit
+  sms_content?: string;
 }
 
 /**
@@ -110,8 +178,66 @@ export interface EndCallTool extends RetellTool {
 }
 
 /**
- * Tool predefinido: MCP (Custom Function Tool)
- * Para custom tools con webhook, Retell usa el tipo 'mcp'
+ * Tool predefinido: Custom (Custom Function Tool con HTTP) - Option 6
+ * Para custom tools que hacen llamadas HTTP directas según documentación Retell AI
+ */
+export interface CustomTool extends RetellTool {
+  type: 'custom';
+  name: string;
+  description: string;
+  /**
+   * URL del endpoint HTTP (requerido)
+   */
+  url: string;
+  /**
+   * Método HTTP (GET, POST, PUT, DELETE, PATCH), default POST
+   */
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+  /**
+   * Headers HTTP opcionales
+   */
+  headers?: Record<string, string>;
+  /**
+   * Query parameters opcionales
+   */
+  query_params?: Record<string, string>;
+  /**
+   * Parámetros estructurados (JSON Schema)
+   */
+  parameters?: any; // JSON Schema object
+  /**
+   * Speak after execution (requerido)
+   */
+  speak_after_execution: boolean;
+  /**
+   * Speak during execution (opcional)
+   */
+  speak_during_execution?: boolean;
+  /**
+   * Execution message description (opcional)
+   */
+  execution_message_description?: string;
+  /**
+   * Timeout en milisegundos (1000-600000, default 120000)
+   */
+  timeout_ms?: number;
+  /**
+   * Response variables - mapeo de nombres a JSON paths
+   */
+  response_variables?: Record<string, string>;
+}
+
+/**
+ * Tool predefinido: Function (alias para Custom)
+ * Para compatibilidad, se convierte a 'custom' al guardar
+ */
+export interface FunctionTool extends CustomTool {
+  type: 'function'; // Se convierte a 'custom' al guardar
+}
+
+/**
+ * Tool predefinido: MCP (Model Context Protocol)
+ * Para custom tools con webhook usando MCP
  */
 export interface MCPTool extends RetellTool {
   type: 'mcp';
@@ -137,13 +263,42 @@ export interface MCPTool extends RetellTool {
  */
 export interface TransferCallTool extends RetellTool {
   type: 'transfer_call';
-  name: 'transfer_call';
+  name: string;
   description: string;
-  config?: {
-    target_number?: string;
-    target_agent_id?: string;
+  transfer_destination: {
+    type: 'predefined' | 'agent';
+    number?: string;
+    agent_id?: string;
+    ignore_e164_validation?: boolean;
+  };
+  transfer_option?: {
+    type: 'cold_transfer' | 'warm_transfer';
+    show_transferee_as_caller?: boolean;
   };
 }
+
+/**
+ * Tool predefinido: Book Appointment Cal
+ */
+export interface BookAppointmentCalTool extends RetellTool {
+  type: 'book_appointment_cal';
+  name: string;
+  description: string;
+  cal_api_key: string;
+  event_type_id: number;
+  timezone: string;
+}
+
+/**
+ * Tool predefinido: Press Digit
+ */
+export interface PressDigitTool extends RetellTool {
+  type: 'press_digit';
+  name: string;
+  description: string;
+  sms_content?: string;
+}
+
 
 /**
  * Respuesta de ejecución de un tool
@@ -276,13 +431,79 @@ export const CommonRetellTools = {
   }),
 
   /**
+   * Tool para custom function con HTTP
+   */
+  customFunction: (config: {
+    name: string;
+    description: string;
+    url: string;
+    method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+    headers?: Record<string, string>;
+    parameters?: RetellToolParameter[];
+  }): FunctionTool => ({
+    type: 'function',
+    name: config.name,
+    description: config.description,
+    url: config.url,
+    method: config.method || 'POST',
+    headers: config.headers,
+    parameters: config.parameters,
+  }),
+
+  /**
    * Tool para transferir llamada
    */
-  transferCall: (description: string = 'Transfer the call to another agent or department'): TransferCallTool => ({
+  transferCall: (config: {
+    name: string;
+    description: string;
+    destination: {
+      type: 'predefined' | 'agent';
+      number?: string;
+      agent_id?: string;
+      ignore_e164_validation?: boolean;
+    };
+    transfer_option?: {
+      type: 'cold_transfer' | 'warm_transfer';
+      show_transferee_as_caller?: boolean;
+    };
+  }): TransferCallTool => ({
     type: 'transfer_call',
-    name: 'transfer_call',
-    description,
-    config: {},
+    name: config.name,
+    description: config.description,
+    transfer_destination: config.destination,
+    transfer_option: config.transfer_option,
+  }),
+
+  /**
+   * Tool para agendar cita con Cal.com
+   */
+  bookAppointmentCal: (config: {
+    name: string;
+    description: string;
+    cal_api_key: string;
+    event_type_id: number;
+    timezone: string;
+  }): BookAppointmentCalTool => ({
+    type: 'book_appointment_cal',
+    name: config.name,
+    description: config.description,
+    cal_api_key: config.cal_api_key,
+    event_type_id: config.event_type_id,
+    timezone: config.timezone,
+  }),
+
+  /**
+   * Tool para presionar dígitos
+   */
+  pressDigit: (config: {
+    name: string;
+    description: string;
+    sms_content?: string;
+  }): PressDigitTool => ({
+    type: 'press_digit',
+    name: config.name,
+    description: config.description,
+    sms_content: config.sms_content,
   }),
 };
 
