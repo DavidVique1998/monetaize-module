@@ -63,6 +63,9 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const {
+      // Tipo de operación
+      operation_type,
+      
       // Campos para crear número (comprar nuevo)
       area_code,
       phone_number,
@@ -80,15 +83,16 @@ export async function POST(request: NextRequest) {
       nickname,
       inbound_webhook_url,
       
-      // Campos para importar número existente
+      // Campos para importar número existente (según documentación Retell AI)
       termination_uri,
       sip_trunk_auth_username,
       sip_trunk_auth_password,
     } = body;
 
-    // Determinar si es crear (con area_code) o importar (con phone_number sin area_code)
-    const isCreating = !!area_code;
-    const isImporting = !!phone_number && !area_code;
+    // Determinar si es crear o importar
+    // Prioridad: operation_type > (area_code para crear) > (phone_number sin area_code para importar)
+    const isCreating = operation_type === 'create' || (!!area_code && operation_type !== 'import');
+    const isImporting = operation_type === 'import' || (!!phone_number && !area_code && !operation_type);
 
     // Validar que se proporcione al menos uno de los métodos
     if (!isCreating && !isImporting) {
@@ -128,17 +132,28 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Validaciones para importar número
+    // Validaciones para importar número (según documentación Retell AI)
     if (isImporting) {
-    const phoneRegex = /^\+[1-9]\d{1,14}$/;
-    if (!phoneRegex.test(phone_number)) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'phone_number debe estar en formato E.164 (ej: +14157774444)' 
-        },
-        { status: 400 }
-      );
+      const phoneRegex = /^\+[1-9]\d{1,14}$/;
+      if (!phone_number || !phoneRegex.test(phone_number)) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'phone_number es requerido y debe estar en formato E.164 (ej: +14157774444)' 
+          },
+          { status: 400 }
+        );
+      }
+      
+      // termination_uri es requerido según documentación Retell AI
+      if (!termination_uri) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'termination_uri es requerido para importar un número. Debe ser la URI de terminación SIP (ej: someuri.pstn.twilio.com)' 
+          },
+          { status: 400 }
+        );
       }
     }
 

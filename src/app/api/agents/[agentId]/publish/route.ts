@@ -3,7 +3,10 @@ import { SessionManager } from '@/lib/session';
 import { RetellService } from '@/lib/retell';
 import { RetellSyncService } from '@/lib/retell-sync';
 
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ agentId: string }> | { agentId: string } }
+) {
   try {
     // Obtener usuario autenticado
     const user = await SessionManager.requireAuth();
@@ -15,7 +18,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { agentId } = await request.json();
+    // Obtener agentId del path parameter (según documentación de Retell)
+    const resolvedParams = await params;
+    const agentId = typeof resolvedParams.agentId === 'string' 
+      ? resolvedParams.agentId 
+      : String(resolvedParams.agentId);
 
     if (!agentId) {
       return NextResponse.json(

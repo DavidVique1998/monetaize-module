@@ -381,5 +381,127 @@ export class RetellSyncService {
       return false;
     }
   }
+
+  /**
+   * Obtener Knowledge Bases del usuario desde la base de datos local
+   * Filtra las Knowledge Bases de Retell por las que pertenecen al usuario
+   */
+  static async getUserKnowledgeBases(userId: string): Promise<any[]> {
+    try {
+      // Obtener Knowledge Bases locales del usuario
+      const localKnowledgeBases = await prisma.knowledgeBase.findMany({
+        where: { userId },
+        select: { retellKnowledgeBaseId: true },
+      });
+
+      if (localKnowledgeBases.length === 0) {
+        // No hay Knowledge Bases locales, retornar array vacío
+        return [];
+      }
+
+      // Obtener detalles de Retell para cada Knowledge Base
+      const retellKnowledgeBaseIds = localKnowledgeBases
+        .map(kb => kb.retellKnowledgeBaseId)
+        .filter((id): id is string => !!id);
+
+      if (retellKnowledgeBaseIds.length === 0) {
+        return [];
+      }
+
+      // Obtener todas las Knowledge Bases de Retell y filtrar por las que pertenecen al usuario
+      const allRetellKnowledgeBases = await RetellService.listKnowledgeBases();
+      const userRetellKnowledgeBases = allRetellKnowledgeBases.filter(kb =>
+        retellKnowledgeBaseIds.includes(kb.knowledge_base_id)
+      );
+
+      return userRetellKnowledgeBases;
+    } catch (error) {
+      console.error('Error getting user knowledge bases:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Crear Knowledge Base en Retell y vincularla con el usuario en la base de datos local
+   */
+  static async createKnowledgeBaseForUser(
+    userId: string,
+    knowledgeBaseData: any
+  ): Promise<{ retellKnowledgeBase: any; localKnowledgeBase: any }> {
+    try {
+      // Crear Knowledge Base en Retell
+      const retellKnowledgeBase = await RetellService.createKnowledgeBase(knowledgeBaseData);
+
+      // Guardar en la base de datos local vinculada al usuario
+      const localKnowledgeBase = await prisma.knowledgeBase.create({
+        data: {
+          retellKnowledgeBaseId: retellKnowledgeBase.knowledge_base_id,
+          name: retellKnowledgeBase.knowledge_base_name || knowledgeBaseData.knowledge_base_name,
+          status: retellKnowledgeBase.status || 'in_progress',
+          enableAutoRefresh: retellKnowledgeBase.enable_auto_refresh || knowledgeBaseData.enable_auto_refresh || false,
+          lastRefreshedAt: retellKnowledgeBase.last_refreshed_timestamp
+            ? new Date(retellKnowledgeBase.last_refreshed_timestamp)
+            : null,
+          userId,
+        },
+      });
+
+      return { retellKnowledgeBase, localKnowledgeBase };
+    } catch (error) {
+      console.error('Error creating knowledge base for user:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Verificar que una Knowledge Base pertenece al usuario
+   */
+  static async verifyKnowledgeBaseOwnership(
+    userId: string,
+    retellKnowledgeBaseId: string
+  ): Promise<boolean> {
+    try {
+      const knowledgeBase = await prisma.knowledgeBase.findFirst({
+        where: {
+          userId,
+          retellKnowledgeBaseId,
+        },
+      });
+      return !!knowledgeBase;
+    } catch (error) {
+      console.error('Error verifying knowledge base ownership:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Actualizar Knowledge Base local cuando se actualiza en Retell
+   */
+  static async updateLocalKnowledgeBase(
+    userId: string,
+    retellKnowledgeBaseId: string,
+    retellData: any
+  ): Promise<void> {
+    try {
+      await prisma.knowledgeBase.updateMany({
+        where: {
+          userId,
+          retellKnowledgeBaseId,
+        },
+        data: {
+          name: retellData.knowledge_base_name || undefined,
+          status: retellData.status || undefined,
+          enableAutoRefresh: retellData.enable_auto_refresh !== undefined ? retellData.enable_auto_refresh : undefined,
+          lastRefreshedAt: retellData.last_refreshed_timestamp
+            ? new Date(retellData.last_refreshed_timestamp)
+            : undefined,
+          updatedAt: new Date(),
+        },
+      });
+    } catch (error) {
+      console.error('Error updating local knowledge base:', error);
+      throw error;
+    }
+  }
 }
 

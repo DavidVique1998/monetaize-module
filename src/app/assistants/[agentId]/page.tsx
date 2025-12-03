@@ -225,12 +225,10 @@ export default function EditAssistantPage() {
     setIsPublishing(true);
     setPublishError(null);
     try {
+      // Según la documentación de Retell, el endpoint no requiere body
       const response = await fetch(`/api/agents/${agentId}/publish`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ agentId }),
+        // No se necesita body ni Content-Type según la documentación
       });
 
       if (!response.ok) {
@@ -580,25 +578,6 @@ export default function EditAssistantPage() {
                     </span>
                     <button className="p-1">
                       <Info className="w-4 h-4 text-gray-400" />
-                    </button>
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
-                      <Tag className="w-3 h-3" />
-                      <span>Dynamic Greeting</span>
-                    </button>
-                    <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
-                      <Tag className="w-3 h-3" />
-                      <span>Fields & Values</span>
-                    </button>
-                    <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
-                      <Pencil className="w-3 h-3" />
-                      <span>Add Snippet</span>
-                    </button>
-                    <button className="flex items-center space-x-1 px-3 py-1.5 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer">
-                      <Sparkles className="w-3 h-3" />
-                      <span>Generate Prompt</span>
                     </button>
                   </div>
                 </div>

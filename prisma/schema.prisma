@@ -42,10 +42,11 @@ model User {
   stripeCustomerId String? @unique // ID del customer en Stripe
 
   // Relations
-  agents       Agent[]
-  phoneNumbers PhoneNumber[]
-  wallet       Wallet?
-  calls        Call[]
+  agents        Agent[]
+  phoneNumbers  PhoneNumber[]
+  wallet        Wallet?
+  calls         Call[]
+  knowledgeBases KnowledgeBase[]
 
   @@index([email])
   @@index([ghlLocationId])
@@ -87,6 +88,25 @@ model Agent {
   tags            AgentTag[]
 
   @@index([retellAgentId])
+  @@index([userId])
+}
+
+// Knowledge Base model for Retell AI knowledge bases
+model KnowledgeBase {
+  id                String   @id @default(uuid())
+  retellKnowledgeBaseId String @unique // ID de la Knowledge Base en Retell
+  name              String
+  status            String   @default("in_progress") // in_progress, complete, error
+  enableAutoRefresh Boolean  @default(false)
+  lastRefreshedAt   DateTime?
+  userId            String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  owner User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([retellKnowledgeBaseId])
   @@index([userId])
 }
 

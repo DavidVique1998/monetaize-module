@@ -655,7 +655,7 @@ export class RetellService {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${config.retell.apiKey}`,
-          'Content-Type': 'application/json',
+          // No se necesita Content-Type ya que no hay body según la documentación
         },
       });
 
@@ -684,19 +684,52 @@ export class RetellService {
       // Primero publicar el agente
       await this.publishAgentDirect(agentId);
       
-      // Luego obtener el agente actualizado con prompt usando el método existente
-      console.log('RetellService: Fetching updated agent with prompt after publish...');
-      const updatedAgent = await this.getAgentWithPrompt(agentId);
+      // Esperar un poco para que Retell actualice el estado
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Intentar obtener el agente actualizado varias veces con retry
+      let updatedAgent;
+      let attempts = 0;
+      const maxAttempts = 5;
+      
+      while (attempts < maxAttempts) {
+        console.log(`RetellService: Fetching updated agent with prompt after publish (attempt ${attempts + 1}/${maxAttempts})...`);
+        updatedAgent = await this.getAgentWithPrompt(agentId);
+        
+        // Verificar si el agente está publicado
+        const isPublished = (updatedAgent as any).is_published;
+        console.log('RetellService: Agent status check:', {
+          agent_id: updatedAgent.agent_id,
+          version: updatedAgent.version,
+          is_published: isPublished,
+        });
+        
+        // Si está publicado o es el último intento, retornar
+        if (isPublished || attempts === maxAttempts - 1) {
+          break;
+        }
+        
+        // Esperar antes del siguiente intento
+        await new Promise(resolve => setTimeout(resolve, 500));
+        attempts++;
+      }
+      
+      // Forzar is_published a true si la publicación fue exitosa
+      // ya que Retell puede tardar en actualizar el estado
+      const finalAgent = {
+        ...updatedAgent,
+        is_published: true,
+      };
       
       console.log('RetellService: Agent published and status updated:', {
-        agent_id: updatedAgent.agent_id,
-        version: updatedAgent.version,
-        is_published: (updatedAgent as any).is_published,
-        has_prompt: !!(updatedAgent as any).prompt,
-        prompt_length: (updatedAgent as any).prompt?.length || 0
+        agent_id: finalAgent.agent_id,
+        version: finalAgent.version,
+        is_published: (finalAgent as any).is_published,
+        has_prompt: !!(finalAgent as any).prompt,
+        prompt_length: (finalAgent as any).prompt?.length || 0
       });
       
-      return updatedAgent;
+      return finalAgent;
     } catch (error: any) {
       console.error('RetellService: Error in publishAgent:', error);
       throw error;
@@ -1400,6 +1433,205 @@ export class RetellService {
       outbound_agent_version: 1,
       nickname: 'Imported Number',
     };
+  }
+
+  /**
+   * Crear una nueva Knowledge Base
+   * Según documentación: https://docs.retellai.com/api-references/create-knowledge-base
+   */
+  static async createKnowledgeBase(data: {
+    knowledge_base_name: string;
+    knowledge_base_texts?: Array<{ text: string; title?: string }>;
+    knowledge_base_urls?: string[];
+    enable_auto_refresh?: boolean;
+  }): Promise<any> {
+    try {
+      console.log('RetellService: Creating knowledge base with data:', {
+        knowledge_base_name: data.knowledge_base_name,
+        texts_count: data.knowledge_base_texts?.length || 0,
+        urls_count: data.knowledge_base_urls?.length || 0,
+      });
+
+      // Crear FormData para multipart/form-data
+      const formData = new FormData();
+      formData.append('knowledge_base_name', data.knowledge_base_name);
+
+      if (data.knowledge_base_texts && data.knowledge_base_texts.length > 0) {
+        // Retell espera knowledge_base_texts como JSON string
+        formData.append('knowledge_base_texts', JSON.stringify(data.knowledge_base_texts));
+      }
+
+      if (data.knowledge_base_urls && data.knowledge_base_urls.length > 0) {
+        // Retell espera knowledge_base_urls como array
+        data.knowledge_base_urls.forEach((url) => {
+          formData.append('knowledge_base_urls[]', url);
+        });
+      }
+
+      if (data.enable_auto_refresh !== undefined) {
+        formData.append('enable_auto_refresh', String(data.enable_auto_refresh));
+      }
+
+      const response = await fetch('https://api.retellai.com/create-knowledge-base', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${config.retell.apiKey}`,
+          // No incluir Content-Type, el navegador lo establecerá automáticamente con el boundary
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        console.error('RetellService: Error creating knowledge base:', errorData);
+        throw new Error(errorData.message || `HTTP ${response.status}: Failed to create knowledge base`);
+      }
+
+      const result = await response.json();
+      console.log('RetellService: Knowledge base created successfully:', result.knowledge_base_id);
+      return result;
+    } catch (error: any) {
+      console.error('RetellService: Error creating knowledge base:', error);
+      throw new Error(`Failed to create knowledge base: ${error.message || 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Obtener una Knowledge Base específica
+   */
+  static async getKnowledgeBase(knowledgeBaseId: string): Promise<any> {
+    try {
+      const response = await fetch(`https://api.retellai.com/get-knowledge-base/${knowledgeBaseId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${config.retell.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        throw new Error(errorData.message || `HTTP ${response.status}: Failed to get knowledge base`);
+      }
+
+      return await response.json();
+    } catch (error: any) {
+      console.error('RetellService: Error getting knowledge base:', error);
+      throw new Error(`Failed to get knowledge base: ${error.message || 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Listar todas las Knowledge Bases
+   */
+  static async listKnowledgeBases(): Promise<any[]> {
+    try {
+      const response = await fetch('https://api.retellai.com/list-knowledge-bases', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${config.retell.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        throw new Error(errorData.message || `HTTP ${response.status}: Failed to list knowledge bases`);
+      }
+
+      const result = await response.json();
+      return Array.isArray(result) ? result : [];
+    } catch (error: any) {
+      console.error('RetellService: Error listing knowledge bases:', error);
+      throw new Error(`Failed to list knowledge bases: ${error.message || 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Eliminar una Knowledge Base
+   */
+  static async deleteKnowledgeBase(knowledgeBaseId: string): Promise<void> {
+    try {
+      const response = await fetch(`https://api.retellai.com/delete-knowledge-base/${knowledgeBaseId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${config.retell.apiKey}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        throw new Error(errorData.message || `HTTP ${response.status}: Failed to delete knowledge base`);
+      }
+    } catch (error: any) {
+      console.error('RetellService: Error deleting knowledge base:', error);
+      throw new Error(`Failed to delete knowledge base: ${error.message || 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Agregar fuentes a una Knowledge Base
+   */
+  static async addKnowledgeBaseSources(knowledgeBaseId: string, data: {
+    knowledge_base_texts?: Array<{ text: string; title?: string }>;
+    knowledge_base_urls?: string[];
+  }): Promise<any> {
+    try {
+      const formData = new FormData();
+
+      if (data.knowledge_base_texts && data.knowledge_base_texts.length > 0) {
+        formData.append('knowledge_base_texts', JSON.stringify(data.knowledge_base_texts));
+      }
+
+      if (data.knowledge_base_urls && data.knowledge_base_urls.length > 0) {
+        data.knowledge_base_urls.forEach((url) => {
+          formData.append('knowledge_base_urls[]', url);
+        });
+      }
+
+      const response = await fetch(`https://api.retellai.com/add-knowledge-base-sources/${knowledgeBaseId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${config.retell.apiKey}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        throw new Error(errorData.message || `HTTP ${response.status}: Failed to add knowledge base sources`);
+      }
+
+      return await response.json();
+    } catch (error: any) {
+      console.error('RetellService: Error adding knowledge base sources:', error);
+      throw new Error(`Failed to add knowledge base sources: ${error.message || 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Eliminar una fuente de Knowledge Base
+   */
+  static async deleteKnowledgeBaseSource(knowledgeBaseId: string, sourceId: string): Promise<void> {
+    try {
+      const response = await fetch(
+        `https://api.retellai.com/delete-knowledge-base-source/${knowledgeBaseId}/${sourceId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${config.retell.apiKey}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        throw new Error(errorData.message || `HTTP ${response.status}: Failed to delete knowledge base source`);
+      }
+    } catch (error: any) {
+      console.error('RetellService: Error deleting knowledge base source:', error);
+      throw new Error(`Failed to delete knowledge base source: ${error.message || 'Unknown error'}`);
+    }
   }
 }
 

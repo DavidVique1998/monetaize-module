@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { RetellAgent } from '@/lib/retell';
 import { RetellTool, RetellToolType, RetellToolParameter } from '@/types/retell-tools';
+import { KnowledgeBase } from '@/types/knowledge-base';
 
 interface AgentConfigSidebarProps {
   agent: RetellAgent | null;
@@ -89,6 +90,11 @@ export function AgentConfigSidebar({
   // Estado para tools
   const [tools, setTools] = useState<RetellTool[]>([]);
   const [isLoadingTools, setIsLoadingTools] = useState(false);
+  
+  // Estado para Knowledge Bases
+  const [knowledgeBases, setKnowledgeBases] = useState<KnowledgeBase[]>([]);
+  const [isLoadingKnowledgeBases, setIsLoadingKnowledgeBases] = useState(false);
+  const [selectedKnowledgeBaseId, setSelectedKnowledgeBaseId] = useState<string | null>(null);
   const [showToolModal, setShowToolModal] = useState(false);
   const [editingToolIndex, setEditingToolIndex] = useState<number | null>(null);
   const [toolForm, setToolForm] = useState<Partial<RetellTool> & {
@@ -155,6 +161,14 @@ export function AgentConfigSidebar({
     }
   }, [expandedSections.functions, agent?.agent_id]);
 
+  // Cargar Knowledge Bases cuando se expande la sección
+  useEffect(() => {
+    if (expandedSections.knowledgeBase) {
+      loadKnowledgeBases();
+      loadLLMKnowledgeBase();
+    }
+  }, [expandedSections.knowledgeBase, agent?.agent_id]);
+
   const loadTools = async () => {
     const llmId = getLLMId();
     if (!llmId) {
@@ -178,6 +192,78 @@ export function AgentConfigSidebar({
       setTools([]);
     } finally {
       setIsLoadingTools(false);
+    }
+  };
+
+  const loadKnowledgeBases = async () => {
+    try {
+      setIsLoadingKnowledgeBases(true);
+      const response = await fetch('/api/knowledge-bases');
+      const data = await response.json();
+      
+      if (data.success) {
+        setKnowledgeBases(data.data || []);
+      } else {
+        console.error('Error loading knowledge bases:', data.error);
+        setKnowledgeBases([]);
+      }
+    } catch (error) {
+      console.error('Error loading knowledge bases:', error);
+      setKnowledgeBases([]);
+    } finally {
+      setIsLoadingKnowledgeBases(false);
+    }
+  };
+
+  const loadLLMKnowledgeBase = async () => {
+    const llmId = getLLMId();
+    if (!llmId) {
+      setSelectedKnowledgeBaseId(null);
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/llms/${llmId}`);
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        // El LLM puede tener knowledge_base_id o knowledge_base_ids
+        const kbId = (data.data as any).knowledge_base_id || (data.data as any).knowledge_base_ids?.[0] || null;
+        setSelectedKnowledgeBaseId(kbId);
+      }
+    } catch (error) {
+      console.error('Error loading LLM knowledge base:', error);
+    }
+  };
+
+  const handleKnowledgeBaseChange = async (knowledgeBaseId: string | null) => {
+    const llmId = getLLMId();
+    if (!llmId) {
+      alert('El agente no tiene un LLM configurado');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/llms/${llmId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          knowledge_base_id: knowledgeBaseId || undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSelectedKnowledgeBaseId(knowledgeBaseId);
+        // Notificar cambio al componente padre
+        onSettingsChange({ knowledge_base_id: knowledgeBaseId });
+      } else {
+        alert('Error al actualizar Knowledge Base: ' + data.error);
+      }
+    } catch (error) {
+      console.error('Error updating knowledge base:', error);
+      alert('Error al actualizar Knowledge Base');
     }
   };
 
@@ -664,11 +750,68 @@ export function AgentConfigSidebar({
         >
           <div className="space-y-3">
             <p className="text-xs text-gray-600">
-              Connect your knowledge base to provide context to your agent.
+              Conecta una Knowledge Base para proporcionar contexto a tu agente.
             </p>
-            <button className="w-full px-3 py-2 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors">
-              Connect Knowledge Base
-            </button>
+            
+            {!getLLMId() && (
+              <div className="p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-xs text-yellow-800">
+                  El agente debe tener un LLM configurado para usar Knowledge Bases.
+                </p>
+              </div>
+            )}
+
+            {isLoadingKnowledgeBases ? (
+              <div className="text-center py-4">
+                <p className="text-xs text-gray-500">Cargando Knowledge Bases...</p>
+              </div>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Knowledge Base
+                  </label>
+                  <select
+                    value={selectedKnowledgeBaseId || ''}
+                    onChange={(e) => handleKnowledgeBaseChange(e.target.value || null)}
+                    disabled={!getLLMId()}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <option value="">Ninguna</option>
+                    {knowledgeBases.map((kb) => (
+                      <option key={kb.knowledge_base_id} value={kb.knowledge_base_id}>
+                        {kb.knowledge_base_name} {kb.status !== 'complete' && `(${kb.status})`}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Selecciona una Knowledge Base para asociarla con este agente
+                  </p>
+                </div>
+
+                {knowledgeBases.length === 0 && (
+                  <div className="p-2 bg-gray-50 border border-gray-200 rounded-lg">
+                    <p className="text-xs text-gray-600 mb-2">
+                      No hay Knowledge Bases disponibles. Crea una en la página de Knowledge Bases.
+                    </p>
+                    <a
+                      href="/knowledge"
+                      className="text-xs text-purple-600 hover:text-purple-700 underline"
+                    >
+                      Ir a Knowledge Bases →
+                    </a>
+                  </div>
+                )}
+
+                {selectedKnowledgeBaseId && (
+                  <div className="p-2 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-xs text-green-800">
+                      ✓ Knowledge Base conectada correctamente
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </ConfigSection>
 
