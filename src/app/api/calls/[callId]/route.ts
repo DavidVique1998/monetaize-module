@@ -10,7 +10,7 @@ import { RetellService } from '@/lib/retell';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { callId: string } }
+  { params }: { params: Promise<{ callId: string }> | { callId: string } }
 ) {
   try {
     const user = await SessionManager.requireAuth();
@@ -22,7 +22,11 @@ export async function GET(
       );
     }
 
-    const { callId } = params;
+    // Manejar params tanto en Next.js 13+ como versiones anteriores
+    const resolvedParams = await params;
+    const callId = typeof resolvedParams.callId === 'string' 
+      ? resolvedParams.callId 
+      : String(resolvedParams.callId);
 
     // Obtener de la base de datos local
     const call = await CallService.getCallByRetellId(callId);

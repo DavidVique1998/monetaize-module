@@ -1,7 +1,69 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { SessionManager } from '@/lib/session';
-import { routing } from './i18n/routing';
+
+/**
+ * Función ligera para decodificar el token de sesión desde cookies
+ * Versión optimizada para Edge Runtime (sin dependencias pesadas)
+ * Compatible con base64url encoding usando Web APIs disponibles en Edge Runtime
+ */
+function decodeSessionToken(sessionToken: string | undefined): {
+  userId: string;
+  email: string;
+  role: string;
+  ghlLocationId: string | null;
+  ghlCompanyId: string | null;
+} | null {
+  if (!sessionToken) return null;
+  
+  try {
+    // Decodificar base64url (compatible con Edge Runtime usando Web API)
+    // Reemplazar caracteres base64url a base64 estándar
+    let base64 = sessionToken.replace(/-/g, '+').replace(/_/g, '/');
+    
+    // Agregar padding si es necesario
+    while (base64.length % 4) {
+      base64 += '=';
+    }
+    
+    // Decodificar usando Web API disponible en Edge Runtime
+    // atob está disponible en Edge Runtime
+    const binaryString = atob(base64);
+    const parts = binaryString.split('|');
+    
+    if (parts.length < 3) return null;
+    
+    // Compatibilidad con tokens antiguos (sin ghlLocationId/ghlCompanyId)
+    const ghlLocationId = parts.length > 3 && parts[3] ? parts[3] : null;
+    const ghlCompanyId = parts.length > 4 && parts[4] ? parts[4] : null;
+    
+    return {
+      userId: parts[0],
+      email: parts[1],
+      role: parts[2],
+      ghlLocationId,
+      ghlCompanyId,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Obtener datos de sesión desde las cookies del request
+ * Versión ligera para Edge Runtime
+ */
+function getSessionFromRequest(cookies: { get: (name: string) => { value: string } | undefined }): {
+  userId: string;
+  email: string;
+  role: string;
+  ghlLocationId: string | null;
+  ghlCompanyId: string | null;
+} | null {
+  const sessionCookie = cookies.get('monetaize_session');
+  if (!sessionCookie) return null;
+  
+  return decodeSessionToken(sessionCookie.value);
+}
 
 /**
  * Middleware para controlar el acceso a las rutas de la aplicación
@@ -31,11 +93,12 @@ export async function middleware(request: NextRequest) {
       '/api/auth/me',
       '/api/wallet/consume-token',
       '/api/wallet/consume-batch',
+      '/api/public',
     ];
 
     if (!publicApiRoutes.some(route => pathname.startsWith(route))) {
       // Verificar autenticación para rutas de API protegidas
-      const sessionData = SessionManager.getSessionUserFromRequest(request.cookies as any);
+      const sessionData = getSessionFromRequest(request.cookies);
       if (sessionData) {
         const response = NextResponse.next();
         response.headers.set('x-user-id', sessionData.userId);
@@ -54,8 +117,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Obtener locale de la cookie o usar default
-  const locale = request.cookies.get('NEXT_LOCALE')?.value || routing.defaultLocale;
+  // Obtener locale de la cookie o usar default (inglés)
+  const locale = request.cookies.get('NEXT_LOCALE')?.value || 'en';
   
   // Crear respuesta base
   const response = NextResponse.next();
@@ -74,7 +137,7 @@ export async function middleware(request: NextRequest) {
 
   // Rutas públicas que no requieren autenticación
   if (pathname === '/install_ghl') {
-    const sessionData = SessionManager.getSessionUserFromRequest(request.cookies as any);
+    const sessionData = getSessionFromRequest(request.cookies);
     
     if (sessionData) {
       const redirectTo = request.nextUrl.searchParams.get('redirect') || '/wallet';
@@ -85,7 +148,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Para todas las demás rutas, verificar autenticación
-  const sessionData = SessionManager.getSessionUserFromRequest(request.cookies as any);
+  const sessionData = getSessionFromRequest(request.cookies);
 
   if (!sessionData) {
     const loginUrl = new URL('/install_ghl', request.url);

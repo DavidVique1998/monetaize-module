@@ -20,13 +20,20 @@ export interface JWTPayload {
  * Generar un token JWT para un usuario
  * @param userId - ID del usuario en Monetaize
  * @param ghlLocationId - ID de la ubicación en GoHighLevel
+ * @param permanent - Si es true, el token no expirará (por defecto false)
  * @returns Token JWT firmado
  */
-export function generateToken(userId: string, ghlLocationId: string | null): string {
+export function generateToken(userId: string, ghlLocationId: string | null, permanent: boolean = false): string {
   const payload: JWTPayload = {
     userId,
     ghlLocationId,
   };
+
+  // Si es permanente, no agregar expiración
+  if (permanent) {
+    // @ts-ignore - jsonwebtoken types issue
+    return jwt.sign(payload, JWT_SECRET);
+  }
 
   // @ts-ignore - jsonwebtoken types issue with expiresIn
   return jwt.sign(payload, JWT_SECRET, {

@@ -19,6 +19,7 @@ export const config = {
   retell: {
     apiKey: process.env.RETELL_API_KEY || '',
     baseUrl: process.env.RETELL_BASE_URL || 'https://api.retellai.com',
+    agentId: process.env.RETELL_AGENT_ID || '',
   },
 
   ghlApp:{

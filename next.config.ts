@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['mongodb'],
   // Configuración para Turbopack (Next.js 16 usa Turbopack por defecto)
   turbopack: {},
+  // Configuración experimental para reducir el tamaño del middleware
+  experimental: {
+    // Excluir dependencias pesadas del middleware
+    serverComponentsExternalPackages: ['@prisma/client', 'mongodb', '@gohighlevel/api-client'],
+  },
 };
 
 export default withNextIntl(nextConfig);

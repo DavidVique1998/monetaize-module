@@ -77,9 +77,13 @@ export async function GET(
 
     for (const call of calls) {
       // Costo desde call.cost (que viene de call_cost.combined_cost)
-      if (call.cost && call.cost > 0) {
-        totalCost += Number(call.cost);
-        callsWithCost++;
+      // call.cost es Decimal, necesitamos convertirlo a número
+      if (call.cost) {
+        const costValue = Number(call.cost);
+        if (costValue > 0) {
+          totalCost += costValue;
+          callsWithCost++;
+        }
       }
 
       // Duración: preferir totalDurationSeconds, sino usar duration

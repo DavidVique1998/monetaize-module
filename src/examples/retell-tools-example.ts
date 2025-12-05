@@ -34,7 +34,8 @@ export async function exampleAddCustomTool(llmId: string, webhookUrl: string) {
       type: 'function',
       name: 'check_order_status',
       description: 'Verificar el estado de una orden por su ID',
-      webhook_url: webhookUrl,
+      url: webhookUrl,
+      speak_after_execution: true,
       parameters: [
         {
           name: 'order_id',

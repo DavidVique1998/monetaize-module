@@ -144,15 +144,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        call_id: callResponse.call_id,
+        // Incluir todos los campos de la respuesta de Retell primero
+        ...callResponse,
+        // Sobrescribir con valores específicos o calculados
         agent_id: agentId,
         from_number: fromNumber || callResponse.from_number,
         to_number: toNumber,
         call_status: callResponse.call_status || 'ringing',
         direction: 'outbound',
         created_at: new Date().toISOString(),
-        // Incluir otros campos de la respuesta de Retell si están disponibles
-        ...callResponse
       }
     }, { status: 201 });
 

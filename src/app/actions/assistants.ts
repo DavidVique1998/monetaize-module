@@ -1,6 +1,8 @@
 'use server';
 
 import { RetellService } from '@/lib/retell';
+import { RetellSyncService } from '@/lib/retell-sync';
+import { SessionManager } from '@/lib/session';
 import Retell from 'retell-sdk';
 
 interface CreateAssistantResult {
@@ -15,10 +17,20 @@ interface CreateAssistantResult {
 
 /**
  * Server action to create a blank assistant
- * Creates an assistant with minimal default configuration
+ * Creates an assistant with minimal default configuration and links it to the user
  */
 export async function createBlankAssistant(): Promise<CreateAssistantResult> {
   try {
+    // Obtener usuario autenticado
+    const user = await SessionManager.getSessionUser();
+    
+    if (!user) {
+      return {
+        success: false,
+        error: 'No autenticado. Por favor inicia sesión.',
+      };
+    }
+
     // Check if API key is configured
     const apiKey = process.env.RETELL_API_KEY;
     if (!apiKey || apiKey === 'your_retell_api_key_here') {
@@ -66,10 +78,10 @@ export async function createBlankAssistant(): Promise<CreateAssistantResult> {
       };
     }
 
-    // Create a minimal agent with default configuration
+    // Create a minimal agent with default configuration according to Retell AI documentation
     const agentData: Retell.Agent.AgentCreateParams = {
       agent_name: 'New Blank Assistant',
-      voice_id: '11labs-Emily',
+      voice_id: '11labs-Emily', // Default voice
       language: 'en-US',
       response_engine: {
         type: 'retell-llm',
@@ -77,18 +89,18 @@ export async function createBlankAssistant(): Promise<CreateAssistantResult> {
       },
     };
 
-    // Create the agent using the Retell service
-    const agent = await RetellService.createAdvancedAgent(agentData);
+    // Create the agent using RetellSyncService which links it to the user in the database
+    const { retellAgent } = await RetellSyncService.createAgentForUser(user.id, agentData);
 
-    if (!agent.agent_id) {
+    if (!retellAgent.agent_id) {
       throw new Error('Agent creation failed: agent_id is missing');
     }
 
     return {
       success: true,
       data: {
-        agent_id: agent.agent_id,
-        agent_name: agent.agent_name || 'New Blank Assistant',
+        agent_id: retellAgent.agent_id,
+        agent_name: retellAgent.agent_name || 'New Blank Assistant',
       },
     };
   } catch (error) {

@@ -231,7 +231,7 @@ export interface CustomTool extends RetellTool {
  * Tool predefinido: Function (alias para Custom)
  * Para compatibilidad, se convierte a 'custom' al guardar
  */
-export interface FunctionTool extends CustomTool {
+export interface FunctionTool extends Omit<CustomTool, 'type'> {
   type: 'function'; // Se convierte a 'custom' al guardar
 }
 
@@ -440,6 +440,7 @@ export const CommonRetellTools = {
     method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
     headers?: Record<string, string>;
     parameters?: RetellToolParameter[];
+    speak_after_execution?: boolean;
   }): FunctionTool => ({
     type: 'function',
     name: config.name,
@@ -447,6 +448,7 @@ export const CommonRetellTools = {
     url: config.url,
     method: config.method || 'POST',
     headers: config.headers,
+    speak_after_execution: config.speak_after_execution ?? true,
     parameters: config.parameters,
   }),
 

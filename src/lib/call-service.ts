@@ -38,6 +38,8 @@ export interface UpdateCallData {
   transcript?: string;
   retellMetadata?: any;
   cost?: number;
+  totalDurationSeconds?: number;
+  tokensUsed?: number;
   errorMessage?: string;
 }
 
