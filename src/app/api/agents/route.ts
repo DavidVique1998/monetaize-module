@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SessionManager } from '@/lib/session';
 import { RetellSyncService } from '@/lib/retell-sync';
 import { RetellService } from '@/lib/retell';
+import { config } from '@/lib/config';
 import { z } from 'zod';
 
 // Schema de validación para crear agente según documentación de Retell AI
@@ -106,6 +107,12 @@ export async function POST(request: NextRequest) {
     
     // Si response_engine es retell-llm o custom-llm y no tiene llm_id, crear uno por defecto
     let agentData = { ...validatedData };
+    
+    // Si no se proporciona webhook_url, usar el webhook por defecto de la aplicación
+    if (!agentData.webhook_url) {
+      agentData.webhook_url = `${config.app.url}/api/webhooks/retell`;
+      console.log(`[Agents API] Configurando webhook por defecto para agente: ${agentData.webhook_url}`);
+    }
     
     if (
       (validatedData.response_engine.type === 'retell-llm' || 

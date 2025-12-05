@@ -50,7 +50,6 @@ import { ImportPhoneNumberData } from '@/lib/retell';
  * }
  */
 export async function POST(request: NextRequest) {
-  let phoneNumber: string | undefined;
   try {
     // Obtener usuario autenticado
     const user = await SessionManager.requireAuth();
@@ -63,7 +62,6 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    phoneNumber = body.phone_number;
     const {
       // Tipo de operación
       operation_type,
@@ -262,10 +260,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        // Incluir todos los campos de la respuesta de Retell primero
-        ...retellPhone,
-        // Campos adicionales calculados
+        phone_number: retellPhone.phone_number,
+        phone_number_pretty: retellPhone.phone_number_pretty,
+        phone_number_type: retellPhone.phone_number_type,
+        inbound_agent_id: retellPhone.inbound_agent_id,
+        outbound_agent_id: retellPhone.outbound_agent_id,
+        nickname: retellPhone.nickname,
         created_at: new Date().toISOString(),
+        // Incluir otros campos de la respuesta de Retell
+        ...retellPhone
       },
       localPhone: localPhone
     }, { status: 201 });
@@ -298,7 +301,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { 
           success: false, 
-          error: `El número ${phoneNumber || 'desconocido'} ya está registrado en Retell` 
+          error: `El número ${body.phone_number} ya está registrado en Retell` 
         },
         { status: 409 }
       );

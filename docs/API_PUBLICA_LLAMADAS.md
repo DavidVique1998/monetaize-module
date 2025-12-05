@@ -438,13 +438,68 @@ console.log('Llamada terminada:', callData.transcript);
 
 ---
 
+## Registro en Call History
+
+**✅ Sí, las llamadas creadas a través de esta API se registran automáticamente en el Call History.**
+
+### Configuración Automática del Webhook
+
+**Todos los agentes creados desde esta aplicación tienen configurado automáticamente el webhook URL** que apunta a:
+
+```
+https://tu-dominio.com/api/webhooks/retell
+```
+
+Esto significa que **no necesitas configurar manualmente el webhook** cuando creas un agente desde la aplicación. El sistema lo hace automáticamente para asegurar que todas las llamadas se registren en el Call History.
+
+### ¿Cómo funciona?
+
+1. **Al crear la llamada**: Se crea la llamada en Retell AI, pero aún no se guarda en la base de datos local.
+
+2. **Cuando termina la llamada**: Retell AI envía un webhook `call_ended` o `call_analyzed` al endpoint `/api/webhooks/retell` configurado en el agente.
+
+3. **Registro automático**: El webhook llama a `RetellService.saveCallData()`, que:
+   - Obtiene los datos completos de la llamada desde Retell (costo, duración, transcripción, etc.)
+   - Guarda la llamada en la base de datos local
+   - Descuenta el costo de la wallet del usuario
+   - La llamada aparece en el Call History
+
+### Configuración Manual del Webhook (Opcional)
+
+Si necesitas usar un webhook diferente o personalizado, puedes especificarlo al crear el agente:
+
+```json
+{
+  "agent_name": "Mi Agente",
+  "voice_id": "11labs-Emily",
+  "language": "es-ES",
+  "response_engine": {
+    "type": "retell-llm",
+    "llm_id": "tu_llm_id"
+  },
+  "webhook_url": "https://tu-webhook-personalizado.com/endpoint"
+}
+```
+
+Si no proporcionas `webhook_url`, se usará automáticamente el webhook por defecto de la aplicación.
+
+### Nota Importante
+
+- **Agentes creados desde la app**: Tienen el webhook configurado automáticamente ✅
+- **Agentes importados o creados externamente**: Pueden no tener el webhook configurado. En este caso, las llamadas se crearán en Retell pero **NO se registrarán** en el Call History local.
+- El costo **SÍ se descontará** de la wallet cuando Retell procese el webhook (si está configurado).
+- Puedes consultar la llamada directamente desde Retell usando `GET /api/public/calls/{callId}`, pero no aparecerá en el historial de la aplicación si no tiene webhook configurado.
+
+---
+
 ## Límites y Consideraciones
 
 - Las llamadas se facturan según el uso de Retell AI
-- El costo se descuenta automáticamente de la wallet del usuario
+- El costo se descuenta automáticamente de la wallet del usuario cuando el webhook procesa la llamada terminada
 - Solo puedes crear llamadas con agentes que pertenecen a tu cuenta
 - Solo puedes consultar llamadas que pertenecen a tu cuenta
 - Los tokens permanentes no expiran, pero se pueden regenerar desde el perfil
+- **Importante**: Asegúrate de que tus agentes tengan el webhook configurado para que las llamadas se registren en el Call History
 
 ---
 

@@ -5,6 +5,7 @@
 
 import { PrismaClient } from '@prisma/client';
 import { RetellService, RetellAgent, ImportedPhoneNumber } from './retell';
+import { config } from './config';
 
 const prisma = new PrismaClient();
 
@@ -93,13 +94,29 @@ export class RetellSyncService {
   }
 
   /**
+   * Obtener la URL del webhook por defecto para agentes
+   * Usa la URL base de la aplicación configurada en NEXT_PUBLIC_APP_URL
+   */
+  static getDefaultWebhookUrl(): string {
+    const baseUrl = config.app.url || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    return `${baseUrl}/api/webhooks/retell`;
+  }
+
+  /**
    * Crear agente en Retell y vincularlo con el usuario en la base de datos local
+   * Automáticamente configura el webhook_url si no se proporciona uno
    */
   static async createAgentForUser(
     userId: string,
     agentData: any
   ): Promise<{ retellAgent: RetellAgent; localAgent: any }> {
     try {
+      // Si no se proporciona webhook_url, usar el webhook por defecto de la aplicación
+      if (!agentData.webhook_url) {
+        agentData.webhook_url = this.getDefaultWebhookUrl();
+        console.log(`[RetellSyncService] Configurando webhook por defecto para agente: ${agentData.webhook_url}`);
+      }
+
       // Crear agente en Retell
       const retellAgent = await RetellService.createAdvancedAgent(agentData);
 

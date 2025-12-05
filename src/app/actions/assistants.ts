@@ -78,6 +78,10 @@ export async function createBlankAssistant(): Promise<CreateAssistantResult> {
       };
     }
 
+    // Get default webhook URL from config
+    const { config } = await import('@/lib/config');
+    const webhookUrl = `${config.app.url}/api/webhooks/retell`;
+
     // Create a minimal agent with default configuration according to Retell AI documentation
     const agentData: Retell.Agent.AgentCreateParams = {
       agent_name: 'New Blank Assistant',
@@ -87,6 +91,7 @@ export async function createBlankAssistant(): Promise<CreateAssistantResult> {
         type: 'retell-llm',
         llm_id: llmId,
       },
+      webhook_url: webhookUrl, // Configurar webhook por defecto para registrar llamadas
     };
 
     // Create the agent using RetellSyncService which links it to the user in the database
