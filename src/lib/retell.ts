@@ -473,10 +473,11 @@ export class RetellService {
       // Guardar en la base de datos
       const { CallService } = await import('./call-service');
       
-      // Verificar si ya existe
-      const existingCall = await CallService.getCallByRetellId(callId);
+      // Verificar si ya existe ANTES de guardar (para validar doble cargo)
+      const existingCallBeforeSave = await CallService.getCallByRetellId(callId);
+      const wasAlreadyCharged = existingCallBeforeSave && existingCallBeforeSave.cost !== null && Number(existingCallBeforeSave.cost) > 0;
       
-      if (existingCall) {
+      if (existingCallBeforeSave) {
         // Actualizar registro existente con todos los datos finales
         await CallService.updateCall(callId, {
           status,
@@ -484,8 +485,8 @@ export class RetellService {
           totalDurationSeconds,
           startTime: callData.start_timestamp ? new Date(callData.start_timestamp) : undefined,
           endTime: callData.end_timestamp ? new Date(callData.end_timestamp) : undefined,
-          recordingUrl: callData.recording_url || existingCall.recordingUrl,
-          transcript: callData.transcript || existingCall.transcript,
+          recordingUrl: callData.recording_url || existingCallBeforeSave.recordingUrl,
+          transcript: callData.transcript || existingCallBeforeSave.transcript,
           // Guardar costo ya con margen en centavos
           cost: finalCostCents || undefined,
           tokensUsed,
@@ -516,28 +517,71 @@ export class RetellService {
         });
       }
 
-      // Descontar de la wallet usando el costo con margen, solo la primera vez que se registra la llamada
-      try {
-        if (userId && finalCostCents > 0 && !existingCall) {
-          const { getOrCreateWallet, consumeCredits } = await import('./wallet');
-          const wallet = await getOrCreateWallet(userId);
-          // Convertir los centavos finales a dólares solo para la API interna de wallet
-          const finalCostUsdForWallet = finalCostCents / 100;
-          await consumeCredits({
-            walletId: wallet.id,
-            // consumeCredits trabaja en dólares, internamente convierte a centavos
-            amount: finalCostUsdForWallet,
-            metricType: 'call',
-            metricValue: duration,
-            description: `Llamada Retell ${callId}`,
-            conversationId: callId,
-          });
-        }
-      } catch (walletError) {
-        console.error('[RetellService] Error descontando créditos de la wallet para la llamada:', callId, walletError);
-      }
+      // Cargar a la wallet si hay costo y no se ha cargado antes
+      // Esto es necesario para llamadas web que no tienen webhook o cuando se llama directamente
+      // También funciona como fallback si el webhook no llega
+      if (finalCostCents > 0 && !wasAlreadyCharged) {
+        try {
+          // Obtener userId desde el agente si no se proporcionó
+          let finalUserId = userId;
+          if (!finalUserId && callData.agent_id) {
+            const { PrismaClient } = await import('@prisma/client');
+            const prisma = new PrismaClient();
+            try {
+              const agent = await prisma.agent.findFirst({
+                where: {
+                  retellAgentId: callData.agent_id,
+                },
+                select: {
+                  userId: true,
+                },
+              });
+              if (agent?.userId) {
+                finalUserId = agent.userId;
+                console.log(`[RetellService] userId obtenido desde agente ${callData.agent_id}: ${finalUserId}`);
+              }
+            } finally {
+              await prisma.$disconnect();
+            }
+          }
 
-      console.log(`[RetellService] Call data saved successfully for ${callId}`);
+          if (finalUserId) {
+            const { getOrCreateWallet, consumeCredits } = await import('./wallet');
+            const wallet = await getOrCreateWallet(finalUserId);
+
+            // Extraer duración para la métrica
+            let callDuration: number | undefined;
+            if (callData.start_timestamp && callData.end_timestamp) {
+              callDuration = Math.floor((callData.end_timestamp - callData.start_timestamp) / 1000);
+            } else if (totalDurationSeconds) {
+              callDuration = totalDurationSeconds;
+            } else if (duration) {
+              callDuration = duration;
+            }
+
+            // Cargar a la wallet (amount ya está en centavos)
+            const chargeResult = await consumeCredits({
+              walletId: wallet.id,
+              amount: finalCostCents, // Ya está en centavos
+              metricType: 'call',
+              metricValue: callDuration,
+              description: `Llamada ${callId}`,
+              conversationId: callId,
+            });
+
+            if (chargeResult.success) {
+              console.log(`[RetellService] Cargo exitoso a wallet ${wallet.id}: ${finalCostCents} centavos ($${(finalCostCents / 100).toFixed(2)})`);
+            } else {
+              console.error(`[RetellService] Error cargando a wallet: ${chargeResult.error}`);
+            }
+          } else {
+            console.warn(`[RetellService] No se pudo obtener userId para cargar la llamada ${callId} a la wallet`);
+          }
+        } catch (walletError: any) {
+          console.error(`[RetellService] Error procesando cargo a wallet para call ${callId}:`, walletError);
+          // Continuar sin fallar, solo loguear el error
+        }
+      }
     } catch (error: any) {
       console.error('[RetellService] Error saving call data:', error);
       throw error;
@@ -630,7 +674,6 @@ export class RetellService {
       const llm = await retellClient.llm.retrieve(llmId);
       return llm;
     } catch (error) {
-      console.error('Error getting Retell LLM:', error);
       throw new Error('Failed to get Retell LLM');
     }
   }
@@ -640,9 +683,6 @@ export class RetellService {
    */
   static async publishAgentDirect(agentId: string): Promise<void> {
     try {
-      console.log('RetellService: Publishing agent directly:', agentId);
-      console.log('RetellService: API Key configured:', !!config.retell.apiKey);
-      
       if (!config.retell.apiKey) {
         throw new Error('Retell API key not configured');
       }
@@ -659,19 +699,11 @@ export class RetellService {
         },
       });
 
-      console.log('RetellService: Publish response status:', response.status);
-      console.log('RetellService: Publish response headers:', Object.fromEntries(response.headers.entries()));
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('RetellService: Publish error response:', errorText);
         throw new Error(`HTTP ${response.status}: ${errorText || 'Failed to publish agent'}`);
       }
-
-      // El endpoint retorna 200 sin contenido, esto es normal según la documentación
-      console.log('RetellService: Agent published successfully (status 200)');
     } catch (error: any) {
-      console.error('RetellService: Error publishing agent:', error);
       throw new Error(`Failed to publish agent: ${error.message || 'Unknown error'}`);
     }
   }

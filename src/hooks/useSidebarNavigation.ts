@@ -32,18 +32,18 @@ export function useSidebarNavigation() {
     // Primera sección
     // { id: 'inbox', label: t('inbox'), href: '/inbox', iconName: 'inbox' },
     // { id: 'call-center', label: t('callCenter'), href: '/call-center', iconName: 'phone' },
-    { id: 'contacts', label: t('contacts'), href: '/contacts', iconName: 'users' },
+    // { id: 'contacts', label: t('contacts'), href: '/contacts', iconName: 'users' },
     
     // Segunda sección
-    { id: 'knowledge', label: t('knowledge'), href: '/knowledge', iconName: 'book-open' },
     { id: 'assistants', label: t('assistants'), href: '/assistants', iconName: 'user-plus' },
+    { id: 'knowledge', label: t('knowledge'), href: '/knowledge', iconName: 'book-open' },
     { id: 'phone-numbers', label: t('phoneNumbers'), href: '/phone-numbers', iconName: 'smartphone' },
     { id: 'call-history', label: t('callHistory'), href: '/call-history', iconName: 'phone' },
     // { id: 'active-tags', label: 'Active Tags', href: '/active-tags', iconName: 'tag' },
     // { id: 'widgets', label: 'Widgets', href: '/widgets', iconName: 'grid-3x3' },
     // Tercera sección
     { id: 'wallet', label: t('wallet'), href: '/wallet', iconName: 'wallet' },
-    { id: 'settings', label: t('settings'), href: '/settings', iconName: 'settings' },
+    // { id: 'settings', label: t('settings'), href: '/settings', iconName: 'settings' },
     { id: 'help', label: t('help'), href: '/help', iconName: 'help-circle' },
   ];
 

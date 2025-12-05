@@ -1164,13 +1164,51 @@ export function AgentConfigSidebar({
               <label className="block text-xs font-medium text-gray-700 mb-1">
                 Webhook URL
               </label>
-              <input
-                type="url"
-                value={getValue('webhook_url', '')}
-                onChange={(e) => onSettingsChange({ webhook_url: e.target.value })}
-                placeholder="https://example.com/webhook"
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
+              {(() => {
+                const currentWebhookUrl = getValue('webhook_url', '');
+                const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+                const defaultWebhookUrl = `${baseUrl}/api/webhooks/retell`;
+                const isUsingDefault = !currentWebhookUrl || currentWebhookUrl === defaultWebhookUrl;
+                const displayUrl = isUsingDefault ? defaultWebhookUrl : currentWebhookUrl;
+                
+                return (
+                  <>
+                    <div className="relative">
+                      <input
+                        type="url"
+                        value={displayUrl}
+                        onChange={(e) => onSettingsChange({ webhook_url: e.target.value })}
+                        placeholder={defaultWebhookUrl}
+                        className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                          isUsingDefault 
+                            ? 'border-gray-300 bg-gray-50 text-gray-600' 
+                            : 'border-gray-300 bg-white'
+                        }`}
+                      />
+                      {isUsingDefault && (
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                            Por defecto
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {isUsingDefault 
+                        ? 'Usando el webhook por defecto de la aplicación. Las llamadas se registrarán automáticamente en el Call History.'
+                        : 'Webhook personalizado configurado. Puedes dejarlo vacío para usar el webhook por defecto.'}
+                    </p>
+                    {!isUsingDefault && (
+                      <button
+                        onClick={() => onSettingsChange({ webhook_url: '' })}
+                        className="mt-2 text-xs text-purple-600 hover:text-purple-700 underline"
+                      >
+                        Restaurar webhook por defecto
+                      </button>
+                    )}
+                  </>
+                );
+              })()}
             </div>
 
             <div>
@@ -1185,6 +1223,9 @@ export function AgentConfigSidebar({
                 onChange={(e) => onSettingsChange({ webhook_timeout_ms: parseInt(e.target.value) })}
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Tiempo máximo de espera para la respuesta del webhook (1000-30000 ms)
+              </p>
             </div>
           </div>
         </ConfigSection>

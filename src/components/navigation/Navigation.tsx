@@ -196,7 +196,7 @@ export function Navigation({ isCollapsed = false }: { isCollapsed?: boolean }) {
     <nav className="space-y-6">
       {/* Primera sección */}
       <NavigationGroup>
-        {navigationItems.slice(0, 3).map((item) => (
+        {navigationItems.map((item) => (
           <div key={item.id}>
             <NavigationItem
               icon={iconMap[item.iconName]}
@@ -208,57 +208,11 @@ export function Navigation({ isCollapsed = false }: { isCollapsed?: boolean }) {
               onDropdownToggle={() => item.hasDropdown && toggleDropdown(item.id)}
               isCollapsed={isCollapsed}
             />
-            
-            {/* Dropdown solo para Numbers */}
-            {item.hasDropdown && item.id === 'phone-numbers' && openDropdowns[item.id] && !isCollapsed && (
-              <div className="mt-2 ml-4 space-y-1 animate-in slide-in-from-top-2 duration-200">
-                {item.subItems?.map((subItem) => (
-                  <DropdownItem
-                    key={subItem.id}
-                    icon={iconMap[subItem.iconName]}
-                    label={subItem.label}
-                    isActive={activeItem === subItem.id}
-                    onClick={() => handleDropdownItemClick(subItem)}
-                  />
-                ))}
-              </div>
-            )}
           </div>
         ))}
       </NavigationGroup>
 
-      {/* Segunda sección */}
-      <NavigationGroup>
-        {navigationItems.slice(3, 8).map((item) => (
-          <div key={item.id}>
-            <NavigationItem
-              icon={iconMap[item.iconName]}
-              label={item.label}
-              isActive={activeItem === item.id}
-              hasDropdown={item.hasDropdown}
-              isDropdownOpen={openDropdowns[item.id]}
-              onClick={() => !item.hasDropdown && handleNavigationClick(item)}
-              onDropdownToggle={() => item.hasDropdown && toggleDropdown(item.id)}
-              isCollapsed={isCollapsed}
-            />
-            
-            {/* Dropdown solo para Numbers */}
-            {item.hasDropdown && item.id === 'phone-numbers' && openDropdowns[item.id] && !isCollapsed && (
-              <div className="mt-2 ml-4 space-y-1 animate-in slide-in-from-top-2 duration-200">
-                {item.subItems?.map((subItem) => (
-                  <DropdownItem
-                    key={subItem.id}
-                    icon={iconMap[subItem.iconName]}
-                    label={subItem.label}
-                    isActive={activeItem === subItem.id}
-                    onClick={() => handleDropdownItemClick(subItem)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </NavigationGroup>
+     
 
       {/* Tercera sección */}
       <NavigationGroup>

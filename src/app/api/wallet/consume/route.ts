@@ -29,17 +29,15 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = consumeSchema.parse(body);
 
-    // El endpoint recibe amount en centavos, convertir a dólares para la lógica interna
-    const amountInDollars = validatedData.amount / 100;
-
+    // El endpoint recibe amount en centavos, pasarlo directamente sin conversión
     // Obtener wallet del usuario
     const wallet = await getOrCreateWallet(user.id);
 
-    // Consumir créditos
+    // Consumir créditos (amount ya viene en centavos)
     const result = await consumeCredits({
       walletId: wallet.id,
       ...validatedData,
-      amount: amountInDollars,
+      amount: validatedData.amount, // Ya está en centavos
     });
 
     if (!result.success) {

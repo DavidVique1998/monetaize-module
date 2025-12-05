@@ -6,18 +6,20 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { HeaderBar } from '@/components/dashboard/HeaderBar';
 import { CreateAssistantModal } from '@/components/assistants/CreateAssistantModal';
 import { useAgents, RetellAgent } from '@/hooks/useAgents';
-import { Search, Bot, FolderPlus, MoreVertical, Trash2, Star, Archive } from 'lucide-react';
+import { Search, Bot, FolderPlus, MoreVertical, Trash2, Copy, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-
-type FilterTab = 'all' | 'favorites' | 'imported' | 'archived';
 
 export default function AssistantsPage() {
   const router = useRouter();
   const t = useTranslations('assistants');
   const { agents, loading, error, loadAgents } = useAgents();
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCloneModal, setShowCloneModal] = useState(false);
+  const [cloneAgentId, setCloneAgentId] = useState<string | null>(null);
+  const [cloneAgentName, setCloneAgentName] = useState('');
+  const [cloning, setCloning] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   useEffect(() => {
     loadAgents();
@@ -27,21 +29,10 @@ export default function AssistantsPage() {
   const filteredAgents = agents
     .filter((agent) => {
       const query = searchQuery.toLowerCase();
-      const matchesSearch = 
+      return (
         agent.agent_name?.toLowerCase().includes(query) ||
-        agent.agent_id?.toLowerCase().includes(query);
-      
-      // TODO: Implement proper filtering for favorites, imported, archived
-      switch (activeTab) {
-        case 'favorites':
-          return matchesSearch; // Placeholder
-        case 'imported':
-          return matchesSearch; // Placeholder
-        case 'archived':
-          return matchesSearch; // Placeholder
-        default:
-          return matchesSearch;
-      }
+        agent.agent_id?.toLowerCase().includes(query)
+      );
     })
     .filter((agent, index, self) => 
       // Remove duplicates based on agent_id
@@ -52,11 +43,60 @@ export default function AssistantsPage() {
     if (!confirm(t('deleteConfirm'))) return;
     
     try {
-      // TODO: Implement API endpoint for deletion
-      console.log('Delete agent:', agentId);
-      loadAgents();
+      const response = await fetch(`/api/agents/${agentId}`, {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        loadAgents();
+      } else {
+        const result = await response.json();
+        alert(result.error || 'Error al eliminar el agente');
+      }
     } catch (err) {
       console.error('Error deleting agent:', err);
+      alert('Error al eliminar el agente');
+    }
+  };
+
+  const handleClone = (agentId: string) => {
+    setCloneAgentId(agentId);
+    setCloneAgentName('');
+    setShowCloneModal(true);
+    setOpenMenuId(null);
+  };
+
+  const handleCloneSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!cloneAgentId || !cloneAgentName.trim()) return;
+
+    setCloning(true);
+    try {
+      const response = await fetch(`/api/agents/${cloneAgentId}/clone`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: cloneAgentName.trim(),
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setShowCloneModal(false);
+        setCloneAgentId(null);
+        setCloneAgentName('');
+        loadAgents();
+      } else {
+        alert(result.error || 'Error al clonar el agente');
+      }
+    } catch (err) {
+      console.error('Error cloning agent:', err);
+      alert('Error al clonar el agente');
+    } finally {
+      setCloning(false);
     }
   };
 
@@ -148,49 +188,6 @@ export default function AssistantsPage() {
             </div>
           </div>
 
-          {/* Filter Tabs */}
-          <div className="flex space-x-1 border-b border-gray-200">
-            <button
-              onClick={() => setActiveTab('all')}
-              className={`px-4 py-2 text-sm font-medium transition-colors cursor-pointer ${
-                activeTab === 'all'
-                  ? 'text-purple-600 border-b-2 border-purple-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              {t('all')} ({agents.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('favorites')}
-              className={`px-4 py-2 text-sm font-medium transition-colors cursor-pointer ${
-                activeTab === 'favorites'
-                  ? 'text-purple-600 border-b-2 border-purple-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              {t('favorites')} (0)
-            </button>
-            <button
-              onClick={() => setActiveTab('imported')}
-              className={`px-4 py-2 text-sm font-medium transition-colors cursor-pointer ${
-                activeTab === 'imported'
-                  ? 'text-purple-600 border-b-2 border-purple-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              {t('imported')} (0)
-            </button>
-            <button
-              onClick={() => setActiveTab('archived')}
-              className={`px-4 py-2 text-sm font-medium transition-colors cursor-pointer ${
-                activeTab === 'archived'
-                  ? 'text-purple-600 border-b-2 border-purple-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              {t('archived')} (0)
-            </button>
-          </div>
 
           {/* Table */}
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
@@ -286,24 +283,53 @@ export default function AssistantsPage() {
                         <p className="text-sm text-gray-500 truncate max-w-[120px]">
                           {agent.agent_id.substring(0, 12)}...
                         </p>
-                        <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                            }}
-                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
-                          >
-                            <MoreVertical className="w-4 h-4 text-gray-400" />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(agent.agent_id);
-                            }}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                        <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity relative">
+                          <div className="relative">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenMenuId(openMenuId === agent.agent_id ? null : agent.agent_id);
+                              }}
+                              className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                            >
+                              <MoreVertical className="w-4 h-4 text-gray-400" />
+                            </button>
+                            
+                            {openMenuId === agent.agent_id && (
+                              <>
+                                <div 
+                                  className="fixed inset-0 z-10" 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenMenuId(null);
+                                  }}
+                                />
+                                <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleClone(agent.agent_id);
+                                    }}
+                                    className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-2 cursor-pointer"
+                                  >
+                                    <Copy className="w-4 h-4" />
+                                    <span>Copiar</span>
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDelete(agent.agent_id);
+                                      setOpenMenuId(null);
+                                    }}
+                                    className="w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2 cursor-pointer"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                    <span>Eliminar</span>
+                                  </button>
+                                </div>
+                              </>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -339,6 +365,69 @@ export default function AssistantsPage() {
           onSelectOption={handleSelectAssistantOption}
           onAgentCreated={loadAgents}
         />
+
+        {/* Clone Agent Modal */}
+        {showCloneModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Copiar Agente</h2>
+                <button
+                  onClick={() => {
+                    setShowCloneModal(false);
+                    setCloneAgentId(null);
+                    setCloneAgentName('');
+                  }}
+                  className="p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+              
+              <form onSubmit={handleCloneSubmit} className="p-6">
+                <div className="mb-4">
+                  <label htmlFor="clone-name" className="block text-sm font-medium text-gray-700 mb-2">
+                    Nombre del nuevo agente
+                  </label>
+                  <input
+                    type="text"
+                    id="clone-name"
+                    value={cloneAgentName}
+                    onChange={(e) => setCloneAgentName(e.target.value)}
+                    placeholder="Ej: Mi Agente - Copia"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    required
+                    autoFocus
+                  />
+                  <p className="mt-2 text-xs text-gray-500">
+                    El agente será clonado con todas sus configuraciones, pero con un nuevo nombre.
+                  </p>
+                </div>
+                
+                <div className="flex items-center justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCloneModal(false);
+                      setCloneAgentId(null);
+                      setCloneAgentName('');
+                    }}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={cloning || !cloneAgentName.trim()}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    {cloning ? 'Copiando...' : 'Copiar Agente'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

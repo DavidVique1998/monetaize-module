@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 
 export interface ConsumeCreditsParams {
   walletId: string;
-  amount: number; // Monto en dólares a consumir (externo). Internamente se guarda en centavos.
+  amount: number; // Monto en CENTAVOS a consumir (interno y externo siempre en centavos)
   metricType?: string; // Tipo de métrica: messages, tokens, conversations, minutes, etc.
   metricValue?: number; // Valor de la métrica consumida
   description?: string;
@@ -59,13 +59,14 @@ export async function getOrCreateWallet(userId: string) {
 
 /**
  * Obtener balance de la wallet
+ * Retorna balance en dólares solo para presentación en el frontend
  */
 export async function getWalletBalance(userId: string): Promise<WalletBalance> {
   const wallet = await getOrCreateWallet(userId);
   
   return {
     walletId: wallet.id,
-    // Internamente trabajamos en centavos, hacia fuera exponemos dólares
+    // Convertir centavos a dólares solo para presentación
     balance: Number(wallet.balance) / 100,
     currency: wallet.currency,
     userId: wallet.userId,
@@ -74,11 +75,12 @@ export async function getWalletBalance(userId: string): Promise<WalletBalance> {
 
 /**
  * Consumir créditos de la wallet
- * Retorna true si el consumo fue exitoso, false si no hay suficiente saldo
+ * amount debe venir en CENTAVOS (no convertir)
+ * Retorna newBalance en dólares solo para presentación
  */
 export async function consumeCredits(params: ConsumeCreditsParams): Promise<{
   success: boolean;
-  newBalance: number;
+  newBalance: number; // En dólares solo para presentación
   transactionId?: string;
   error?: string;
 }> {
@@ -104,8 +106,8 @@ export async function consumeCredits(params: ConsumeCreditsParams): Promise<{
         throw new Error('Wallet no encontrada');
       }
 
-      // Trabajar en centavos internamente
-      const amountInCents = Math.round(amount * 100);
+      // amount ya viene en centavos, no convertir
+      const amountInCents = Math.round(amount);
       const currentBalance = Number(wallet.balance); // centavos
       const newBalance = currentBalance - amountInCents;
 
@@ -145,7 +147,7 @@ export async function consumeCredits(params: ConsumeCreditsParams): Promise<{
 
       if (autoRecharge?.enabled && newBalance <= Number(autoRecharge.threshold)) {
         // Disparar recarga automática (se manejará en otro servicio)
-        console.log(`[Wallet] Balance bajo umbral. Balance: $${newBalance}, Umbral: $${autoRecharge.threshold}`);
+        console.log(`[Wallet] Balance bajo umbral. Balance: ${newBalance} centavos ($${(newBalance / 100).toFixed(2)}), Umbral: ${autoRecharge.threshold} centavos ($${(Number(autoRecharge.threshold) / 100).toFixed(2)})`);
         // La recarga automática se manejará en el servicio de Stripe
       }
 
@@ -170,15 +172,17 @@ export async function consumeCredits(params: ConsumeCreditsParams): Promise<{
 
 /**
  * Agregar créditos a la wallet (recarga)
+ * amount debe venir en CENTAVOS (no convertir)
+ * Retorna newBalance en dólares solo para presentación
  */
 export async function addCredits(
   walletId: string,
-  amount: number,
+  amount: number, // En CENTAVOS
   stripePaymentId?: string,
   paymentLinkId?: string
 ): Promise<{
   success: boolean;
-  newBalance: number;
+  newBalance: number; // En dólares solo para presentación
   transactionId?: string;
   error?: string;
 }> {
@@ -200,8 +204,8 @@ export async function addCredits(
         throw new Error('Wallet no encontrada');
       }
 
-      // Trabajar en centavos internamente
-      const amountInCents = Math.round(amount * 100);
+      // amount ya viene en centavos, no convertir
+      const amountInCents = Math.round(amount);
       const currentBalance = Number(wallet.balance); // centavos
       const newBalance = currentBalance + amountInCents;
 
@@ -216,7 +220,7 @@ export async function addCredits(
           balanceAfter: newBalance,
           stripePaymentId,
           paymentLinkId,
-          description: `Recarga de $${amount.toFixed(3)}`,
+          description: `Recarga de ${amountInCents} centavos ($${(amountInCents / 100).toFixed(2)})`,
         },
       });
 
@@ -228,7 +232,7 @@ export async function addCredits(
         },
       });
 
-      console.log(`[Wallet] Balance actualizado: $${(currentBalance / 100).toFixed(3)} → $${(newBalance / 100).toFixed(3)}`);
+      console.log(`[Wallet] Balance actualizado: ${currentBalance} centavos ($${(currentBalance / 100).toFixed(2)}) → ${newBalance} centavos ($${(newBalance / 100).toFixed(2)})`);
 
       // Si hay un payment link, actualizar su estado
       if (paymentLinkId) {
@@ -314,15 +318,15 @@ export async function getTransactionHistory(
 
 /**
  * Verificar si hay suficiente saldo
+ * amount debe venir en CENTAVOS
  */
 export async function hasSufficientBalance(
   userId: string,
-  amount: number
+  amount: number // En CENTAVOS
 ): Promise<boolean> {
   const wallet = await getOrCreateWallet(userId);
-  // amount viene en dólares, balance está en centavos
-  const currentBalanceCents = Number(wallet.balance);
-  const amountInCents = Math.round(amount * 100);
+  const currentBalanceCents = Number(wallet.balance); // centavos
+  const amountInCents = Math.round(amount); // amount ya viene en centavos
   return currentBalanceCents >= amountInCents;
 }
 
@@ -371,8 +375,8 @@ export async function getOrCreateBatchConfig(
       data: {
         walletId,
         enabled: true,
-        // Guardar umbrales en centavos
-        maxAmount: (defaults?.maxAmount || 10) * 100, // $10 por defecto
+        // Guardar umbrales en centavos (si viene en dólares, convertir)
+        maxAmount: defaults?.maxAmount ? (defaults.maxAmount >= 100 ? defaults.maxAmount : defaults.maxAmount * 100) : 1000, // $10 = 1000 centavos por defecto
         maxTransactions: defaults?.maxTransactions || 100,
         maxTimeSeconds: defaults?.maxTimeSeconds || 3600, // 5 minutos
       },
@@ -446,8 +450,8 @@ export async function addPendingConsumption(
       const pending = await tx.pendingConsumption.create({
         data: {
           walletId,
-          // Guardar en centavos
-          amount: Math.round(amount * 100),
+          // amount ya viene en centavos
+          amount: Math.round(amount),
           metricType,
           metricValue: metricValue ? metricValue : null,
           description,
@@ -609,13 +613,13 @@ export async function processBatch(walletId: string): Promise<{
       });
 
       if (autoRecharge?.enabled && newBalance <= Number(autoRecharge.threshold)) {
-        console.log(`[Wallet] Balance bajo umbral. Balance: $${newBalance}, Umbral: ${autoRecharge.threshold}`);
+        console.log(`[Wallet] Balance bajo umbral. Balance: ${newBalance} centavos ($${(newBalance / 100).toFixed(2)}), Umbral: ${autoRecharge.threshold} centavos ($${(Number(autoRecharge.threshold) / 100).toFixed(2)})`);
       }
 
       return {
         success: true,
         processedCount: pendingConsumptions.length,
-        // Exponer total en dólares
+        // Exponer total en dólares solo para presentación
         totalAmount: totalAmountCents / 100,
         transactionId: transaction.id,
       };

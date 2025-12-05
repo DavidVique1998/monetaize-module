@@ -312,8 +312,10 @@ export async function chargePaymentMethod(
     }
 
     // Crear Payment Intent para cobrar
+    // amount viene en dólares, convertir a centavos para Stripe
+    const amountInCents = Math.round(amount * 100);
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convertir a centavos
+      amount: amountInCents, // Stripe requiere centavos
       currency: currency.toLowerCase(),
       customer: customerId,
       payment_method: paymentMethodId,
@@ -328,10 +330,11 @@ export async function chargePaymentMethod(
     });
 
     // Si el pago fue exitoso, agregar créditos a la wallet
+    // paymentIntent.amount ya está en centavos
     if (paymentIntent.status === 'succeeded') {
       const result = await addCredits(
         user.wallet.id,
-        amount,
+        amountInCents, // Pasar en centavos
         paymentIntent.id
       );
 
@@ -382,19 +385,20 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
 
   const walletId = session.metadata?.walletId;
   const userId = session.metadata?.userId;
-  const amount = session.amount_total ? session.amount_total / 100 : 0; // Convertir de centavos a dólares
+  const amountInCents = session.amount_total || 0; // Stripe ya viene en centavos
 
-  if (!walletId || amount <= 0) {
+  if (!walletId || amountInCents <= 0) {
     console.error('[Stripe] Datos incompletos en checkout session:', {
       walletId,
       userId,
-      amount,
+      amountInCents,
+      amountInDollars: amountInCents / 100,
       sessionId: session.id,
     });
     return;
   }
 
-  console.log(`[Stripe] Procesando recarga: $${amount} para wallet ${walletId}`);
+  console.log(`[Stripe] Procesando recarga: ${amountInCents} centavos ($${(amountInCents / 100).toFixed(2)}) para wallet ${walletId}`);
 
   // Buscar payment link por payment link ID, metadata o por wallet
   let paymentLink = null;
@@ -430,17 +434,17 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     });
   }
 
-  // Agregar créditos a la wallet
+  // Agregar créditos a la wallet (amountInCents ya está en centavos)
   console.log(`[Stripe] Agregando créditos a wallet ${walletId}...`);
   const result = await addCredits(
     walletId,
-    amount,
+    amountInCents, // Pasar directamente en centavos
     session.payment_intent as string,
     paymentLink?.id
   );
 
   if (result.success) {
-    console.log(`[Stripe] ✅ Recarga completada exitosamente: $${amount} para wallet ${walletId}`);
+    console.log(`[Stripe] ✅ Recarga completada exitosamente: ${amountInCents} centavos ($${(amountInCents / 100).toFixed(2)}) para wallet ${walletId}`);
     console.log(`[Stripe] Nuevo balance: $${result.newBalance.toFixed(2)}`);
     console.log(`[Stripe] Transaction ID: ${result.transactionId}`);
   } else {
@@ -499,20 +503,20 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     return;
   }
 
-  const amount = paymentIntent.amount / 100; // Convertir de centavos a dólares
+  const amountInCents = paymentIntent.amount; // Stripe ya viene en centavos
 
-  console.log(`[Stripe] Procesando payment intent: $${amount} para wallet ${paymentLink.walletId}`);
+  console.log(`[Stripe] Procesando payment intent: ${amountInCents} centavos ($${(amountInCents / 100).toFixed(2)}) para wallet ${paymentLink.walletId}`);
 
-  // Agregar créditos
+  // Agregar créditos (amount ya viene en centavos desde Stripe)
   const result = await addCredits(
     paymentLink.walletId,
-    amount,
+    amountInCents, // Pasar directamente en centavos
     paymentIntent.id,
     paymentLink.id
   );
 
   if (result.success) {
-    console.log(`[Stripe] ✅ Recarga completada exitosamente: $${amount} para wallet ${paymentLink.walletId}`);
+    console.log(`[Stripe] ✅ Recarga completada exitosamente: ${amountInCents} centavos ($${(amountInCents / 100).toFixed(2)}) para wallet ${paymentLink.walletId}`);
     console.log(`[Stripe] Nuevo balance: $${result.newBalance.toFixed(2)}`);
     console.log(`[Stripe] Transaction ID: ${result.transactionId}`);
   } else {

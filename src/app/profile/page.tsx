@@ -339,6 +339,19 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <div className="space-y-4">
+                  {/* Mensaje de advertencia */}
+                  <div className="p-3 bg-yellow-50 rounded border border-yellow-200">
+                    <div className="flex items-start space-x-2">
+                      <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-xs font-semibold text-yellow-900 mb-1">Importante</p>
+                        <p className="text-xs text-yellow-800">
+                          Guarda este token en un lugar seguro. Si generas un nuevo token, el anterior se invalidará y dejará de funcionar.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-700">Tu Token JWT:</p>
@@ -364,51 +377,9 @@ export default function ProfilePage() {
                       )}
                     </button>
                   </div>
+                  
                   <div className="bg-gray-50 rounded border border-gray-200 p-3">
                     <code className="text-xs text-gray-800 break-all block">{jwtToken}</code>
-                  </div>
-                  
-                  {/* Ejemplos de uso */}
-                  <div className="space-y-3">
-                    <div className="p-3 bg-blue-50 rounded border border-blue-200">
-                      <p className="text-xs font-semibold text-blue-900 mb-2">Ejemplo 1: Crear una llamada</p>
-                      <pre className="text-xs bg-white p-2 rounded overflow-x-auto border border-blue-100">
-{`curl -X POST ${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/api/public/calls/create \\
-  -H "Authorization: Bearer ${jwtToken.substring(0, 30)}..." \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "agent_id": "tu_agent_id",
-    "to_number": "+1234567890",
-    "from_number": "+1987654321",
-    "retell_llm_dynamic_variables": {
-      "customer_name": "John Doe"
-    }
-  }'`}
-                      </pre>
-                    </div>
-                    
-                    <div className="p-3 bg-green-50 rounded border border-green-200">
-                      <p className="text-xs font-semibold text-green-900 mb-2">Ejemplo 2: Consultar información de llamada</p>
-                      <pre className="text-xs bg-white p-2 rounded overflow-x-auto border border-green-100">
-{`curl -X GET ${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/api/public/calls/CALL_ID \\
-  -H "Authorization: Bearer ${jwtToken.substring(0, 30)}..."`}
-                      </pre>
-                    </div>
-                    
-                    <div className="p-3 bg-purple-50 rounded border border-purple-200">
-                      <p className="text-xs font-semibold text-purple-900 mb-2">Ejemplo 3: Consumir créditos</p>
-                      <pre className="text-xs bg-white p-2 rounded overflow-x-auto border border-purple-100">
-{`curl -X POST ${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/api/wallet/consume-batch \\
-  -H "Authorization: Bearer ${jwtToken.substring(0, 30)}..." \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "amount": 100,
-    "reason": "Consumo de créditos por llamada",
-    "metricType": "call",
-    "metricValue": 60
-  }'`}
-                      </pre>
-                    </div>
                   </div>
                   
                   <div className="pt-2 border-t border-gray-200">

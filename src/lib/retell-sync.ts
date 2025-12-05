@@ -56,11 +56,11 @@ export class RetellSyncService {
 
   /**
    * Obtener agentes del usuario desde la base de datos local
-   * Si no hay agentes locales, sincronizar desde Retell
+   * Solo obtiene información de Retell para los agentes que están en la BD local
    */
   static async getUserAgents(userId: string): Promise<RetellAgent[]> {
     try {
-      // Obtener agentes locales del usuario
+      // Obtener agentes locales del usuario con sus retellAgentId
       const localAgents = await prisma.agent.findMany({
         where: { userId },
         select: { retellAgentId: true },
@@ -71,7 +71,7 @@ export class RetellSyncService {
         return [];
       }
 
-      // Obtener detalles de Retell para cada agente
+      // Extraer los IDs de Retell de los agentes locales
       const retellAgentIds = localAgents
         .map(a => a.retellAgentId)
         .filter((id): id is string => !!id);
@@ -80,11 +80,20 @@ export class RetellSyncService {
         return [];
       }
 
-      // Obtener todos los agentes de Retell y filtrar por los que pertenecen al usuario
-      const allRetellAgents = await RetellService.getAgents();
-      const userRetellAgents = allRetellAgents.filter(agent =>
-        retellAgentIds.includes(agent.agent_id)
-      );
+      // Obtener información de Retell solo para los agentes locales
+      // Hacemos llamadas individuales para cada agente en lugar de obtener todos
+      const userRetellAgents: RetellAgent[] = [];
+      
+      for (const agentId of retellAgentIds) {
+        try {
+          const agent = await RetellService.getAgent(agentId);
+          userRetellAgents.push(agent);
+        } catch (error) {
+          console.warn(`Error fetching agent ${agentId} from Retell:`, error);
+          // Continuar con los demás agentes aunque uno falle
+          // Esto puede pasar si el agente fue eliminado en Retell pero aún existe en BD local
+        }
+      }
 
       return userRetellAgents;
     } catch (error) {

@@ -47,16 +47,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = consumeSchema.parse(body);
 
-    // El endpoint recibe amount en centavos, convertir a dólares para la lógica interna
-    const amountInDollars = validatedData.amount / 100;
-
+    // El endpoint recibe amount en centavos, pasarlo directamente sin conversión
     // Obtener wallet del usuario desde el token
     const wallet = await getOrCreateWallet(payload.userId);
 
-    // Agregar consumo pendiente (acumulación)
+    // Agregar consumo pendiente (acumulación) - amount ya viene en centavos
     const result = await addPendingConsumption({
       walletId: wallet.id,
-      amount: amountInDollars,
+      amount: validatedData.amount, // Ya está en centavos
       metricType: validatedData.metricType,
       metricValue: validatedData.metricValue,
       description: validatedData.reason,
