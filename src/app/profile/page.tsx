@@ -34,6 +34,7 @@ export default function ProfilePage() {
   const [jwtToken, setJwtToken] = useState<string | null>(null);
   const [generatingToken, setGeneratingToken] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [permanentToken, setPermanentToken] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -127,6 +128,9 @@ export default function ProfilePage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          permanent: permanentToken,
+        }),
       });
 
       const result = await response.json();
@@ -135,7 +139,9 @@ export default function ProfilePage() {
         setJwtToken(result.data.token);
         setMessage({
           type: 'success',
-          text: 'Token JWT generado exitosamente'
+          text: permanentToken 
+            ? 'Token JWT permanente generado exitosamente (no expira)'
+            : 'Token JWT generado exitosamente'
         });
         setTimeout(() => setMessage(null), 3000);
       } else {
@@ -286,7 +292,7 @@ export default function ProfilePage() {
                     Token JWT para API
                   </h2>
                   <p className="text-sm text-gray-500 mt-1">
-                    Genera un token para consumir créditos desde integraciones externas
+                    Genera un token para autenticarte en los endpoints públicos (llamadas y consumo de créditos)
                   </p>
                 </div>
               </div>
@@ -294,9 +300,24 @@ export default function ProfilePage() {
               {!jwtToken ? (
                 <div className="space-y-4">
                   <p className="text-sm text-gray-600">
-                    Genera un token JWT para autenticarte en los endpoints de consumo de créditos.
-                    Este token te permitirá consumir créditos desde aplicaciones externas.
+                    Genera un token JWT para autenticarte en los endpoints públicos de la API.
+                    Este token te permitirá crear llamadas y consumir créditos desde aplicaciones externas.
                   </p>
+                  
+                  {/* Opción de token permanente */}
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="permanent-token"
+                      checked={permanentToken}
+                      onChange={(e) => setPermanentToken(e.target.checked)}
+                      className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 cursor-pointer"
+                    />
+                    <label htmlFor="permanent-token" className="text-sm text-gray-700 cursor-pointer">
+                      Token permanente (no expira) - Recomendado para integraciones
+                    </label>
+                  </div>
+                  
                   <button
                     type="button"
                     onClick={handleGenerateToken}
@@ -319,7 +340,12 @@ export default function ProfilePage() {
               ) : (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-gray-700">Tu Token JWT:</p>
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">Tu Token JWT:</p>
+                      {permanentToken && (
+                        <p className="text-xs text-green-600 mt-1">✓ Token permanente (no expira)</p>
+                      )}
+                    </div>
                     <button
                       type="button"
                       onClick={() => copyToClipboard(jwtToken)}
@@ -341,28 +367,62 @@ export default function ProfilePage() {
                   <div className="bg-gray-50 rounded border border-gray-200 p-3">
                     <code className="text-xs text-gray-800 break-all block">{jwtToken}</code>
                   </div>
-                  <div className="p-3 bg-blue-50 rounded border border-blue-200">
-                    <p className="text-xs font-semibold text-blue-900 mb-2">Ejemplo de uso:</p>
-                    <pre className="text-xs bg-white p-2 rounded overflow-x-auto border border-blue-100">
-{`curl -X POST ${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/api/wallet/consume-token \\
+                  
+                  {/* Ejemplos de uso */}
+                  <div className="space-y-3">
+                    <div className="p-3 bg-blue-50 rounded border border-blue-200">
+                      <p className="text-xs font-semibold text-blue-900 mb-2">Ejemplo 1: Crear una llamada</p>
+                      <pre className="text-xs bg-white p-2 rounded overflow-x-auto border border-blue-100">
+{`curl -X POST ${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/api/public/calls/create \\
   -H "Authorization: Bearer ${jwtToken.substring(0, 30)}..." \\
   -H "Content-Type: application/json" \\
   -d '{
-    "amount": 0.1,
-    "reason": "Consumo de créditos por llamada",
-    "metricType": "ai_call",
-    "metricValue": 1
+    "agent_id": "tu_agent_id",
+    "to_number": "+1234567890",
+    "from_number": "+1987654321",
+    "retell_llm_dynamic_variables": {
+      "customer_name": "John Doe"
+    }
   }'`}
-                    </pre>
+                      </pre>
+                    </div>
+                    
+                    <div className="p-3 bg-green-50 rounded border border-green-200">
+                      <p className="text-xs font-semibold text-green-900 mb-2">Ejemplo 2: Consultar información de llamada</p>
+                      <pre className="text-xs bg-white p-2 rounded overflow-x-auto border border-green-100">
+{`curl -X GET ${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/api/public/calls/CALL_ID \\
+  -H "Authorization: Bearer ${jwtToken.substring(0, 30)}..."`}
+                      </pre>
+                    </div>
+                    
+                    <div className="p-3 bg-purple-50 rounded border border-purple-200">
+                      <p className="text-xs font-semibold text-purple-900 mb-2">Ejemplo 3: Consumir créditos</p>
+                      <pre className="text-xs bg-white p-2 rounded overflow-x-auto border border-purple-100">
+{`curl -X POST ${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/api/wallet/consume-batch \\
+  -H "Authorization: Bearer ${jwtToken.substring(0, 30)}..." \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "amount": 100,
+    "reason": "Consumo de créditos por llamada",
+    "metricType": "call",
+    "metricValue": 60
+  }'`}
+                      </pre>
+                    </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleGenerateToken}
-                    disabled={generatingToken}
-                    className="text-sm text-purple-600 hover:text-purple-700 font-medium"
-                  >
-                    {generatingToken ? 'Generando...' : 'Generar nuevo token'}
-                  </button>
+                  
+                  <div className="pt-2 border-t border-gray-200">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setJwtToken(null);
+                        setPermanentToken(false);
+                      }}
+                      className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+                    >
+                      Generar nuevo token
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
