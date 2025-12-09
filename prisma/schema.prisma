@@ -43,6 +43,7 @@ model User {
 
   // Relations
   agents        Agent[]
+  folders       Folder[]
   phoneNumbers  PhoneNumber[]
   wallet        Wallet?
   calls         Call[]
@@ -53,6 +54,22 @@ model User {
   @@index([ghlCompanyId])
   @@index([role])
   @@index([stripeCustomerId])
+}
+
+// Folder model for organizing agents
+model Folder {
+  id        String   @id @default(uuid())
+  name      String
+  userId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  owner  User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agents Agent[]
+
+  @@index([userId])
+  @@index([name])
 }
 
 // Agent model for AI assistants
@@ -67,6 +84,7 @@ model Agent {
   version   Int      @default(1)
   isActive  Boolean  @default(true)
   userId    String?
+  folderId  String?  // Folder assignment
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -83,12 +101,14 @@ model Agent {
 
   // Relations
   owner           User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  folder          Folder?       @relation(fields: [folderId], references: [id], onDelete: SetNull)
   phoneNumbers    PhoneNumber[] @relation("InboundAgents")
   outboundNumbers PhoneNumber[] @relation("OutboundAgents")
   tags            AgentTag[]
 
   @@index([retellAgentId])
   @@index([userId])
+  @@index([folderId])
 }
 
 // Knowledge Base model for Retell AI knowledge bases

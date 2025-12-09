@@ -621,29 +621,7 @@ export function AgentConfigSidebar({
 
   return (
     <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
-      {/* Tabs */}
-      <div className="flex border-b border-gray-200">
-        <button 
-          onClick={() => onTabChange?.('create')}
-          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-            activeTab === 'create'
-              ? 'text-gray-900 border-b-2 border-purple-600'
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          Create
-        </button>
-        <button 
-          onClick={() => onTabChange?.('simulation')}
-          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-            activeTab === 'simulation'
-              ? 'text-gray-900 border-b-2 border-purple-600'
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          Simulation
-        </button>
-      </div>
+  
 
       {/* Configuration Sections */}
       <div className="divide-y divide-gray-200">
@@ -1174,10 +1152,10 @@ export function AgentConfigSidebar({
                 return (
                   <>
                     <div className="relative">
-                      <input
-                        type="url"
+              <input
+                type="url"
                         value={displayUrl}
-                        onChange={(e) => onSettingsChange({ webhook_url: e.target.value })}
+                onChange={(e) => onSettingsChange({ webhook_url: e.target.value })}
                         placeholder={defaultWebhookUrl}
                         className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                           isUsingDefault 

@@ -15,6 +15,8 @@ export async function GET(
   const agentId = typeof resolvedParams.agentId === 'string' ? resolvedParams.agentId : String(resolvedParams.agentId);
   
   console.log('Received agentId in route:', agentId);
+  const versionParam = request.nextUrl.searchParams.get('version');
+  const version = versionParam ? Number(versionParam) : undefined;
   
   try {
     // Obtener usuario autenticado
@@ -37,14 +39,14 @@ export async function GET(
     }
 
     // Intentar obtener el agente con el prompt
-    const agent = await RetellService.getAgentWithPrompt(agentId);
+    const agent = await RetellService.getAgentWithPrompt(agentId, version);
     return NextResponse.json({ success: true, data: agent });
   } catch (error) {
     console.error('Error fetching agent with prompt, trying without:', error);
     
     // Intentar sin el prompt si falla
     try {
-      const agent = await RetellService.getAgent(agentId);
+      const agent = await RetellService.getAgent(agentId, version);
       return NextResponse.json({ success: true, data: { ...agent, prompt: '' } });
     } catch (fallbackError) {
       console.error('Error fetching agent even without prompt:', fallbackError);
@@ -114,8 +116,8 @@ export async function PATCH(
     console.log('API: Updating agent:', agentId);
     console.log('API: Update data:', body);
     
-    // Separar el prompt del resto de los datos del agente
-    const { prompt, ...agentData } = body;
+    // Separar el prompt y llm_model del resto de los datos del agente
+    const { prompt, llm_model, ...agentData } = body;
     
     // Actualizar el agente
     const agent = await RetellService.updateAgent(agentId, agentData);
@@ -123,16 +125,18 @@ export async function PATCH(
     console.log('API: Updated agent version:', agent.version);
     console.log('API: Updated agent is_published:', (agent as any).is_published);
     
-    // Si hay prompt y el agente tiene un llm_id, actualizar el LLM
-    if (prompt !== undefined && agent.response_engine && 'llm_id' in agent.response_engine && agent.response_engine.llm_id) {
+    // Si hay prompt o llm_model y el agente tiene un llm_id, actualizar el LLM
+    if ((prompt !== undefined || llm_model !== undefined) && agent.response_engine && 'llm_id' in agent.response_engine && agent.response_engine.llm_id) {
       try {
-        console.log('API: Updating LLM prompt for:', agent.response_engine.llm_id);
-        await RetellService.updateRetellLLM(agent.response_engine.llm_id, {
-          general_prompt: prompt
-        } as any);
-        console.log('API: LLM prompt updated successfully');
+        console.log('API: Updating LLM for:', agent.response_engine.llm_id);
+        const updateData: any = {};
+        if (prompt !== undefined) updateData.general_prompt = prompt;
+        if (llm_model !== undefined) updateData.model = llm_model;
+        
+        await RetellService.updateRetellLLM(agent.response_engine.llm_id, updateData);
+        console.log('API: LLM updated successfully');
       } catch (error) {
-        console.warn('Could not update LLM prompt:', error);
+        console.warn('Could not update LLM:', error);
       }
     }
     

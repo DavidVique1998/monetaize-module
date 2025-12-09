@@ -73,9 +73,29 @@ export class RetellService {
   /**
    * Obtener un agente específico
    */
-  static async getAgent(agentId: string): Promise<RetellAgent> {
+  static async getAgent(agentId: string, version?: number): Promise<RetellAgent> {
     try {
-      console.log('Fetching agent with ID:', agentId);
+      console.log('Fetching agent with ID:', agentId, 'version:', version);
+      // El SDK no expone versión, así que usamos fetch directo cuando se solicita
+      if (version !== undefined) {
+        const response = await fetch(`https://api.retellai.com/get-agent/${agentId}?version=${version}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${config.retell.apiKey}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(`Failed to fetch agent version ${version}: ${response.status} ${text}`);
+        }
+
+        const agent = await response.json();
+        console.log('Agent retrieved successfully (versioned):', agent.agent_name, 'v', agent.version);
+        return agent as RetellAgent;
+      }
+
       const agent = await retellClient.agent.retrieve(agentId);
       console.log('Agent retrieved successfully:', agent.agent_name);
       return agent;
@@ -106,10 +126,10 @@ export class RetellService {
   /**
    * Obtener un agente con su prompt desde el LLM
    */
-  static async getAgentWithPrompt(agentId: string): Promise<RetellAgentWithPrompt> {
+  static async getAgentWithPrompt(agentId: string, version?: number): Promise<RetellAgentWithPrompt> {
     try {
-      console.log('Fetching agent with prompt for ID:', agentId);
-      const agent = await retellClient.agent.retrieve(agentId);
+      console.log('Fetching agent with prompt for ID:', agentId, 'version:', version);
+      const agent = await this.getAgent(agentId, version);
       console.log('Agent retrieved:', agent.agent_name);
       let prompt = '';
       
@@ -244,6 +264,40 @@ export class RetellService {
     } catch (error) {
       console.error('Error updating Retell LLM:', error);
       throw new Error('Failed to update Retell LLM');
+    }
+  }
+
+  /**
+   * Obtener versiones de un agente
+   */
+  static async getAgentVersions(agentId: string): Promise<any[]> {
+    try {
+      // Intentar con el SDK si existe
+      const anyClient: any = retellClient as any;
+      if (anyClient?.agent?.listVersions) {
+        const versions = await anyClient.agent.listVersions(agentId);
+        return versions || [];
+      }
+
+      // Fallback: llamada directa al endpoint público
+      const response = await fetch(`https://api.retellai.com/get-agent-versions/${agentId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${config.retell.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`HTTP ${response.status}: ${text || 'Failed to list agent versions'}`);
+      }
+
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error('Error fetching agent versions:', error);
+      throw new Error('Failed to fetch agent versions');
     }
   }
 
@@ -691,11 +745,11 @@ export class RetellService {
         throw new Error('Agent ID is required');
       }
 
+      // Usar fetch directo y tolerar cuerpo vacío (Retell puede responder sin JSON)
       const response = await fetch(`https://api.retellai.com/publish-agent/${agentId}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${config.retell.apiKey}`,
-          // No se necesita Content-Type ya que no hay body según la documentación
         },
       });
 
@@ -703,6 +757,9 @@ export class RetellService {
         const errorText = await response.text();
         throw new Error(`HTTP ${response.status}: ${errorText || 'Failed to publish agent'}`);
       }
+
+      // Leer el cuerpo como texto (puede estar vacío); no lanzar si no es JSON
+      await response.text().catch(() => undefined);
     } catch (error: any) {
       throw new Error(`Failed to publish agent: ${error.message || 'Unknown error'}`);
     }
@@ -746,22 +803,19 @@ export class RetellService {
         attempts++;
       }
       
-      // Forzar is_published a true si la publicación fue exitosa
-      // ya que Retell puede tardar en actualizar el estado
-      const finalAgent = {
-        ...updatedAgent,
-        is_published: true,
-      };
-      
-      console.log('RetellService: Agent published and status updated:', {
-        agent_id: finalAgent.agent_id,
-        version: finalAgent.version,
-        is_published: (finalAgent as any).is_published,
-        has_prompt: !!(finalAgent as any).prompt,
-        prompt_length: (finalAgent as any).prompt?.length || 0
+      if (!updatedAgent) {
+        throw new Error('Could not retrieve agent after publish');
+      }
+
+      console.log('RetellService: Agent publish check result:', {
+        agent_id: updatedAgent.agent_id,
+        version: updatedAgent.version,
+        is_published: (updatedAgent as any).is_published,
+        has_prompt: !!(updatedAgent as any).prompt,
+        prompt_length: (updatedAgent as any).prompt?.length || 0
       });
       
-      return finalAgent;
+      return updatedAgent;
     } catch (error: any) {
       console.error('RetellService: Error in publishAgent:', error);
       throw error;

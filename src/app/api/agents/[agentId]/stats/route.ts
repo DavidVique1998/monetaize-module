@@ -82,7 +82,7 @@ export async function GET(
         const costValue = Number(call.cost);
         if (costValue > 0) {
           totalCost += costValue;
-          callsWithCost++;
+        callsWithCost++;
         }
       }
 

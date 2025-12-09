@@ -9,9 +9,10 @@ interface VoiceSelectorProps {
   value: string;
   onChange: (voiceId: string) => void;
   onSettingsClick?: () => void;
+  minimal?: boolean;
 }
 
-export function VoiceSelector({ voices, value, onChange, onSettingsClick }: VoiceSelectorProps) {
+export function VoiceSelector({ voices, value, onChange, onSettingsClick, minimal = false }: VoiceSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -97,7 +98,7 @@ export function VoiceSelector({ voices, value, onChange, onSettingsClick }: Voic
   };
 
   return (
-    <div className="flex items-center space-x-2 px-3 py-1.5 border border-gray-300 rounded-lg relative" ref={dropdownRef}>
+    <div className="flex items-center space-x-8 px-3 py-1.5 border border-gray-300 rounded-lg relative" ref={dropdownRef}>
       <Volume2 className="w-3 h-3 text-gray-400" />
       
       <button
@@ -132,7 +133,6 @@ export function VoiceSelector({ voices, value, onChange, onSettingsClick }: Voic
           {/* Search bar */}
           <div className="p-3 border-b border-gray-200">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search voices..."

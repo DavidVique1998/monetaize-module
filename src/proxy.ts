@@ -2,9 +2,8 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 /**
- * Función ligera para decodificar el token de sesión desde cookies
- * Versión optimizada para Edge Runtime (sin dependencias pesadas)
- * Compatible con base64url encoding usando Web APIs disponibles en Edge Runtime
+ * Decodifica el token de sesión almacenado en cookies.
+ * Optimizado para runtime Node (proxy) sin dependencias pesadas.
  */
 function decodeSessionToken(sessionToken: string | undefined): {
   userId: string;
@@ -14,28 +13,23 @@ function decodeSessionToken(sessionToken: string | undefined): {
   ghlCompanyId: string | null;
 } | null {
   if (!sessionToken) return null;
-  
+
   try {
-    // Decodificar base64url (compatible con Edge Runtime usando Web API)
-    // Reemplazar caracteres base64url a base64 estándar
+    // Normalizar base64url a base64 estándar
     let base64 = sessionToken.replace(/-/g, '+').replace(/_/g, '/');
-    
-    // Agregar padding si es necesario
     while (base64.length % 4) {
       base64 += '=';
     }
-    
-    // Decodificar usando Web API disponible en Edge Runtime
-    // atob está disponible en Edge Runtime
-    const binaryString = atob(base64);
+
+    // Decodificar usando Buffer (disponible en runtime Node)
+    const binaryString = Buffer.from(base64, 'base64').toString('utf-8');
     const parts = binaryString.split('|');
-    
     if (parts.length < 3) return null;
-    
+
     // Compatibilidad con tokens antiguos (sin ghlLocationId/ghlCompanyId)
     const ghlLocationId = parts.length > 3 && parts[3] ? parts[3] : null;
     const ghlCompanyId = parts.length > 4 && parts[4] ? parts[4] : null;
-    
+
     return {
       userId: parts[0],
       email: parts[1],
@@ -49,8 +43,7 @@ function decodeSessionToken(sessionToken: string | undefined): {
 }
 
 /**
- * Obtener datos de sesión desde las cookies del request
- * Versión ligera para Edge Runtime
+ * Obtiene datos de sesión desde las cookies del request.
  */
 function getSessionFromRequest(cookies: { get: (name: string) => { value: string } | undefined }): {
   userId: string;
@@ -61,22 +54,22 @@ function getSessionFromRequest(cookies: { get: (name: string) => { value: string
 } | null {
   const sessionCookie = cookies.get('monetaize_session');
   if (!sessionCookie) return null;
-  
+
   return decodeSessionToken(sessionCookie.value);
 }
 
 /**
- * Middleware para controlar el acceso a las rutas de la aplicación
- * 
+ * Proxy para controlar el acceso a las rutas de la aplicación.
+ *
  * Rutas públicas:
  * - /install_ghl (pero redirige al dashboard si hay sesión)
  * - /api/oauth/* (endpoints de OAuth)
  * - /api/webhooks/* (webhooks externos)
- * 
+ *
  * Rutas protegidas:
  * - Todas las demás rutas requieren autenticación
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Excluir rutas de API y archivos estáticos
@@ -113,37 +106,37 @@ export async function middleware(request: NextRequest) {
         return response;
       }
     }
-    
+
     return NextResponse.next();
   }
 
   // Obtener locale de la cookie o usar default (inglés)
   const locale = request.cookies.get('NEXT_LOCALE')?.value || 'en';
-  
+
   // Crear respuesta base
   const response = NextResponse.next();
-  
+
   // Establecer header de locale para que next-intl lo use
   response.headers.set('x-next-intl-locale', locale);
-  
+
   // Si no hay cookie de locale, establecerla
   if (!request.cookies.get('NEXT_LOCALE')) {
     response.cookies.set('NEXT_LOCALE', locale, {
       path: '/',
       maxAge: 60 * 60 * 24 * 365, // 1 año
-      sameSite: 'lax'
+      sameSite: 'lax',
     });
   }
 
   // Rutas públicas que no requieren autenticación
   if (pathname === '/install_ghl') {
     const sessionData = getSessionFromRequest(request.cookies);
-    
+
     if (sessionData) {
       const redirectTo = request.nextUrl.searchParams.get('redirect') || '/wallet';
       return NextResponse.redirect(new URL(redirectTo, request.url));
     }
-    
+
     return response;
   }
 
@@ -160,7 +153,7 @@ export async function middleware(request: NextRequest) {
   response.headers.set('x-user-id', sessionData.userId);
   response.headers.set('x-user-email', sessionData.email);
   response.headers.set('x-user-role', sessionData.role);
-  
+
   if (sessionData.ghlLocationId) {
     response.headers.set('x-ghl-location-id', sessionData.ghlLocationId);
   }
@@ -181,8 +174,8 @@ export async function middleware(request: NextRequest) {
 }
 
 /**
- * Configuración del matcher para el middleware
- * Excluye archivos estáticos, imágenes, y archivos de Next.js
+ * Configuración del matcher para el proxy.
+ * Excluye archivos estáticos, imágenes, y archivos de Next.js.
  */
 export const config = {
   matcher: [
@@ -196,4 +189,3 @@ export const config = {
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };
-

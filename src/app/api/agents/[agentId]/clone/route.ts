@@ -86,17 +86,24 @@ export async function POST(
       try {
         // Obtener el LLM original para copiar su configuración
         const originalLLM = await RetellService.getRetellLLM(originalAgent.response_engine.llm_id);
+        const llmData = originalLLM as any;
         
         // Preparar datos del nuevo LLM
         const newLLMData: any = {
-          general_prompt: originalLLM.general_prompt || (originalAgent as any).prompt || '',
-          model: originalLLM.model || 'gpt-4o',
+          general_prompt: llmData.general_prompt || (originalAgent as any).prompt || '',
+          model: llmData.model || 'gpt-4o',
         };
         
-        // Copiar campos opcionales si existen
-        if (originalLLM.temperature !== undefined) newLLMData.temperature = originalLLM.temperature;
-        if (originalLLM.tools) newLLMData.tools = originalLLM.tools;
-        if (originalLLM.knowledge_base_ids) newLLMData.knowledge_base_ids = originalLLM.knowledge_base_ids;
+        // Copiar campos opcionales si existen (usando as any para evitar errores de tipo)
+        if (llmData.model_temperature !== undefined) newLLMData.model_temperature = llmData.model_temperature;
+        if (llmData.general_tools && Array.isArray(llmData.general_tools)) {
+          newLLMData.general_tools = llmData.general_tools;
+        }
+        if (llmData.knowledge_base_ids && Array.isArray(llmData.knowledge_base_ids)) {
+          newLLMData.knowledge_base_ids = llmData.knowledge_base_ids;
+        }
+        if (llmData.begin_message !== undefined) newLLMData.begin_message = llmData.begin_message;
+        if (llmData.start_speaker !== undefined) newLLMData.start_speaker = llmData.start_speaker;
         
         // Crear un nuevo LLM con la misma configuración
         const newLLM = await RetellService.createRetellLLM(newLLMData);
@@ -144,12 +151,12 @@ export async function POST(
   } catch (error: any) {
     console.error('Error cloning agent:', error);
     
-    if (error.name === 'ZodError') {
+    if (error instanceof z.ZodError) {
       return NextResponse.json(
         { 
           success: false, 
           error: 'Datos inválidos',
-          details: error.errors 
+          details: error.issues 
         },
         { status: 400 }
       );

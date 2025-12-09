@@ -58,7 +58,39 @@ export async function GET(request: NextRequest) {
     // Obtener agentes del usuario (solo los que pertenecen a su cuenta)
     const userAgents = await RetellSyncService.getUserAgents(user.id);
     
-    return NextResponse.json({ success: true, data: userAgents });
+    // Obtener información de carpetas para cada agente
+    const { PrismaClient } = await import('@prisma/client');
+    const prisma = new PrismaClient();
+    
+    const agentsWithFolders = await Promise.all(
+      userAgents.map(async (agent) => {
+        const localAgent = await prisma.agent.findFirst({
+          where: {
+            userId: user.id,
+            retellAgentId: agent.agent_id,
+          },
+          select: {
+            folderId: true,
+            folder: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        });
+        
+        return {
+          ...agent,
+          folderId: localAgent?.folderId || null,
+          folder: localAgent?.folder || null,
+        };
+      })
+    );
+    
+    await prisma.$disconnect();
+    
+    return NextResponse.json({ success: true, data: agentsWithFolders });
   } catch (error) {
     console.error('Error in agents API:', error);
     

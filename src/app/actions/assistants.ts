@@ -48,28 +48,20 @@ export async function createBlankAssistant(): Promise<CreateAssistantResult> {
     let llmId: string;
     
     try {
-      // Try to list existing LLMs
-      const llms = await RetellService.getRetellLLMs();
+      const newLLM = await RetellService.createRetellLLM({
+        general_prompt: 'Eres un asistente de IA que responde preguntas y ayuda con tareas.',
+        general_tools: [
+          {
+            type: 'end_call',
+            name: 'end_call',
+            description: 'End the call with the user.',
+          } as any,
+        ],
+        start_speaker: 'agent',
+        begin_message: '',
+      });
+      llmId = newLLM.llm_id;
       
-      if (llms.length > 0) {
-        // Use the first available LLM
-        llmId = llms[0].llm_id;
-      } else {
-        // Create a new Retell LLM with default settings
-        const newLLM = await RetellService.createRetellLLM({
-          general_prompt: 'You are a helpful assistant.',
-          general_tools: [
-            {
-              type: 'end_call',
-              name: 'end_call',
-              description: 'End the call with the user.',
-            } as any,
-          ],
-          start_speaker: 'agent',
-          begin_message: 'Hello, how can I help you?',
-        });
-        llmId = newLLM.llm_id;
-      }
     } catch (llmError) {
       console.error('Error getting or creating Retell LLM:', llmError);
       return {
@@ -82,15 +74,18 @@ export async function createBlankAssistant(): Promise<CreateAssistantResult> {
     const { config } = await import('@/lib/config');
     const webhookUrl = `${config.app.url}/api/webhooks/retell`;
 
-    // Create a minimal agent with default configuration according to Retell AI documentation
+    // Create a minimal agent according to Retell AI documentation
+    // Minimum required fields: response_engine (with type and llm_id) and voice_id
+    // Reference: https://docs.retellai.com/api-references/create-agent
     const agentData: Retell.Agent.AgentCreateParams = {
-      agent_name: 'New Blank Assistant',
-      voice_id: '11labs-Emily', // Default voice
-      language: 'en-US',
       response_engine: {
         type: 'retell-llm',
         llm_id: llmId,
       },
+      voice_id: '11labs-Emily', // Required field
+      // Optional fields for better UX
+      agent_name: 'New Blank Assistant',
+      language: 'en-US',
       webhook_url: webhookUrl, // Configurar webhook por defecto para registrar llamadas
     };
 

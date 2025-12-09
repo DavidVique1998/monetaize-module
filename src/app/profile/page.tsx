@@ -354,7 +354,7 @@ export default function ProfilePage() {
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-700">Tu Token JWT:</p>
+                    <p className="text-sm font-medium text-gray-700">Tu Token JWT:</p>
                       {permanentToken && (
                         <p className="text-xs text-green-600 mt-1">✓ Token permanente (no expira)</p>
                       )}
@@ -383,16 +383,16 @@ export default function ProfilePage() {
                   </div>
                   
                   <div className="pt-2 border-t border-gray-200">
-                    <button
-                      type="button"
+                  <button
+                    type="button"
                       onClick={() => {
                         setJwtToken(null);
                         setPermanentToken(false);
                       }}
-                      className="text-sm text-purple-600 hover:text-purple-700 font-medium"
-                    >
+                    className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+                  >
                       Generar nuevo token
-                    </button>
+                  </button>
                   </div>
                 </div>
               )}

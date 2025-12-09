@@ -5,15 +5,10 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/config.ts');
 
 const nextConfig: NextConfig = {
   /* config options here */
-  // Excluir MongoDB del bundle del servidor (el SDK lo usa internamente)
-  serverExternalPackages: ['mongodb'],
+  // Excluir dependencias pesadas del bundle del servidor (nuevo nombre)
+  serverExternalPackages: ['mongodb', '@prisma/client', '@gohighlevel/api-client'],
   // Configuración para Turbopack (Next.js 16 usa Turbopack por defecto)
   turbopack: {},
-  // Configuración experimental para reducir el tamaño del middleware
-  experimental: {
-    // Excluir dependencias pesadas del middleware
-    serverComponentsExternalPackages: ['@prisma/client', 'mongodb', '@gohighlevel/api-client'],
-  },
 };
 
 export default withNextIntl(nextConfig);
