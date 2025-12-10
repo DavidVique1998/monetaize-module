@@ -10,6 +10,7 @@ import {
   MessageSquare,
   User
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface ChatLabInterfaceProps {
   agentId: string;
@@ -24,6 +25,7 @@ interface ChatMessage {
 }
 
 export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) {
+  const t = useTranslations('chatLab');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -154,13 +156,16 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
           content: userMessage.content 
         }),
       });
-
+      
       if (!response.ok) {
+        if (response.status === 402) {
+            throw new Error('Insufficient balance to send message');
+        }
         throw new Error('Failed to send message');
       }
 
       const { messages: newMessages } = await response.json();
-      
+
       // Agregar solo los mensajes nuevos del agente
       const agentMessages = newMessages.filter((msg: any) => msg.role === 'agent');
       setMessages(prev => [...prev, ...agentMessages]);
@@ -173,6 +178,11 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
   };
 
   const clearChat = async () => {
+    // Si la sesión de chat incluía un agente efímero, intentar limpiarlo también.
+    // Esto idealmente debería manejarse en el backend al terminar el chat o con un job de limpieza,
+    // pero podemos hacer un intento best-effort aquí si tuviéramos el ID.
+    // (Por ahora el backend maneja la terminación del chat).
+
     if (chatId) {
       try {
         await fetch('/api/chat/end', {
@@ -203,185 +213,187 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-y-auto space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between border-b border-gray-100 p-4 bg-white/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="flex items-center space-x-2">
           <MessageSquare className="w-5 h-5 text-gray-600" />
-          <label className="text-sm font-medium text-gray-700">
-            Chat Lab - {agentName}
+          <label className="text-sm font-bold text-gray-700">
+            {agentName}
           </label>
+          <span className="text-xs text-gray-400 font-medium px-2 py-0.5 bg-gray-100 rounded-full">{t('simulator')}</span>
         </div>
         <div className="flex items-center space-x-2">
           {isChatActive && (
             <button
               onClick={clearChat}
-              className="px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center cursor-pointer"
+              className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center"
+              title={t('clearChat')}
             >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Clear conversation
+              <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+              {t('clearChat')}
             </button>
           )}
         </div>
       </div>
 
-      {/* Agent Validation Status */}
-      {isValidating ? (
-        <div className="flex items-start space-x-3 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <Loader2 className="w-5 h-5 text-blue-600 mt-0.5 animate-spin" />
-          <p className="text-sm text-blue-800">Validating agent configuration...</p>
+      {/* Chat Area */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth">
+        {/* Status Messages (Inline) */}
+        {!isChatActive && (
+          <div className="max-w-2xl mx-auto space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            
+            {/* Validation State */}
+            {isValidating ? (
+              <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4 flex items-center justify-center space-x-3 text-blue-700">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-sm font-medium">{t('validating')}</span>
+              </div>
+            ) : agentValidation ? (
+              agentValidation.isValid ? (
+                <div className="bg-green-50/50 border border-green-100 rounded-xl p-4 flex flex-col items-center text-center space-y-2">
+                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-green-800">{t('readyToChat')}</p>
+                    <p className="text-xs text-green-600 mt-1">
+                      {agentValidation.agent?.response_engine?.type === 'retell-llm' 
+                        ? `${t('retellLlm')} (${agentValidation.agent?.llm_info?.prompt_length || 0} chars)` 
+                        : t('conversationFlow')} • v{agentValidation.agent?.validated_version ?? agentValidation.agent?.version ?? 0}
+                    </p>
+                    {!agentValidation.agent?.llm_info?.is_published && agentValidation.agent?.published_version && (
+                      <p className="text-xs text-orange-600 mt-1 flex items-center justify-center">
+                        <AlertTriangle className="w-3 h-3 mr-1" />
+                        {t('publishedAgentWarning', { version: agentValidation.agent.published_version })}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-red-50/50 border border-red-100 rounded-xl p-4 text-center">
+                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <AlertTriangle className="w-4 h-4 text-red-600" />
+                  </div>
+                  <p className="text-sm font-bold text-red-800">{t('configIssues')}</p>
+                  <ul className="text-xs text-red-600 mt-2 space-y-1">
+                    {agentValidation.issues.map((issue, index) => (
+                      <li key={index}>• {issue}</li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            ) : null}
+
+            {/* Empty State / Start Prompt */}
+            {!isLoading && messages.length === 0 && (
+              <div className="text-center py-8">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{t('startTitle')}</h3>
+                <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto">
+                  {t('startDescription')}
+                </p>
+                <button
+                  onClick={startChat}
+                  disabled={isLoading || !agentValidation?.isValid}
+                  className="bg-black hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-400 text-white font-medium px-6 py-2.5 rounded-lg transition-all shadow-sm hover:shadow flex items-center mx-auto"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      {t('initializing')}
+                    </>
+                  ) : (
+                    <>
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      {t('startSession')}
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Messages List */}
+        <div className="space-y-6 max-w-3xl mx-auto pb-4">
+          {messages.map((message) => (
+            <div key={message.message_id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`flex items-start space-x-3 max-w-[85%] ${message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${
+                  message.role === 'user' 
+                    ? 'bg-blue-600' 
+                    : 'bg-white border border-gray-200'
+                }`}>
+                  {message.role === 'user' ? (
+                    <User className="w-4 h-4 text-white" />
+                  ) : (
+                    <Sparkles className="w-4 h-4 text-purple-600" />
+                  )}
+                </div>
+                <div className="flex flex-col space-y-1">
+                  {message.role === 'agent' && (
+                    <span className="text-[10px] font-medium text-gray-400 ml-1">
+                      {agentName}
+                    </span>
+                  )}
+                  <div className={`rounded-2xl px-5 py-3 shadow-sm text-sm leading-relaxed ${
+                    message.role === 'user'
+                      ? 'bg-blue-600 text-white rounded-tr-sm'
+                      : 'bg-white border border-gray-100 text-gray-800 rounded-tl-sm'
+                  }`}>
+                    <p className="whitespace-pre-wrap">{message.content}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+          
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="flex items-start space-x-3 max-w-[85%]">
+                <div className="w-8 h-8 bg-white border border-gray-200 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <Sparkles className="w-4 h-4 text-purple-600" />
+                </div>
+                <div className="bg-white border border-gray-100 rounded-2xl rounded-tl-sm px-5 py-4 shadow-sm">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div ref={messagesEndRef} />
         </div>
-      ) : agentValidation ? (
-        agentValidation.isValid ? (
-          <div className="flex items-start space-x-3 bg-green-50 border border-green-200 rounded-lg p-4">
-            <MessageSquare className="w-5 h-5 text-green-600 mt-0.5" />
-            <div>
-              <p className="text-sm text-green-800 font-medium">Agent ready for chat</p>
-              <p className="text-xs text-green-700 mt-1">
-                {agentValidation.agent?.response_engine?.type === 'retell-llm' 
-                  ? `Using Retell LLM (${agentValidation.agent?.llm_info?.prompt_length || 0} chars)` 
-                  : agentValidation.agent?.response_engine?.type === 'conversation-flow'
-                  ? 'Using Conversation Flow'
-                  : 'Response engine configured'} • Published v{agentValidation.agent?.version || 0}
-              </p>
-            </div>
+      </div>
+
+      {/* Message Input */}
+      {isChatActive && (
+        <div className="p-4 bg-white border-t border-gray-100">
+          <div className="max-w-3xl mx-auto relative">
+            <input
+              type="text"
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={t('inputPlaceholder')}
+              disabled={isLoading}
+              className="w-full pl-5 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-full text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-300 focus:bg-white transition-all disabled:opacity-60"
+              autoFocus
+            />
+            <button
+              onClick={sendMessage}
+              disabled={!inputMessage.trim() || isLoading}
+              className="absolute right-2 top-1.5 p-2 bg-black hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-400 text-white rounded-full transition-all shadow-sm disabled:shadow-none"
+            >
+              <Send className="w-4 h-4" />
+            </button>
           </div>
-        ) : (
-          <div className="flex items-start space-x-3 bg-red-50 border border-red-200 rounded-lg p-4">
-            <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5" />
-            <div>
-              <p className="text-sm text-red-800 font-medium">Agent configuration issues:</p>
-              <ul className="text-xs text-red-700 mt-1 list-disc list-inside">
-                {agentValidation.issues.map((issue, index) => (
-                  <li key={index}>{issue}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )
-      ) : (
-        <div className="flex items-start space-x-3 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
-          <p className="text-sm text-yellow-800">
-            Chat Lab allows you to test your agent with real text conversations. 
-            {!isChatActive && ' Click "Start Chat" to begin testing.'}
+          <p className="text-[10px] text-center text-gray-400 mt-2">
+            {t('disclaimer')}
           </p>
         </div>
       )}
-
-      {/* Chat Area */}
-      <div className="flex-1 bg-white border border-gray-200 rounded-lg overflow-hidden flex flex-col min-h-[600px]">
-        {/* Chat Messages */}
-        <div className="flex-1 p-6 overflow-y-auto space-y-4">
-          {messages.length === 0 && !isLoading ? (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <MessageSquare className="w-12 h-12 text-gray-300 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Start a conversation</h3>
-              <p className="text-sm text-gray-500 mb-6">
-                Begin testing your agent by starting a chat session
-              </p>
-              <button
-                onClick={startChat}
-                disabled={isLoading || !agentValidation?.isValid}
-                className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-semibold px-6 py-3 rounded-lg transition-colors flex items-center cursor-pointer disabled:cursor-not-allowed"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Starting...
-                  </>
-                ) : !agentValidation?.isValid ? (
-                  <>
-                    <AlertTriangle className="w-4 h-4 mr-2" />
-                    Fix Configuration First
-                  </>
-                ) : (
-                  <>
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    Start Chat
-                  </>
-                )}
-              </button>
-            </div>
-          ) : (
-            <>
-              {messages.map((message) => (
-                <div key={message.message_id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`flex items-start space-x-2 max-w-md ${message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      message.role === 'user' 
-                        ? 'bg-blue-100' 
-                        : 'bg-purple-100'
-                    }`}>
-                      {message.role === 'user' ? (
-                        <User className="w-4 h-4 text-blue-600" />
-                      ) : (
-                        <Sparkles className="w-4 h-4 text-purple-600" />
-                      )}
-                    </div>
-                    <div>
-                      {message.role === 'agent' && (
-                        <div className="text-xs font-medium text-gray-700 mb-1">{agentName}</div>
-                      )}
-                      <div className={`rounded-lg px-4 py-2 ${
-                        message.role === 'user'
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-100 text-gray-900'
-                      }`}>
-                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              
-              {isLoading && (
-                <div className="flex justify-start">
-                  <div className="flex items-start space-x-2 max-w-md">
-                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Sparkles className="w-4 h-4 text-purple-600" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-medium text-gray-700 mb-1">{agentName}</div>
-                      <div className="bg-gray-100 rounded-lg px-4 py-2">
-                        <div className="flex items-center space-x-2">
-                          <Loader2 className="w-4 h-4 animate-spin text-gray-500" />
-                          <span className="text-sm text-gray-500">Thinking...</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              <div ref={messagesEndRef} />
-            </>
-          )}
-        </div>
-
-        {/* Message Input */}
-        {isChatActive && (
-          <div className="border-t border-gray-200 p-4">
-            <div className="flex space-x-2">
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Message your AI..."
-                disabled={isLoading}
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100"
-              />
-              <button
-                onClick={sendMessage}
-                disabled={!inputMessage.trim() || isLoading}
-                className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-semibold px-4 py-3 rounded-lg transition-colors flex items-center cursor-pointer disabled:cursor-not-allowed"
-              >
-                <Send className="w-4 h-4" />
-              </button>
-            </div>
-            <p className="text-xs text-gray-500 mt-2">AI can make mistakes - check important information.</p>
-          </div>
-        )}
-      </div>
 
       {/* Error Message - Fixed position to avoid layout shift */}
       {error && (
@@ -389,7 +401,7 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
           <div className="flex items-start space-x-2">
             <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
             <div className="flex-1">
-              <p className="text-sm text-red-800 font-medium">Chat Error</p>
+              <p className="text-sm text-red-800 font-medium">{t('chatError')}</p>
               <p className="text-xs text-red-700 mt-1 break-words">{error}</p>
             </div>
             <button

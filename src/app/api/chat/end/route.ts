@@ -13,6 +13,8 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Terminar el chat usando el servicio de Retell
+    // Si la llamada incluyó ephemeral_agent_id en el cuerpo (opcional), podríamos limpiarlo aquí.
+    // Por ahora RetellService.endChat maneja la terminación de la sesión.
     await RetellService.endChat(chatId);
 
     return NextResponse.json({ success: true });

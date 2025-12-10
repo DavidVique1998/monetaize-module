@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
       chat_id: chat.chat_id,
       agent_id: chat.agent_id,
       chat_status: chat.chat_status,
+      ephemeral_agent_id: (chat as any).ephemeral_agent_id // Retornar esto al frontend
     });
   } catch (error: any) {
     console.error('API Error creating chat:', error);

@@ -516,6 +516,23 @@
       "openPaymentLink": "Abrir link de pago"
     }
   },
+  "chatLab": {
+    "simulator": "Simulador",
+    "clearChat": "Borrar Chat",
+    "validating": "Validando configuración...",
+    "readyToChat": "Listo para chatear",
+    "retellLlm": "Retell LLM",
+    "conversationFlow": "Flujo de Conversación",
+    "publishedAgentWarning": "Usando agente publicado v{version} (LLM Head es borrador)",
+    "configIssues": "Problemas de Configuración",
+    "startTitle": "Iniciar una nueva conversación",
+    "startDescription": "Prueba las respuestas, herramientas y personalidad de tu agente en tiempo real.",
+    "initializing": "Iniciando...",
+    "startSession": "Iniciar Sesión de Chat",
+    "inputPlaceholder": "Envía un mensaje a tu IA...",
+    "disclaimer": "La IA puede cometer errores. Considera verificar la información importante.",
+    "chatError": "Error del Chat"
+  },
   "sidebar": {
     "pinSidebar": "Anclar sidebar",
     "unpinSidebar": "Desanclar sidebar"

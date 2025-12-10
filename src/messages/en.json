@@ -516,6 +516,23 @@
       "openPaymentLink": "Open payment link"
     }
   },
+  "chatLab": {
+    "simulator": "Simulator",
+    "clearChat": "Clear Chat",
+    "validating": "Validating configuration...",
+    "readyToChat": "Ready to Chat",
+    "retellLlm": "Retell LLM",
+    "conversationFlow": "Conversation Flow",
+    "publishedAgentWarning": "Using published Agent v{version} (LLM Head is draft)",
+    "configIssues": "Configuration Issues",
+    "startTitle": "Start a new conversation",
+    "startDescription": "Test your agent's responses, tool calls, and personality in real-time.",
+    "initializing": "Initializing...",
+    "startSession": "Start Chat Session",
+    "inputPlaceholder": "Message your AI...",
+    "disclaimer": "AI can make mistakes. Consider checking important information.",
+    "chatError": "Chat Error"
+  },
   "sidebar": {
     "pinSidebar": "Pin sidebar",
     "unpinSidebar": "Unpin sidebar"
