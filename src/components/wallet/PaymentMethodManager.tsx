@@ -216,30 +216,30 @@ function PaymentMethodManagerInner({
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
+      <div className="bg-card rounded-lg border border-gray-200 p-4">
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
+          <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4">
+    <div className="bg-card rounded-lg border border-gray-200 p-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-2">
-            <CreditCard className="w-4 h-4 text-blue-600" />
+          <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mr-2">
+            <CreditCard className="w-4 h-4 text-primary" />
           </div>
           <div>
             <h3 className="text-base font-semibold text-gray-900">Métodos de Pago</h3>
-            <p className="text-xs text-gray-500">Gestiona tus tarjetas para recarga automática</p>
+            <p className="text-xs text-muted-foreground">Gestiona tus tarjetas para recarga automática</p>
           </div>
         </div>
         {!showAddForm && (
           <button
             onClick={() => setShowAddForm(true)}
-            className="flex items-center space-x-1 px-3 py-1.5 text-sm text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
+            className="flex items-center space-x-1 px-3 py-1.5 text-sm text-primary border border-blue-200 rounded-lg hover:bg-muted transition-colors"
           >
             <Plus className="w-4 h-4" />
             <span>Agregar</span>
@@ -248,14 +248,14 @@ function PaymentMethodManagerInner({
       </div>
 
       {error && (
-        <div className="mb-3 bg-red-50 border border-red-200 rounded-lg p-2 flex items-start">
-          <AlertCircle className="w-4 h-4 text-red-600 mr-2 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="mb-3 bg-redbg-muted/30 border border-red-200 rounded-lg p-2 flex items-start">
+          <AlertCircle className="w-4 h-4 text-destructive mr-2 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-destructive">{error}</p>
         </div>
       )}
 
       {success && (
-        <div className="mb-3 bg-green-50 border border-green-200 rounded-lg p-2 flex items-start">
+        <div className="mb-3 bg-greenbg-muted/30 border border-green-200 rounded-lg p-2 flex items-start">
           <CheckCircle2 className="w-4 h-4 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
           <p className="text-sm text-green-600">Método de pago guardado exitosamente</p>
         </div>
@@ -263,7 +263,7 @@ function PaymentMethodManagerInner({
 
       {/* Formulario para agregar tarjeta usando Stripe Elements */}
       {showAddForm && (
-        <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="mb-4 p-4 bg-muted/30 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-semibold text-gray-900">Agregar Nueva Tarjeta</h4>
             <button
@@ -272,7 +272,7 @@ function PaymentMethodManagerInner({
                 setError(null);
                 setCardName('');
               }}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-muted-foreground hover:text-gray-600"
             >
               <X className="w-4 h-4" />
             </button>
@@ -280,7 +280,7 @@ function PaymentMethodManagerInner({
 
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-medium text-foreground mb-1">
                 Nombre en la tarjeta
               </label>
               <input
@@ -288,38 +288,38 @@ function PaymentMethodManagerInner({
                 value={cardName}
                 onChange={(e) => setCardName(e.target.value)}
                 placeholder="Juan Pérez"
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-bluebg-muted/300 focus:border-primary"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-medium text-foreground mb-1">
                 Número de tarjeta
               </label>
-              <div className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 bg-white">
+              <div className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-bluebg-muted/300 focus-within:border-primary bg-card">
                 <CardNumberElement options={cardElementOptions} />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-foreground mb-1">
                   Vencimiento
                 </label>
-                <div className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 bg-white">
+                <div className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-bluebg-muted/300 focus-within:border-primary bg-card">
                   <CardExpiryElement options={cardElementOptions} />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">CVC</label>
-                <div className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 bg-white">
+                <label className="block text-xs font-medium text-foreground mb-1">CVC</label>
+                <div className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-bluebg-muted/300 focus-within:border-primary bg-card">
                   <CardCvcElement options={cardElementOptions} />
                 </div>
               </div>
             </div>
 
-            <div className="flex items-start space-x-2 text-xs text-gray-500">
+            <div className="flex items-start space-x-2 text-xs text-muted-foreground">
               <Lock className="w-3 h-3 mt-0.5 flex-shrink-0" />
               <p>Tu información está protegida y encriptada. No almacenamos los datos de tu tarjeta.</p>
             </div>
@@ -328,7 +328,7 @@ function PaymentMethodManagerInner({
               <button
                 onClick={handleSavePaymentMethod}
                 disabled={saving || !stripe}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors flex items-center justify-center"
+                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground disabled:bg-muted disabled:text-muted-foreground text-sm font-semibold px-4 py-2 rounded-lg transition-colors flex items-center justify-center"
               >
                 {saving ? (
                   <>
@@ -345,7 +345,7 @@ function PaymentMethodManagerInner({
                   setError(null);
                   setCardName('');
                 }}
-                className="px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 text-sm text-foreground border border-gray-300 rounded-lg hover:bg-graybg-muted/30 transition-colors"
               >
                 Cancelar
               </button>
@@ -357,13 +357,13 @@ function PaymentMethodManagerInner({
       {/* Lista de métodos de pago */}
       {paymentMethods.length === 0 && !showAddForm ? (
         <div className="text-center py-8">
-          <CreditCard className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-sm text-gray-500 mb-4">
+          <CreditCard className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground mb-4">
             No tienes métodos de pago guardados
           </p>
           <button
             onClick={() => setShowAddForm(true)}
-            className="inline-flex items-center space-x-1 px-4 py-2 text-sm text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
+            className="inline-flex items-center space-x-1 px-4 py-2 text-sm text-primary border border-blue-200 rounded-lg hover:bg-muted transition-colors"
           >
             <Plus className="w-4 h-4" />
             <span>Agregar Método de Pago</span>
@@ -374,11 +374,11 @@ function PaymentMethodManagerInner({
           {paymentMethods.map((method) => (
             <div
               key={method.id}
-              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
+              className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border border-gray-200"
             >
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <CreditCard className="w-5 h-5 text-blue-600" />
+                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <CreditCard className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-900">
@@ -387,12 +387,12 @@ function PaymentMethodManagerInner({
                       : 'Método de pago'}
                   </p>
                   {method.card && (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       Vence {method.card.expMonth}/{method.card.expYear}
                     </p>
                   )}
                   {method.isDefault && (
-                    <span className="inline-block mt-1 px-2 py-0.5 text-xs bg-blue-100 text-blue-700 rounded">
+                    <span className="inline-block mt-1 px-2 py-0.5 text-xs bg-primary/10 text-blue-700 rounded">
                       Predeterminado
                     </span>
                   )}
@@ -400,7 +400,7 @@ function PaymentMethodManagerInner({
               </div>
               <button
                 onClick={() => handleRemovePaymentMethod(method.id)}
-                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                 title="Eliminar método de pago"
               >
                 <Trash2 className="w-4 h-4" />

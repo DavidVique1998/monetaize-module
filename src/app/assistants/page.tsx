@@ -279,28 +279,28 @@ export default function AssistantsPage() {
   const renderAgentRow = (agent: AgentWithFolder) => (
     <div 
       key={agent.agent_id} 
-      className="px-6 py-4 hover:bg-gray-50 transition-colors group cursor-pointer border-b border-gray-100"
+      className="px-6 py-4 hover:bg-background transition-colors group cursor-pointer border-b border-gray-100"
       onClick={() => router.push(`/assistants/${agent.agent_id}`)}
     >
       <div className="grid grid-cols-6 gap-4 items-center">
         <div className="flex items-center space-x-3">
-          <Bot className="w-5 h-5 text-gray-400" />
-          <p className="text-sm font-medium text-gray-900 truncate">
+          <Bot className="w-5 h-5 text-muted-foreground" />
+          <p className="text-sm font-medium text-foreground truncate">
             {agent.agent_name || t('unnamedAssistant')}
           </p>
         </div>
         <div>
-          <p className="text-sm text-gray-600">{getModelName(agent)}</p>
+          <p className="text-sm text-muted-foreground">{getModelName(agent)}</p>
         </div>
         <div>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             {'last_modification_timestamp' in agent && agent.last_modification_timestamp 
               ? formatDate(agent.last_modification_timestamp) 
               : 'N/A'}
           </p>
         </div>
         <div>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             {'last_modification_timestamp' in agent && agent.last_modification_timestamp 
               ? formatDate(agent.last_modification_timestamp) 
               : 'N/A'}
@@ -335,9 +335,9 @@ export default function AssistantsPage() {
                   e.stopPropagation();
                   setOpenMenuId(openMenuId === agent.agent_id ? null : agent.agent_id);
                 }}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                className="p-2 hover:bg-muted rounded-lg transition-colors cursor-pointer"
               >
-                <MoreVertical className="w-4 h-4 text-gray-400" />
+                <MoreVertical className="w-4 h-4 text-muted-foreground" />
               </button>
               
               {openMenuId === agent.agent_id && (
@@ -349,7 +349,7 @@ export default function AssistantsPage() {
                       setOpenMenuId(null);
                     }}
                   />
-                  <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
+                  <div className="absolute right-0 mt-1 w-48 bg-card rounded-lg shadow-lg border border-border z-20">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -357,7 +357,7 @@ export default function AssistantsPage() {
                         setSelectedFolderForMove(agent.folderId || null);
                         setOpenMenuId(null);
                       }}
-                      className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-2 cursor-pointer"
+                      className="w-full px-4 py-2 text-sm text-muted-foreground hover:bg-background flex items-center space-x-2 cursor-pointer"
                     >
                       <Move className="w-4 h-4" />
                       <span>Mover a carpeta</span>
@@ -367,7 +367,7 @@ export default function AssistantsPage() {
                         e.stopPropagation();
                         handleClone(agent.agent_id);
                       }}
-                      className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-2 cursor-pointer"
+                      className="w-full px-4 py-2 text-sm text-muted-foreground hover:bg-background flex items-center space-x-2 cursor-pointer"
                     >
                       <Copy className="w-4 h-4" />
                       <span>Copiar</span>
@@ -378,7 +378,7 @@ export default function AssistantsPage() {
                         handleDelete(agent.agent_id);
                         setOpenMenuId(null);
                       }}
-                      className="w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2 cursor-pointer"
+                      className="w-full px-4 py-2 text-sm text-destructive hover:bg-red-50 flex items-center space-x-2 cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                       <span>Eliminar</span>
@@ -395,26 +395,26 @@ export default function AssistantsPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-full bg-gray-50">
+      <div className="flex flex-col h-full bg-background">
         <HeaderBar title={t('title')} />
         
         <div className="flex-1 p-6 space-y-6 overflow-y-auto">
           <div className="flex items-center justify-between mb-6">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
                 placeholder={t('searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 w-96 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+                className="pl-10 pr-4 py-2 w-96 border border-gray-300 rounded-lg text-sm text-muted-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-card"
               />
             </div>
 
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => setShowCreateFolderModal(true)}
-                className="bg-black hover:bg-gray-800 text-white font-semibold px-6 py-2 rounded-lg transition-colors flex items-center cursor-pointer"
+                className="bg-black hover:bg-gray-800 text-primary-foreground font-semibold px-6 py-2 rounded-lg transition-colors flex items-center cursor-pointer"
               >
                 <FolderPlus className="w-4 h-4 mr-2" />
                 {t('createFolder')}
@@ -422,7 +422,7 @@ export default function AssistantsPage() {
               <button
                 onClick={handleCreateAssistant}
                 disabled={creatingAgent}
-                className="bg-black hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold px-6 py-2 rounded-lg transition-colors flex items-center cursor-pointer"
+                className="bg-black hover:bg-gray-800 disabled:bg-muted disabled:cursor-not-allowed text-primary-foreground font-semibold px-6 py-2 rounded-lg transition-colors flex items-center cursor-pointer"
               >
                 {creatingAgent ? (
                   <>
@@ -439,9 +439,9 @@ export default function AssistantsPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <div className="grid grid-cols-6 gap-4 text-sm font-semibold text-gray-700">
+          <div className="bg-card rounded-lg border border-border shadow-sm">
+            <div className="px-6 py-4 border-b border-border">
+              <div className="grid grid-cols-6 gap-4 text-sm font-semibold text-muted-foreground">
                 <div>{t('tableHeaders.name')}</div>
                 <div>{t('tableHeaders.metaData')}</div>
                 <div>{t('tableHeaders.updated')}</div>
@@ -454,13 +454,13 @@ export default function AssistantsPage() {
             {loading || foldersLoading ? (
               <div className="flex items-center justify-center py-20">
                 <div className="text-center">
-                  <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                  <p className="text-gray-600">{t('loading')}</p>
+                  <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-muted-foreground">{t('loading')}</p>
                 </div>
               </div>
             ) : filteredAgents.length === 0 && folders.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20">
-                <Bot className="w-12 h-12 text-gray-300 mb-4" />
+                <Bot className="w-12 h-12 text-muted-foreground mb-4" />
                 <p className="text-gray-500 font-medium">{t('noAssistants')}</p>
               </div>
             ) : (
@@ -471,9 +471,9 @@ export default function AssistantsPage() {
                   const isExpanded = expandedFolders.has(folder.id);
                   
                   return (
-                    <div key={folder.id} className="border-b border-gray-200">
+                    <div key={folder.id} className="border-b border-border">
                       <div 
-                        className="px-6 py-3 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer flex items-center justify-between group"
+                        className="px-6 py-3 bg-background hover:bg-muted transition-colors cursor-pointer flex items-center justify-between group"
                         onClick={() => toggleFolder(folder.id)}
                       >
                         <div className="flex items-center space-x-2">
@@ -483,7 +483,7 @@ export default function AssistantsPage() {
                             <ChevronRight className="w-4 h-4 text-gray-500" />
                           )}
                           <Folder className="w-4 h-4 text-gray-500" />
-                          <span className="text-sm font-medium text-gray-900">{folder.name}</span>
+                          <span className="text-sm font-medium text-foreground">{folder.name}</span>
                           <span className="text-xs text-gray-500">({folderAgents.length})</span>
                         </div>
                         <button
@@ -493,7 +493,7 @@ export default function AssistantsPage() {
                           }}
                           className="p-1 hover:bg-red-100 rounded transition-colors cursor-pointer opacity-0 group-hover:opacity-100"
                         >
-                          <Trash2 className="w-4 h-4 text-red-600" />
+                          <Trash2 className="w-4 h-4 text-destructive" />
                         </button>
                       </div>
                       {isExpanded && folderAgents.map(renderAgentRow)}
@@ -503,9 +503,9 @@ export default function AssistantsPage() {
 
                 {/* Agents without folder */}
                 {agentsWithoutFolder.length > 0 && (
-                  <div className="border-b border-gray-200">
-                    <div className="px-6 py-3 bg-gray-50">
-                      <span className="text-sm font-medium text-gray-900">Sin carpeta</span>
+                  <div className="border-b border-border">
+                    <div className="px-6 py-3 bg-background">
+                      <span className="text-sm font-medium text-foreground">Sin carpeta</span>
                       <span className="text-xs text-gray-500 ml-2">({agentsWithoutFolder.length})</span>
                     </div>
                     {agentsWithoutFolder.map(renderAgentRow)}
@@ -518,16 +518,16 @@ export default function AssistantsPage() {
 
         {/* Create Folder Modal */}
         {showCreateFolderModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">Crear Carpeta</h2>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+            <div className="bg-card rounded-lg shadow-xl max-w-md w-full mx-4">
+              <div className="flex items-center justify-between p-6 border-b border-border">
+                <h2 className="text-lg font-semibold text-foreground">Crear Carpeta</h2>
                 <button
                   onClick={() => {
                     setShowCreateFolderModal(false);
                     setNewFolderName('');
                   }}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
+                  className="p-1 hover:bg-muted rounded transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5 text-gray-500" />
                 </button>
@@ -535,7 +535,7 @@ export default function AssistantsPage() {
               
               <form onSubmit={handleCreateFolder} className="p-6">
                 <div className="mb-4">
-                  <label htmlFor="folder-name" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="folder-name" className="block text-sm font-medium text-muted-foreground mb-2">
                     Nombre de la carpeta
                   </label>
                   <input
@@ -544,7 +544,7 @@ export default function AssistantsPage() {
                     value={newFolderName}
                     onChange={(e) => setNewFolderName(e.target.value)}
                     placeholder="Ej: Ventas, Soporte, Marketing"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     required
                     autoFocus
                   />
@@ -557,14 +557,14 @@ export default function AssistantsPage() {
                       setShowCreateFolderModal(false);
                       setNewFolderName('');
                     }}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                    className="px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted rounded-lg transition-colors cursor-pointer"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={creatingFolder || !newFolderName.trim()}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors disabled:cursor-not-allowed cursor-pointer"
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-primary-foreground font-semibold rounded-lg transition-colors disabled:cursor-not-allowed cursor-pointer"
                   >
                     {creatingFolder ? 'Creando...' : 'Crear Carpeta'}
                   </button>
@@ -576,16 +576,16 @@ export default function AssistantsPage() {
 
         {/* Move Agent Modal */}
         {agentToMove && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">Mover Agente</h2>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+            <div className="bg-card rounded-lg shadow-xl max-w-md w-full mx-4">
+              <div className="flex items-center justify-between p-6 border-b border-border">
+                <h2 className="text-lg font-semibold text-foreground">Mover Agente</h2>
                 <button
                   onClick={() => {
                     setAgentToMove(null);
                     setSelectedFolderForMove(null);
                   }}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
+                  className="p-1 hover:bg-muted rounded transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5 text-gray-500" />
                 </button>
@@ -593,13 +593,13 @@ export default function AssistantsPage() {
               
               <div className="p-6">
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-muted-foreground mb-2">
                     Seleccionar carpeta
                   </label>
                   <select
                     value={selectedFolderForMove || ''}
                     onChange={(e) => setSelectedFolderForMove(e.target.value || null)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   >
                     <option value="">Sin carpeta</option>
                     {folders.map(folder => (
@@ -615,7 +615,7 @@ export default function AssistantsPage() {
                       setAgentToMove(null);
                       setSelectedFolderForMove(null);
                     }}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                    className="px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted rounded-lg transition-colors cursor-pointer"
                   >
                     Cancelar
                   </button>
@@ -625,7 +625,7 @@ export default function AssistantsPage() {
                         handleMoveAgent(agentToMove, selectedFolderForMove);
                       }
                     }}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors cursor-pointer"
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-primary-foreground font-semibold rounded-lg transition-colors cursor-pointer"
                   >
                     Mover
                   </button>
@@ -636,17 +636,17 @@ export default function AssistantsPage() {
         )}
 
         {showCloneModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">Copiar Agente</h2>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+            <div className="bg-card rounded-lg shadow-xl max-w-md w-full mx-4">
+              <div className="flex items-center justify-between p-6 border-b border-border">
+                <h2 className="text-lg font-semibold text-foreground">Copiar Agente</h2>
                 <button
                   onClick={() => {
                     setShowCloneModal(false);
                     setCloneAgentId(null);
                     setCloneAgentName('');
                   }}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
+                  className="p-1 hover:bg-muted rounded transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5 text-gray-500" />
                 </button>
@@ -654,7 +654,7 @@ export default function AssistantsPage() {
               
               <form onSubmit={handleCloneSubmit} className="p-6">
                 <div className="mb-4">
-                  <label htmlFor="clone-name" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="clone-name" className="block text-sm font-medium text-muted-foreground mb-2">
                     Nombre del nuevo agente
                   </label>
                   <input
@@ -663,7 +663,7 @@ export default function AssistantsPage() {
                     value={cloneAgentName}
                     onChange={(e) => setCloneAgentName(e.target.value)}
                     placeholder="Ej: Mi Agente - Copia"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     required
                     autoFocus
                   />
@@ -677,14 +677,14 @@ export default function AssistantsPage() {
                       setCloneAgentId(null);
                       setCloneAgentName('');
                     }}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                    className="px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted rounded-lg transition-colors cursor-pointer"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={cloning || !cloneAgentName.trim()}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors disabled:cursor-not-allowed cursor-pointer"
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-primary-foreground font-semibold rounded-lg transition-colors disabled:cursor-not-allowed cursor-pointer"
                   >
                     {cloning ? 'Copiando...' : 'Copiar Agente'}
                   </button>

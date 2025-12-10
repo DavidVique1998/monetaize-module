@@ -126,7 +126,7 @@ w-64 (256px)
 ### **Iconos Colapsados:**
 - **Tamaño:** 32x32px (w-8 h-8)
 - **Spacing:** space-y-1 (4px entre iconos)
-- **Hover:** bg-gray-100
+- **Hover:** -100
 - **Activo:** bg-blue-100 text-blue-600
 - **Transición:** duration-200
 

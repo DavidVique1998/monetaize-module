@@ -45,17 +45,17 @@ export function DropdownItem({ icon, label, isActive = false, onClick }: Dropdow
       onClick={onClick}
       className={cn(
         "w-full flex items-center px-8 py-2 text-sm font-medium rounded-lg transition-all duration-200 cursor-pointer",
-        "hover:bg-blue-50 hover:text-blue-700 hover:scale-[1.02] hover:shadow-sm",
+        "hover:bg-accent hover:text-accent-foreground hover:scale-[1.02] hover:shadow-sm",
         "focus:outline-none",
         isActive 
-          ? "bg-blue-100 text-blue-800 shadow-sm" 
-          : "text-gray-600",
+          ? "bg-accent/80 text-accent-foreground shadow-sm" 
+          : "text-muted-foreground",
         "group"
       )}
     >
       <div className={cn(
         "mr-3 flex-shrink-0 transition-colors duration-200",
-        isActive ? "text-blue-600" : "text-gray-400 group-hover:text-blue-600"
+        isActive ? "text-primary" : "text-muted-foreground group-hover:text-primary"
       )}>
         {icon}
       </div>
@@ -89,21 +89,21 @@ export function NavigationItem({
         onClick={handleClick}
         className={cn(
           "w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 cursor-pointer",
-          "hover:bg-blue-50 hover:text-blue-700 hover:scale-[1.02] hover:shadow-sm",
+          "hover:bg-accent hover:text-accent-foreground hover:scale-[1.02] hover:shadow-sm",
           "focus:outline-none",
           "group relative overflow-hidden",
           isActive 
-            ? "bg-blue-100 text-blue-800 shadow-sm" 
-            : "text-gray-700 hover:text-blue-700",
+            ? "bg-accent text-accent-foreground shadow-sm" 
+            : "text-foreground/80 hover:text-accent-foreground",
           className
         )}
       >
         {/* Efecto de brillo en hover */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
         <div className={cn(
           "mr-3 flex-shrink-0 relative z-10 transition-all duration-200",
-          isActive ? "text-blue-600" : "text-gray-400 group-hover:text-blue-600"
+          isActive ? "text-primary" : "text-muted-foreground group-hover:text-primary"
         )}>
           {icon}
         </div>
@@ -113,9 +113,9 @@ export function NavigationItem({
             {hasDropdown && (
               <div className="relative z-10 transition-transform duration-200">
                 {isDropdownOpen ? (
-                  <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-blue-600" />
+                  <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
                 ) : (
-                  <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-blue-600" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
                 )}
               </div>
             )}
@@ -180,8 +180,8 @@ export function Navigation({ isCollapsed = false }: { isCollapsed?: boolean }) {
               className={cn(
                 "w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200",
                 isActive 
-                  ? "bg-blue-100 text-blue-600" 
-                  : "text-gray-600 hover:bg-gray-100"
+                  ? "bg-accent text-primary" 
+                  : "text-muted-foreground hover:bg-accent/50"
               )}
             >
               {iconMap[item.iconName]}

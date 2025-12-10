@@ -19,9 +19,9 @@ interface LineChartProps {
 }
 
 const colorClasses = {
-  purple: 'text-purple-600 bg-purple-100',
+  purple: 'text-primary bg-primary/10',
   green: 'text-green-600 bg-green-100',
-  blue: 'text-blue-600 bg-blue-100',
+  blue: 'text-primary bg-primary/10',
   yellow: 'text-yellow-600 bg-yellow-100',
   red: 'text-red-600 bg-red-100',
   orange: 'text-orange-600 bg-orange-100',
@@ -49,7 +49,7 @@ export function LineChart({
 
   return (
     <div className={cn(
-      "bg-white rounded-lg border border-gray-200 p-6 shadow-sm",
+      "bg-card rounded-lg border border-gray-200 p-6 shadow-sm",
       className
     )}>
       {/* Header */}
@@ -63,14 +63,14 @@ export function LineChart({
               {icon}
             </div>
           )}
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+          <h3 className="text-lg font-semibold text-foreground">{title}</h3>
         </div>
         <span className="text-sm text-gray-500">{subtitle}</span>
       </div>
       
       {/* Value */}
       <div className="mb-4">
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
+        <p className="text-2xl font-bold text-foreground">{value}</p>
       </div>
       
       {/* Chart */}
@@ -84,7 +84,7 @@ export function LineChart({
           {/* Grid lines */}
           <defs>
             <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-              <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#f3f4f6" strokeWidth="0.5"/>
+              <path d="M 10 0 L 0 0 0 10" fill="none" stroke="var(--border)" strokeWidth="0.5"/>
             </pattern>
           </defs>
           <rect width="100" height="100" fill="url(#grid)" />
@@ -114,7 +114,7 @@ export function LineChart({
           {/* Line */}
           <polyline
             fill="none"
-            stroke={color === 'purple' ? '#8b5cf6' : 
+            stroke={color === 'purple' ? 'var(--primary)' : 
                    color === 'green' ? '#10b981' :
                    color === 'blue' ? '#3b82f6' :
                    color === 'yellow' ? '#f59e0b' :
@@ -134,7 +134,7 @@ export function LineChart({
                 cx={x}
                 cy={y}
                 r="2"
-                fill={color === 'purple' ? '#8b5cf6' : 
+                fill={color === 'purple' ? 'var(--primary)' : 
                       color === 'green' ? '#10b981' :
                       color === 'blue' ? '#3b82f6' :
                       color === 'yellow' ? '#f59e0b' :

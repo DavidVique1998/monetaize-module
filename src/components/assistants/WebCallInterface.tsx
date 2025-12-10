@@ -250,12 +250,12 @@ export function WebCallInterface({
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
+    <div className="bg-card border border-gray-200 rounded-lg p-6">
       <div className="text-center mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        <h3 className="text-lg font-semibold text-foreground mb-2">
           Voice Lab - {agentName}
         </h3>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           Prueba tu agente con una llamada web en tiempo real
         </p>
       </div>
@@ -285,7 +285,7 @@ export function WebCallInterface({
         {isConnecting && (
           <div className="mb-4">
             <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-            <p className="text-sm text-blue-600">Conectando...</p>
+            <p className="text-sm text-primary">Conectando...</p>
           </div>
         )}
       </div>
@@ -308,8 +308,8 @@ export function WebCallInterface({
               onClick={toggleMute}
               className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                 isMuted 
-                  ? 'bg-red-100 text-red-700 hover:bg-red-200' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-destructive/10 text-destructive hover:bg-destructive/20' 
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
               }`}
             >
               {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
@@ -320,8 +320,8 @@ export function WebCallInterface({
               onClick={toggleSpeaker}
               className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                 isSpeakerMuted 
-                  ? 'bg-red-100 text-red-700 hover:bg-red-200' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-destructive/10 text-destructive hover:bg-destructive/20' 
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
               }`}
             >
               {isSpeakerMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
@@ -330,7 +330,7 @@ export function WebCallInterface({
 
             <button
               onClick={endCall}
-              className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors"
+              className="flex items-center space-x-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground font-semibold px-4 py-2 rounded-lg transition-colors"
             >
               <PhoneOff className="w-5 h-5" />
               <span>Terminar</span>
@@ -340,7 +340,7 @@ export function WebCallInterface({
       </div>
 
       {/* Información adicional */}
-      <div className="text-center text-xs text-gray-500">
+      <div className="text-center text-xs text-muted-foreground/70">
         <p>• Asegúrate de tener permisos de micrófono habilitados</p>
         <p>• Usa auriculares para mejor experiencia de audio</p>
         <p>• Esta es una simulación de llamada para testing</p>

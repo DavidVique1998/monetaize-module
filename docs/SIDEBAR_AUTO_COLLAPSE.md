@@ -73,7 +73,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { isCollapsed, isVisible, isPinned, togglePin, handleMouseEnter, handleMouseLeave } = useSidebarState();
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen -50">
       <MainSidebar 
         isCollapsed={isCollapsed}
         isVisible={isVisible}

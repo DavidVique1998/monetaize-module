@@ -99,11 +99,11 @@ export function VoiceSelector({ voices, value, onChange, onSettingsClick, minima
 
   return (
     <div className="flex items-center space-x-8 px-3 py-1.5 border border-gray-300 rounded-lg relative" ref={dropdownRef}>
-      <Volume2 className="w-3 h-3 text-gray-400" />
+      <Volume2 className="w-3 h-3 text-muted-foreground" />
       
       <button
         onClick={handleOpen}
-        className="text-sm font-medium text-gray-900 bg-transparent border-0 outline-0 cursor-pointer flex-1 text-left"
+        className="text-sm font-medium text-foreground bg-transparent border-0 outline-0 cursor-pointer flex-1 text-left"
       >
         {selectedVoice?.voice_name || 'Select Voice'}
       </button>
@@ -111,25 +111,25 @@ export function VoiceSelector({ voices, value, onChange, onSettingsClick, minima
       {value && (
         <button 
           onClick={handleClear}
-          className="hover:bg-gray-100 rounded p-0.5 transition-colors cursor-pointer"
+          className="hover:bg-muted rounded p-0.5 transition-colors cursor-pointer"
           title="Clear selection"
         >
-          <X className="w-3 h-3 text-gray-400" />
+          <X className="w-3 h-3 text-muted-foreground" />
         </button>
       )}
 
       {onSettingsClick && (
         <button 
           onClick={onSettingsClick}
-          className="hover:bg-gray-100 rounded p-0.5 transition-colors cursor-pointer"
+          className="hover:bg-muted rounded p-0.5 transition-colors cursor-pointer"
           title="Voice Settings"
         >
-          <SettingsIcon className="w-3 h-3 text-gray-400" />
+          <SettingsIcon className="w-3 h-3 text-muted-foreground" />
         </button>
       )}
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 w-96">
+        <div className="absolute top-full right-0 mt-1 bg-popover border border-gray-300 rounded-lg shadow-lg z-50 w-96">
           {/* Search bar */}
           <div className="p-3 border-b border-gray-200">
             <div className="relative">
@@ -138,7 +138,7 @@ export function VoiceSelector({ voices, value, onChange, onSettingsClick, minima
                 placeholder="Search voices..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm text-foreground placeholder-gray-400 bg-popover focus:outline-none focus:ring-2 focus:ring-purple-500"
                 autoFocus
               />
             </div>
@@ -149,7 +149,7 @@ export function VoiceSelector({ voices, value, onChange, onSettingsClick, minima
             {filteredVoices.map((voice) => (
               <div
                 key={voice.voice_id}
-                className={`px-4 py-3 hover:bg-gray-50 rounded-lg flex items-center justify-between cursor-pointer group transition-all ${
+                className={`px-4 py-3 hover:bg-muted rounded-lg flex items-center justify-between cursor-pointer group transition-all ${
                   value === voice.voice_id ? 'bg-purple-50 border-2 border-purple-300 shadow-sm' : 'border-2 border-gray-100 hover:border-purple-200'
                 }`}
                 onClick={() => handleSelect(voice.voice_id)}
@@ -157,27 +157,27 @@ export function VoiceSelector({ voices, value, onChange, onSettingsClick, minima
                 <div className="flex items-start justify-between w-full">
                   {/* Voice Info */}
                   <div className="flex-1 min-w-0">
-                    <div className="text-base font-semibold text-gray-900 mb-2">{voice.voice_name}</div>
+                    <div className="text-base font-semibold text-foreground mb-2">{voice.voice_name}</div>
                     
                     {/* Characteristics Grid */}
                     <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
                       <div className="flex items-center space-x-1">
-                        <span className="text-gray-500">Gender:</span>
+                        <span className="text-muted-foreground">Gender:</span>
                         <span className="font-medium text-gray-700 capitalize">{voice.gender}</span>
                       </div>
                       
                       <div className="flex items-center space-x-1">
-                        <span className="text-gray-500">Age:</span>
+                        <span className="text-muted-foreground">Age:</span>
                         <span className="font-medium text-gray-700 capitalize">{voice.age}</span>
                       </div>
                       
                       <div className="flex items-center space-x-1">
-                        <span className="text-gray-500">Accent:</span>
+                        <span className="text-muted-foreground">Accent:</span>
                         <span className="font-medium text-gray-700">{voice.accent || 'N/A'}</span>
                       </div>
                       
                       <div className="flex items-center space-x-1">
-                        <span className="text-gray-500">Provider:</span>
+                        <span className="text-muted-foreground">Provider:</span>
                         <span className="font-medium text-gray-700 capitalize">{voice.provider}</span>
                       </div>
                     </div>
@@ -187,12 +187,12 @@ export function VoiceSelector({ voices, value, onChange, onSettingsClick, minima
                   {voice.preview_audio_url && (
                     <button
                       onClick={(e) => handlePlay(e, voice)}
-                      className="ml-3 p-2 hover:bg-purple-100 rounded-lg transition-colors flex-shrink-0 group/play cursor-pointer"
+                      className="ml-3 p-2 hover:bg-primary/10 rounded-lg transition-colors flex-shrink-0 group/play cursor-pointer"
                     >
                       {playingId === voice.voice_id ? (
                         <Pause className="w-5 h-5 text-purple-600" />
                       ) : (
-                        <Play className="w-5 h-5 text-gray-400 group/play:hover:text-purple-600 transition-colors" />
+                        <Play className="w-5 h-5 text-muted-foreground group/play:hover:text-primary transition-colors" />
                       )}
                     </button>
                   )}

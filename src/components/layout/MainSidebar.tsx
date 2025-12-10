@@ -6,7 +6,7 @@ import { Navigation } from '@/components/navigation/Navigation';
 import { WalletBalance } from '@/components/wallet/WalletBalance';
 import { RechargeModal } from '@/components/wallet/RechargeModal';
 import { UserProfile } from '@/components/ui/UserProfile';
-import { Phone, Pin, PinOff, Zap, ZapIcon, Coins } from 'lucide-react';
+import { Pin, PinOff, Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 
@@ -138,8 +138,8 @@ export function MainSidebar({
                   "hover:scale-110",
                   "focus:outline-none",
                   isPinned 
-                    ? "text-blue-600 hover:text-blue-700" 
-                    : "text-gray-500 hover:text-gray-700"
+                    ? "text-primary hover:text-primary/80" 
+                    : "text-muted-foreground hover:text-foreground"
                 )}
                 title={isPinned ? "Desanclar sidebar" : "Anclar sidebar"}
               >

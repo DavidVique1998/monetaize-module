@@ -12,7 +12,7 @@ export default function ContactsPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-full bg-gray-50">
+      <div className="flex flex-col h-full -50">
         {/* Header */}
         <HeaderBar title="Contacts" />
         
@@ -26,7 +26,7 @@ export default function ContactsPage() {
               <input
                 type="text"
                 placeholder="Search contacts..."
-                className="pl-10 pr-4 py-2 w-96 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="pl-10 pr-4 py-2 w-96 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background"
               />
             </div>
 

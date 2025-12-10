@@ -64,21 +64,21 @@ export function ModelConfigDrawer({
       {/* Drawer */}
       <div
         className={cn(
-          "fixed right-0 top-0 h-full w-96 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out overflow-hidden",
+          "fixed right-0 top-0 h-full w-96 bg-card shadow-2xl z-50 transform transition-transform duration-300 ease-in-out overflow-hidden",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-6 border-b border-border">
           <div className="flex items-center space-x-3">
-            <Settings className="w-5 h-5 text-gray-600" />
+            <Settings className="w-5 h-5 text-muted-foreground" />
             <h2 className="text-lg font-semibold text-gray-900">Model Configuration</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-muted rounded-lg transition-colors"
           >
-            <X className="w-5 h-5 text-gray-600" />
+            <X className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
 
@@ -96,8 +96,8 @@ export function ModelConfigDrawer({
                   className={cn(
                     "flex items-center space-x-3 p-3 border rounded-lg cursor-pointer transition-colors",
                     selectedLlmId === llm.llm_id
-                      ? "border-purple-500 bg-purple-50"
-                      : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-border hover:bg-muted"
                   )}
                 >
                   <input
@@ -112,7 +112,7 @@ export function ModelConfigDrawer({
                     <p className="text-sm font-medium text-gray-900">
                       {llm.llm_name || llm.llm_id}
                     </p>
-                    <p className="text-xs text-gray-500">{llm.llm_id}</p>
+                    <p className="text-xs text-muted-foreground">{llm.llm_id}</p>
                   </div>
                 </label>
               ))}
@@ -120,19 +120,19 @@ export function ModelConfigDrawer({
           </div>
 
           {/* Model Info */}
-          <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+          <div className="bg-muted rounded-lg p-4 space-y-2">
             <h3 className="text-sm font-medium text-gray-900 mb-3">Model Information</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">Cost:</span>
+                <span className="text-muted-foreground">Cost:</span>
                 <span className="text-gray-900 font-medium">$0.115/min</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Latency:</span>
+                <span className="text-muted-foreground">Latency:</span>
                 <span className="text-gray-900 font-medium">970-1300ms</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Tokens:</span>
+                <span className="text-muted-foreground">Tokens:</span>
                 <span className="text-gray-900 font-medium">65-305</span>
               </div>
             </div>
@@ -140,11 +140,11 @@ export function ModelConfigDrawer({
         </div>
 
         {/* Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-200 bg-white">
+        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-border bg-card">
           <button
             onClick={handleSave}
             disabled={isSaving || selectedLlmId === llmId}
-            className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center disabled:cursor-not-allowed"
+            className="w-full bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground text-primary-foreground font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center disabled:cursor-not-allowed"
           >
             {isSaving ? (
               <>

@@ -117,21 +117,21 @@ export function AddSourcesModal({
     <div className="fixed inset-0 z-50 flex">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-gray-900/30 backdrop-blur-sm"
+        className="fixed inset-0 bg-background/80 backdrop-blur-sm"
         onClick={onClose}
       />
 
       {/* Sidebar */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-2xl bg-white shadow-2xl flex flex-col">
+      <div className="fixed right-0 top-0 h-full w-full max-w-2xl bg-card shadow-2xl flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">{t('title')}</h2>
+            <h2 className="text-xl font-semibold text-foreground">{t('title')}</h2>
             <p className="text-sm text-gray-500 mt-1">{knowledgeBase.knowledge_base_name}</p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -140,7 +140,7 @@ export function AddSourcesModal({
         {/* Content */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-4">
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-destructive text-sm">
               {error}
             </div>
           )}
@@ -156,22 +156,22 @@ export function AddSourcesModal({
                 {texts.map((text, index) => (
                   <div
                     key={index}
-                    className="p-3 bg-gray-50 border border-gray-200 rounded-lg flex items-start justify-between"
+                    className="p-3 bg-muted border border-gray-200 rounded-lg flex items-start justify-between"
                   >
                     <div className="flex-1">
                       {text.title && (
-                        <div className="text-sm font-medium text-gray-900 mb-1">
+                        <div className="text-sm font-medium text-foreground mb-1">
                           {text.title}
                         </div>
                       )}
-                      <div className="text-sm text-gray-600 line-clamp-2">
+                      <div className="text-sm text-muted-foreground line-clamp-2">
                         {text.text}
                       </div>
                     </div>
                     <button
                       type="button"
                       onClick={() => handleRemoveText(index)}
-                      className="ml-2 p-1 text-red-600 hover:bg-red-50 rounded"
+                      className="ml-2 p-1 text-red-600 hover:bg-destructive/10 rounded"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -215,15 +215,15 @@ export function AddSourcesModal({
                 {urls.map((url, index) => (
                   <div
                     key={index}
-                    className="p-3 bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-between"
+                    className="p-3 bg-muted border border-gray-200 rounded-lg flex items-center justify-between"
                   >
-                    <div className="flex-1 text-sm text-gray-900 truncate">
+                    <div className="flex-1 text-sm text-foreground truncate">
                       {url}
                     </div>
                     <button
                       type="button"
                       onClick={() => handleRemoveUrl(index)}
-                      className="ml-2 p-1 text-red-600 hover:bg-red-50 rounded"
+                      className="ml-2 p-1 text-red-600 hover:bg-destructive/10 rounded"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -257,7 +257,7 @@ export function AddSourcesModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-muted rounded-lg hover:bg-gray-200 transition-colors"
           >
             {t('cancel')}
           </button>

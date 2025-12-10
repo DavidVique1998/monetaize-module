@@ -51,7 +51,7 @@ export function LanguageSelector() {
           "group"
         )}
       >
-        <div className="mr-3 flex-shrink-0 transition-colors duration-200 text-gray-400 group-hover:text-blue-600">
+        <div className="mr-3 flex-shrink-0 transition-colors duration-200 text-gray-400 group-hover:text-primary">
           <Globe className="w-4 h-4" />
         </div>
         <span className="flex-1 text-left">{t('language')}</span>
@@ -59,7 +59,7 @@ export function LanguageSelector() {
       </button>
 
       {isOpen && (
-        <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg border border-gray-200 shadow-lg py-2 z-50">
+        <div className="absolute bottom-full left-0 right-0 mb-2 bg-popover rounded-lg border border-gray-200 shadow-lg py-2 z-50">
           {languages.map((lang) => (
             <button
               key={lang.code}
@@ -75,7 +75,7 @@ export function LanguageSelector() {
             >
               <div className="mr-3 flex-shrink-0 w-4 h-4 flex items-center justify-center">
                 {locale === lang.code && (
-                  <Check className="w-4 h-4 text-blue-600" />
+                  <Check className="w-4 h-4 text-primary" />
                 )}
               </div>
               <span className="flex-1 text-left">{lang.nativeName}</span>

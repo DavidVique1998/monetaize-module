@@ -77,7 +77,7 @@ export default function KnowledgePage() {
     };
 
     return (
-      <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[status] || 'bg-gray-100 text-gray-800'}`}>
+      <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[status] || 'bg-muted text-muted-foreground'}`}>
         {statusLabels[status] || status}
       </span>
     );
@@ -109,7 +109,7 @@ export default function KnowledgePage() {
             <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
           </div>
         ) : knowledgeBases.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="text-center py-12 -50 rounded-lg border border-gray-200">
             <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No hay Knowledge Bases</h3>
             <p className="text-gray-600 mb-4">
@@ -128,7 +128,7 @@ export default function KnowledgePage() {
             {knowledgeBases.map((kb) => (
               <div
                 key={kb.knowledge_base_id}
-                className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow"
+                className="bg-card border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">

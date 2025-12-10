@@ -114,7 +114,7 @@ export default function InboxPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex h-full bg-gray-50">
+      <div className="flex h-full -50">
         {/* Left Panel - Conversation List */}
         <div className="w-80 flex-shrink-0">
           <ConversationList

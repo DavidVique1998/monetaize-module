@@ -47,13 +47,13 @@ export function VoiceCard({ voice, isSelected, onSelect, onPreview }: VoiceCardP
   const getProviderColor = (provider: string) => {
     switch (provider) {
       case 'elevenlabs':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-500/10 text-purple-700 border-purple-500/20';
       case 'openai':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-500/10 text-green-700 border-green-500/20';
       case 'deepgram':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-bluebg-muted text-blue-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -66,7 +66,7 @@ export function VoiceCard({ voice, isSelected, onSelect, onPreview }: VoiceCardP
       className={`
         relative p-4 border rounded-lg cursor-pointer transition-all duration-200
         ${isSelected 
-          ? 'border-blue-500 bg-blue-50 shadow-md' 
+          ? 'border-primary bg-primary/5 shadow-md' 
           : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
         }
       `}
@@ -85,15 +85,15 @@ export function VoiceCard({ voice, isSelected, onSelect, onPreview }: VoiceCardP
 
       {/* Información de la voz */}
       <div className="space-y-2 mb-3">
-        <div className="flex items-center space-x-4 text-sm text-gray-600">
+        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
           <span className="capitalize">{voice.gender}</span>
           {voice.accent && (
-            <span className="px-2 py-1 bg-gray-100 rounded text-xs">
+            <span className="px-2 py-1 bg-muted rounded text-xs">
               {voice.accent}
             </span>
           )}
           {voice.age && (
-            <span className="px-2 py-1 bg-gray-100 rounded text-xs">
+            <span className="px-2 py-1 bg-muted rounded text-xs">
               {voice.age}
             </span>
           )}
@@ -108,7 +108,7 @@ export function VoiceCard({ voice, isSelected, onSelect, onPreview }: VoiceCardP
               e.stopPropagation();
               handlePlayPreview();
             }}
-            className="flex items-center space-x-1 px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+            className="flex items-center space-x-1 px-3 py-1 text-sm bg-muted hover:bg-muted/80 rounded-md transition-colors"
           >
             {isPlaying ? (
               <Pause className="w-4 h-4" />
@@ -124,7 +124,7 @@ export function VoiceCard({ voice, isSelected, onSelect, onPreview }: VoiceCardP
       {/* Indicador de selección */}
       {isSelected && (
         <div className="absolute top-2 right-2">
-          <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+          <div className="w-3 h-3 bg-primary rounded-full"></div>
         </div>
       )}
     </div>

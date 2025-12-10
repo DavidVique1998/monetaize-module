@@ -10,13 +10,13 @@ export default function AgentDebugPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-full bg-white">
+      <div className="flex flex-col h-full bg-card">
         {/* Header */}
         <div className="border-b border-gray-200 px-6 py-4">
           <div className="flex items-center space-x-4">
             <button
               onClick={() => router.push('/assistants')}
-              className="p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
+              className="p-1 hover:bg-muted rounded transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-5 h-5 text-gray-600" />
             </button>
@@ -63,7 +63,7 @@ export default function AgentDebugPage() {
             <AgentDebugPanel />
 
             {/* Additional Help */}
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+            <div className="bg-muted border border-border rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">
                 ¿Necesitas más ayuda?
               </h3>

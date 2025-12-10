@@ -40,19 +40,19 @@ interface ConfigSectionProps {
 
 function ConfigSection({ title, icon, isExpanded, onToggle, children }: ConfigSectionProps) {
   return (
-    <div className="border-b border-gray-200">
+    <div className="border-b border-border">
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors"
       >
         <div className="flex items-center space-x-3">
           {icon}
-          <span className="text-sm font-medium text-gray-900">{title}</span>
+          <span className="text-sm font-medium text-foreground">{title}</span>
         </div>
         {isExpanded ? (
-          <ChevronUp className="w-4 h-4 text-gray-400" />
+          <ChevronUp className="w-4 h-4 text-muted-foreground/70" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-gray-400" />
+          <ChevronDown className="w-4 h-4 text-muted-foreground/70" />
         )}
       </button>
       {isExpanded && (
@@ -620,7 +620,7 @@ export function AgentConfigSidebar({
   };
 
   return (
-    <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
+    <div className="w-80 bg-card border-l border-border overflow-y-auto">
   
 
       {/* Configuration Sections */}
@@ -628,18 +628,18 @@ export function AgentConfigSidebar({
         {/* Functions */}
         <ConfigSection
           title="Functions"
-          icon={<Grid3x3 className="w-4 h-4 text-gray-600" />}
+          icon={<Grid3x3 className="w-4 h-4 text-muted-foreground" />}
           isExpanded={expandedSections.functions}
           onToggle={() => toggleSection('functions')}
         >
           <div className="space-y-3">
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-muted-foreground">
               Configure function calling capabilities for your agent.
             </p>
             
             {!getLLMId() && (
-              <div className="p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-xs text-yellow-800">
+              <div className="p-2 bg-yellow-500/10 border border-yellow-200 rounded-lg">
+                <p className="text-xs text-yellow-700">
                   El agente debe tener un LLM configurado para usar tools.
                 </p>
               </div>
@@ -647,7 +647,7 @@ export function AgentConfigSidebar({
 
             {isLoadingTools ? (
               <div className="text-center py-4">
-                <p className="text-xs text-gray-500">Cargando tools...</p>
+                <p className="text-xs text-muted-foreground">Cargando tools...</p>
               </div>
             ) : (
               <>
@@ -656,18 +656,18 @@ export function AgentConfigSidebar({
                     {tools.map((tool, index) => (
                       <div
                         key={index}
-                        className="p-2 bg-gray-50 border border-gray-200 rounded-lg flex items-start justify-between"
+                        className="p-2 bg-muted/30 border border-border rounded-lg flex items-start justify-between"
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-gray-900 truncate">
+                            <span className="text-xs font-medium text-foreground truncate">
                               {tool.name}
                             </span>
-                            <span className="text-xs text-gray-500 bg-gray-200 px-1.5 py-0.5 rounded">
+                            <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
                               {tool.type}
                             </span>
                           </div>
-                          <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                             {tool.description}
                           </p>
                           {tool.parameters && tool.parameters.length > 0 && (
@@ -675,7 +675,7 @@ export function AgentConfigSidebar({
                               {tool.parameters.map((param, paramIndex) => (
                                 <span
                                   key={paramIndex}
-                                  className="text-xs text-gray-500 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded"
+                                  className="text-xs text-muted-foreground bg-blue-50 border border-primary/20 px-1.5 py-0.5 rounded"
                                   title={`${param.name} (${param.type})${param.required ? ' - Requerido' : ''}`}
                                 >
                                   {param.name}
@@ -688,14 +688,14 @@ export function AgentConfigSidebar({
                         <div className="flex items-center gap-1 ml-2">
                           <button
                             onClick={() => handleEditTool(index)}
-                            className="p-1 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors"
+                            className="p-1 text-muted-foreground hover:text-primary hover:bg-purple-50 rounded transition-colors"
                             title="Editar tool"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleDeleteTool(index)}
-                            className="p-1 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                            className="p-1 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                             title="Eliminar tool"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -709,7 +709,7 @@ export function AgentConfigSidebar({
                 <button
                   onClick={handleAddTool}
                   disabled={!getLLMId()}
-                  className="w-full px-3 py-2 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full px-3 py-2 text-sm text-primary border border-primary/20 rounded-lg hover:bg-purple-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
                   Agregar Tool
@@ -722,18 +722,18 @@ export function AgentConfigSidebar({
         {/* Knowledge Base */}
         <ConfigSection
           title="Knowledge Base"
-          icon={<BookOpen className="w-4 h-4 text-gray-600" />}
+          icon={<BookOpen className="w-4 h-4 text-muted-foreground" />}
           isExpanded={expandedSections.knowledgeBase}
           onToggle={() => toggleSection('knowledgeBase')}
         >
           <div className="space-y-3">
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-muted-foreground">
               Conecta una Knowledge Base para proporcionar contexto a tu agente.
             </p>
             
             {!getLLMId() && (
-              <div className="p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-xs text-yellow-800">
+              <div className="p-2 bg-yellow-500/10 border border-yellow-200 rounded-lg">
+                <p className="text-xs text-yellow-700">
                   El agente debe tener un LLM configurado para usar Knowledge Bases.
                 </p>
               </div>
@@ -741,7 +741,7 @@ export function AgentConfigSidebar({
 
             {isLoadingKnowledgeBases ? (
               <div className="text-center py-4">
-                <p className="text-xs text-gray-500">Cargando Knowledge Bases...</p>
+                <p className="text-xs text-muted-foreground">Cargando Knowledge Bases...</p>
               </div>
             ) : (
               <>
@@ -753,7 +753,7 @@ export function AgentConfigSidebar({
                     value={selectedKnowledgeBaseId || ''}
                     onChange={(e) => handleKnowledgeBaseChange(e.target.value || null)}
                     disabled={!getLLMId()}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <option value="">Ninguna</option>
                     {knowledgeBases.map((kb) => (
@@ -762,19 +762,19 @@ export function AgentConfigSidebar({
                       </option>
                     ))}
                   </select>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     Selecciona una Knowledge Base para asociarla con este agente
                   </p>
                 </div>
 
                 {knowledgeBases.length === 0 && (
-                  <div className="p-2 bg-gray-50 border border-gray-200 rounded-lg">
-                    <p className="text-xs text-gray-600 mb-2">
+                  <div className="p-2 bg-muted/30 border border-border rounded-lg">
+                    <p className="text-xs text-muted-foreground mb-2">
                       No hay Knowledge Bases disponibles. Crea una en la página de Knowledge Bases.
                     </p>
                     <a
                       href="/knowledge"
-                      className="text-xs text-purple-600 hover:text-purple-700 underline"
+                      className="text-xs text-primary hover:text-primary/80 underline"
                     >
                       Ir a Knowledge Bases →
                     </a>
@@ -782,8 +782,8 @@ export function AgentConfigSidebar({
                 )}
 
                 {selectedKnowledgeBaseId && (
-                  <div className="p-2 bg-green-50 border border-green-200 rounded-lg">
-                    <p className="text-xs text-green-800">
+                  <div className="p-2 bg-green-500/10 border border-green-200 rounded-lg">
+                    <p className="text-xs text-green-700">
                       ✓ Knowledge Base conectada correctamente
                     </p>
                   </div>
@@ -796,7 +796,7 @@ export function AgentConfigSidebar({
         {/* Speech Settings */}
         <ConfigSection
           title="Speech Settings"
-          icon={<Volume2 className="w-4 h-4 text-gray-600" />}
+          icon={<Volume2 className="w-4 h-4 text-muted-foreground" />}
           isExpanded={expandedSections.speechSettings}
           onToggle={() => toggleSection('speechSettings')}
         >
@@ -814,7 +814,7 @@ export function AgentConfigSidebar({
                 onChange={(e) => onSettingsChange({ responsiveness: parseFloat(e.target.value) })}
                 className="w-full"
               />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
                 <span>Less responsive</span>
                 <span>More responsive</span>
               </div>
@@ -833,7 +833,7 @@ export function AgentConfigSidebar({
                 onChange={(e) => onSettingsChange({ interruption_sensitivity: parseFloat(e.target.value) })}
                 className="w-full"
               />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
                 <span>Less sensitive</span>
                 <span>More sensitive</span>
               </div>
@@ -847,7 +847,7 @@ export function AgentConfigSidebar({
                 type="checkbox"
                 checked={getValue('enable_backchannel', false)}
                 onChange={(e) => onSettingsChange({ enable_backchannel: e.target.checked })}
-                className="w-4 h-4 text-purple-600"
+                className="w-4 h-4 text-primary"
               />
             </div>
 
@@ -901,7 +901,7 @@ export function AgentConfigSidebar({
         {/* Realtime Transcription Settings */}
         <ConfigSection
           title="Realtime Transcription Settings"
-          icon={<Mic className="w-4 h-4 text-gray-600" />}
+          icon={<Mic className="w-4 h-4 text-muted-foreground" />}
           isExpanded={expandedSections.transcriptionSettings}
           onToggle={() => toggleSection('transcriptionSettings')}
         >
@@ -913,7 +913,7 @@ export function AgentConfigSidebar({
               <select
                 value={getValue('stt_mode', 'fast')}
                 onChange={(e) => onSettingsChange({ stt_mode: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="fast">Fast</option>
                 <option value="accurate">Accurate</option>
@@ -927,7 +927,7 @@ export function AgentConfigSidebar({
               <select
                 value={getValue('vocab_specialization', 'general')}
                 onChange={(e) => onSettingsChange({ vocab_specialization: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="general">General</option>
                 <option value="medical">Medical</option>
@@ -943,7 +943,7 @@ export function AgentConfigSidebar({
               <select
                 value={getValue('denoising_mode', 'noise-cancellation')}
                 onChange={(e) => onSettingsChange({ denoising_mode: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="noise-cancellation">Noise Cancellation</option>
                 <option value="none">None</option>
@@ -955,7 +955,7 @@ export function AgentConfigSidebar({
         {/* Call Settings */}
         <ConfigSection
           title="Call Settings"
-          icon={<Phone className="w-4 h-4 text-gray-600" />}
+          icon={<Phone className="w-4 h-4 text-muted-foreground" />}
           isExpanded={expandedSections.callSettings}
           onToggle={() => toggleSection('callSettings')}
         >
@@ -970,7 +970,7 @@ export function AgentConfigSidebar({
                 max="120"
                 value={getValue('max_call_duration_ms', 3600000) / 60000}
                 onChange={(e) => onSettingsChange({ max_call_duration_ms: parseInt(e.target.value) * 60000 })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -984,7 +984,7 @@ export function AgentConfigSidebar({
                 max="600"
                 value={getValue('end_call_after_silence_ms', 600000) / 1000}
                 onChange={(e) => onSettingsChange({ end_call_after_silence_ms: parseInt(e.target.value) * 1000 })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -998,7 +998,7 @@ export function AgentConfigSidebar({
                 max="120"
                 value={getValue('ring_duration_ms', 30000) / 1000}
                 onChange={(e) => onSettingsChange({ ring_duration_ms: parseInt(e.target.value) * 1000 })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -1012,7 +1012,7 @@ export function AgentConfigSidebar({
                 max="5000"
                 value={getValue('begin_message_delay_ms', 1000)}
                 onChange={(e) => onSettingsChange({ begin_message_delay_ms: parseInt(e.target.value) })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -1024,7 +1024,7 @@ export function AgentConfigSidebar({
                 type="checkbox"
                 checked={getValue('allow_user_dtmf', false)}
                 onChange={(e) => onSettingsChange({ allow_user_dtmf: e.target.checked })}
-                className="w-4 h-4 text-purple-600"
+                className="w-4 h-4 text-primary"
               />
             </div>
 
@@ -1035,7 +1035,7 @@ export function AgentConfigSidebar({
               <select
                 value={getValue('ambient_sound', null) || 'null'}
                 onChange={(e) => onSettingsChange({ ambient_sound: e.target.value === 'null' ? null : e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="null">None</option>
                 <option value="coffee-shop">Coffee Shop</option>
@@ -1052,12 +1052,12 @@ export function AgentConfigSidebar({
         {/* Post-Call Data Extraction */}
         <ConfigSection
           title="Post-Call Data Extraction"
-          icon={<BarChart3 className="w-4 h-4 text-gray-600" />}
+          icon={<BarChart3 className="w-4 h-4 text-muted-foreground" />}
           isExpanded={expandedSections.postCallExtraction}
           onToggle={() => toggleSection('postCallExtraction')}
         >
           <div className="space-y-3">
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-muted-foreground">
               Configure data extraction after calls complete.
             </p>
             <div>
@@ -1067,14 +1067,14 @@ export function AgentConfigSidebar({
               <select
                 value={getValue('post_call_analysis_model', 'gpt-4o-mini')}
                 onChange={(e) => onSettingsChange({ post_call_analysis_model: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="gpt-4o-mini">GPT-4o Mini</option>
                 <option value="gpt-4o">GPT-4o</option>
                 <option value="gpt-4">GPT-4</option>
               </select>
             </div>
-            <button className="w-full px-3 py-2 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors">
+            <button className="w-full px-3 py-2 text-sm text-primary border border-primary/20 rounded-lg hover:bg-purple-50 transition-colors">
               Configure Extraction Fields
             </button>
           </div>
@@ -1083,7 +1083,7 @@ export function AgentConfigSidebar({
         {/* Security & Fallback Settings */}
         <ConfigSection
           title="Security & Fallback Settings"
-          icon={<Shield className="w-4 h-4 text-gray-600" />}
+          icon={<Shield className="w-4 h-4 text-muted-foreground" />}
           isExpanded={expandedSections.securitySettings}
           onToggle={() => toggleSection('securitySettings')}
         >
@@ -1095,7 +1095,7 @@ export function AgentConfigSidebar({
               <select
                 value={getValue('data_storage_setting', 'everything')}
                 onChange={(e) => onSettingsChange({ data_storage_setting: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="everything">Everything</option>
                 <option value="transcript-only">Transcript Only</option>
@@ -1112,7 +1112,7 @@ export function AgentConfigSidebar({
                 type="checkbox"
                 checked={getValue('opt_in_signed_url', false)}
                 onChange={(e) => onSettingsChange({ opt_in_signed_url: e.target.checked })}
-                className="w-4 h-4 text-purple-600"
+                className="w-4 h-4 text-primary"
               />
             </div>
 
@@ -1124,7 +1124,7 @@ export function AgentConfigSidebar({
                 type="checkbox"
                 checked={getValue('normalize_for_speech', false)}
                 onChange={(e) => onSettingsChange({ normalize_for_speech: e.target.checked })}
-                className="w-4 h-4 text-purple-600"
+                className="w-4 h-4 text-primary"
               />
             </div>
           </div>
@@ -1133,7 +1133,7 @@ export function AgentConfigSidebar({
         {/* Webhook Settings */}
         <ConfigSection
           title="Webhook Settings"
-          icon={<Globe className="w-4 h-4 text-gray-600" />}
+          icon={<Globe className="w-4 h-4 text-muted-foreground" />}
           isExpanded={expandedSections.webhookSettings}
           onToggle={() => toggleSection('webhookSettings')}
         >
@@ -1157,21 +1157,21 @@ export function AgentConfigSidebar({
                         value={displayUrl}
                 onChange={(e) => onSettingsChange({ webhook_url: e.target.value })}
                         placeholder={defaultWebhookUrl}
-                        className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                        className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${
                           isUsingDefault 
-                            ? 'border-gray-300 bg-gray-50 text-gray-600' 
-                            : 'border-gray-300 bg-white'
+                            ? 'border-input bg-muted/30 text-muted-foreground' 
+                            : 'border-input bg-card'
                         }`}
                       />
                       {isUsingDefault && (
                         <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
                             Por defecto
                           </span>
                         </div>
                       )}
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       {isUsingDefault 
                         ? 'Usando el webhook por defecto de la aplicación. Las llamadas se registrarán automáticamente en el Call History.'
                         : 'Webhook personalizado configurado. Puedes dejarlo vacío para usar el webhook por defecto.'}
@@ -1179,7 +1179,7 @@ export function AgentConfigSidebar({
                     {!isUsingDefault && (
                       <button
                         onClick={() => onSettingsChange({ webhook_url: '' })}
-                        className="mt-2 text-xs text-purple-600 hover:text-purple-700 underline"
+                        className="mt-2 text-xs text-primary hover:text-primary/80 underline"
                       >
                         Restaurar webhook por defecto
                       </button>
@@ -1199,9 +1199,9 @@ export function AgentConfigSidebar({
                 max="30000"
                 value={getValue('webhook_timeout_ms', 10000)}
                 onChange={(e) => onSettingsChange({ webhook_timeout_ms: parseInt(e.target.value) })}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 Tiempo máximo de espera para la respuesta del webhook (1000-30000 ms)
               </p>
             </div>
@@ -1211,15 +1211,15 @@ export function AgentConfigSidebar({
         {/* MCPs */}
         <ConfigSection
           title="MCPs"
-          icon={<Link2 className="w-4 h-4 text-gray-600" />}
+          icon={<Link2 className="w-4 h-4 text-muted-foreground" />}
           isExpanded={expandedSections.mcps}
           onToggle={() => toggleSection('mcps')}
         >
           <div className="space-y-3">
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-muted-foreground">
               Configure Model Context Protocol connections.
             </p>
-            <button className="w-full px-3 py-2 text-sm text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors">
+            <button className="w-full px-3 py-2 text-sm text-primary border border-primary/20 rounded-lg hover:bg-purple-50 transition-colors">
               Add MCP Connection
             </button>
           </div>
@@ -1228,10 +1228,10 @@ export function AgentConfigSidebar({
 
       {/* Modal para crear/editar tool */}
       {showToolModal && (
-        <div className="fixed inset-0 bg-gray-900/30 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-card rounded-lg shadow-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-foreground">
                 {editingToolIndex !== null ? 'Editar Tool' : 'Agregar Tool'}
               </h3>
               <button
@@ -1261,7 +1261,7 @@ export function AgentConfigSidebar({
                   });
                   setEditingParameterIndex(null);
                 }}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-muted-foreground/70 hover:text-muted-foreground"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1325,7 +1325,7 @@ export function AgentConfigSidebar({
                     
                     setToolForm(resetForm);
                   }}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <option value="end_call">End Call</option>
                   <option value="custom">Custom Function (HTTP)</option>
@@ -1336,7 +1336,7 @@ export function AgentConfigSidebar({
                   <option value="book_appointment_cal">Book Appointment (Cal.com)</option>
                   <option value="press_digit">Press Digit</option>
                 </select>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   {(toolForm.type as RetellToolType) === 'custom' && 'Custom function tool con HTTP'}
                   {(toolForm.type as RetellToolType) === 'transfer_call' && 'Para transferir llamadas a otro número o agente'}
                   {(toolForm.type as RetellToolType) === 'book_appointment_cal' && 'Para agendar citas usando Cal.com'}
@@ -1353,9 +1353,9 @@ export function AgentConfigSidebar({
                   value={toolForm.name || ''}
                   onChange={(e) => setToolForm({ ...toolForm, name: e.target.value })}
                   placeholder="check_order_status"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Nombre único del tool (sin espacios, usar snake_case)
                 </p>
               </div>
@@ -1369,9 +1369,9 @@ export function AgentConfigSidebar({
                   onChange={(e) => setToolForm({ ...toolForm, description: e.target.value })}
                   placeholder="Verificar el estado de una orden por su ID"
                   rows={3}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Describe qué hace el tool y cuándo debe usarse
                 </p>
               </div>
@@ -1388,7 +1388,7 @@ export function AgentConfigSidebar({
                       value={toolForm.url || ''}
                       onChange={(e) => setToolForm({ ...toolForm, url: e.target.value })}
                       placeholder="https://api.example.com/endpoint"
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
 
@@ -1399,7 +1399,7 @@ export function AgentConfigSidebar({
                     <select
                       value={toolForm.method || 'POST'}
                       onChange={(e) => setToolForm({ ...toolForm, method: e.target.value as any })}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                       <option value="GET">GET</option>
                       <option value="POST">POST</option>
@@ -1407,7 +1407,7 @@ export function AgentConfigSidebar({
                       <option value="DELETE">DELETE</option>
                       <option value="PATCH">PATCH</option>
                     </select>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Default: POST
                     </p>
                   </div>
@@ -1428,9 +1428,9 @@ export function AgentConfigSidebar({
                       }}
                       placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'
                       rows={3}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-xs"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary font-mono text-xs"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Formato JSON con los headers HTTP a enviar
                     </p>
                   </div>
@@ -1451,19 +1451,19 @@ export function AgentConfigSidebar({
                       }}
                       placeholder='{"page": "1", "sort": "asc"}'
                       rows={2}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-xs"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary font-mono text-xs"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Query parameters a agregar a la URL
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                  <div className="flex items-center justify-between pt-2 border-t border-border">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Speak After Execution *
                       </label>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         El agente llamará al LLM nuevamente y hablará cuando se obtenga el resultado
                       </p>
                     </div>
@@ -1471,16 +1471,16 @@ export function AgentConfigSidebar({
                       type="checkbox"
                       checked={toolForm.speak_after_execution ?? true}
                       onChange={(e) => setToolForm({ ...toolForm, speak_after_execution: e.target.checked })}
-                      className="w-4 h-4 text-purple-600"
+                      className="w-4 h-4 text-primary"
                     />
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                  <div className="flex items-center justify-between pt-2 border-t border-border">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Speak During Execution
                       </label>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         El agente dirá algo como "Un momento, déjame verificar eso" durante la ejecución
                       </p>
                     </div>
@@ -1488,7 +1488,7 @@ export function AgentConfigSidebar({
                       type="checkbox"
                       checked={toolForm.speak_during_execution ?? false}
                       onChange={(e) => setToolForm({ ...toolForm, speak_during_execution: e.target.checked })}
-                      className="w-4 h-4 text-purple-600"
+                      className="w-4 h-4 text-primary"
                     />
                   </div>
 
@@ -1502,9 +1502,9 @@ export function AgentConfigSidebar({
                         onChange={(e) => setToolForm({ ...toolForm, execution_message_description: e.target.value })}
                         placeholder="El mensaje que el agente dirá al llamar este tool. Asegúrate de que encaje suavemente en la conversación."
                         rows={2}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       />
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         Descripción del mensaje que el agente dirá durante la ejecución
                       </p>
                     </div>
@@ -1526,9 +1526,9 @@ export function AgentConfigSidebar({
                           setToolForm({ ...toolForm, timeout_ms: value });
                         }
                       }}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Tiempo máximo en milisegundos (1000-600000, default: 120000 = 2 min)
                     </p>
                   </div>
@@ -1549,9 +1549,9 @@ export function AgentConfigSidebar({
                       }}
                       placeholder='{"user_name": "data.user.name", "order_status": "data.status"}'
                       rows={3}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-xs"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary font-mono text-xs"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Mapeo de nombres de variables a JSON paths en la respuesta. Estos valores estarán disponibles como variables dinámicas.
                     </p>
                   </div>
@@ -1576,9 +1576,9 @@ export function AgentConfigSidebar({
                         });
                       }}
                       placeholder="https://tu-api.com/webhook/tools"
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       URL que se llamará cuando el agente use este tool (MCP endpoint)
                     </p>
                   </div>
@@ -1605,7 +1605,7 @@ export function AgentConfigSidebar({
                           }
                         });
                       }}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                       <option value="predefined">Número Predefinido</option>
                       <option value="agent">Agente</option>
@@ -1630,7 +1630,7 @@ export function AgentConfigSidebar({
                           });
                         }}
                         placeholder="+14157774444"
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
                   )}
@@ -1653,7 +1653,7 @@ export function AgentConfigSidebar({
                           });
                         }}
                         placeholder="agent_id"
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
                   )}
@@ -1673,7 +1673,7 @@ export function AgentConfigSidebar({
                           }
                         });
                       }}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                       <option value="cold_transfer">Cold Transfer</option>
                       <option value="warm_transfer">Warm Transfer</option>
@@ -1694,7 +1694,7 @@ export function AgentConfigSidebar({
                       value={toolForm.cal_api_key || ''}
                       onChange={(e) => setToolForm({ ...toolForm, cal_api_key: e.target.value })}
                       placeholder="cal_live_xxxxxxxxxxxx"
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
 
@@ -1707,7 +1707,7 @@ export function AgentConfigSidebar({
                       value={toolForm.event_type_id || ''}
                       onChange={(e) => setToolForm({ ...toolForm, event_type_id: parseInt(e.target.value) || undefined })}
                       placeholder="60444"
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
 
@@ -1720,7 +1720,7 @@ export function AgentConfigSidebar({
                       value={toolForm.timezone || ''}
                       onChange={(e) => setToolForm({ ...toolForm, timezone: e.target.value })}
                       placeholder="America/Los_Angeles"
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
                 </>
@@ -1737,7 +1737,7 @@ export function AgentConfigSidebar({
                     onChange={(e) => setToolForm({ ...toolForm, sms_content: e.target.value })}
                     placeholder="Contenido del SMS"
                     rows={3}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
               )}
@@ -1746,14 +1746,14 @@ export function AgentConfigSidebar({
               {((toolForm.type as RetellToolType) === 'custom' || (toolForm.type as RetellToolType) === 'function' || (toolForm.type as RetellToolType) === 'mcp') && (
                 <>
                   {/* Parámetros */}
-                  <div className="border-t border-gray-200 pt-4">
+                  <div className="border-t border-border pt-4">
                     <div className="flex items-center justify-between mb-3">
                       <label className="block text-sm font-medium text-gray-700">
                         Parámetros
                       </label>
                       <button
                         onClick={handleAddParameter}
-                        className="text-xs text-purple-600 hover:text-purple-700 flex items-center gap-1"
+                        className="text-xs text-primary hover:text-primary/80 flex items-center gap-1"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         Agregar Parámetro
@@ -1766,14 +1766,14 @@ export function AgentConfigSidebar({
                         {toolForm.parameters.map((param, index) => (
                           <div
                             key={index}
-                            className="p-2 bg-gray-50 border border-gray-200 rounded-lg flex items-start justify-between"
+                            className="p-2 bg-muted/30 border border-border rounded-lg flex items-start justify-between"
                           >
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
-                                <span className="text-xs font-medium text-gray-900">
+                                <span className="text-xs font-medium text-foreground">
                                   {param.name}
                                 </span>
-                                <span className="text-xs text-gray-500 bg-gray-200 px-1.5 py-0.5 rounded">
+                                <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
                                   {param.type}
                                 </span>
                                 {param.required && (
@@ -1782,11 +1782,11 @@ export function AgentConfigSidebar({
                                   </span>
                                 )}
                               </div>
-                              <p className="text-xs text-gray-600 mt-1">
+                              <p className="text-xs text-muted-foreground mt-1">
                                 {param.description}
                               </p>
                               {param.enum && param.enum.length > 0 && (
-                                <p className="text-xs text-gray-500 mt-1">
+                                <p className="text-xs text-muted-foreground mt-1">
                                   Valores: {param.enum.join(', ')}
                                 </p>
                               )}
@@ -1794,14 +1794,14 @@ export function AgentConfigSidebar({
                             <div className="flex items-center gap-1 ml-2">
                               <button
                                 onClick={() => handleEditParameter(index)}
-                                className="p-1 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors"
+                                className="p-1 text-muted-foreground hover:text-primary hover:bg-purple-50 rounded transition-colors"
                                 title="Editar parámetro"
                               >
                                 <Edit2 className="w-3.5 h-3.5" />
                               </button>
                               <button
                                 onClick={() => handleDeleteParameter(index)}
-                                className="p-1 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                className="p-1 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                                 title="Eliminar parámetro"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -1814,15 +1814,15 @@ export function AgentConfigSidebar({
 
                     {/* Formulario de parámetro */}
                     {(editingParameterIndex !== null || (toolForm.parameters && toolForm.parameters.length === 0)) && (
-                      <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg space-y-3">
+                      <div className="p-3 bg-purple-50 border border-primary/20 rounded-lg space-y-3">
                         <div className="flex items-center justify-between">
-                          <h4 className="text-sm font-medium text-gray-900">
+                          <h4 className="text-sm font-medium text-foreground">
                             {editingParameterIndex !== null ? 'Editar Parámetro' : 'Nuevo Parámetro'}
                           </h4>
                           {editingParameterIndex !== null && (
                             <button
                               onClick={handleCancelParameter}
-                              className="text-gray-400 hover:text-gray-600"
+                              className="text-muted-foreground/70 hover:text-muted-foreground"
                             >
                               <X className="w-4 h-4" />
                             </button>
@@ -1838,7 +1838,7 @@ export function AgentConfigSidebar({
                             value={parameterForm.name || ''}
                             onChange={(e) => setParameterForm({ ...parameterForm, name: e.target.value })}
                             placeholder="order_id"
-                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            className="w-full px-2 py-1.5 text-sm border border-input rounded focus:outline-none focus:ring-2 focus:ring-primary"
                           />
                         </div>
 
@@ -1849,7 +1849,7 @@ export function AgentConfigSidebar({
                           <select
                             value={parameterForm.type || 'string'}
                             onChange={(e) => setParameterForm({ ...parameterForm, type: e.target.value as RetellToolParameter['type'] })}
-                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            className="w-full px-2 py-1.5 text-sm border border-input rounded focus:outline-none focus:ring-2 focus:ring-primary"
                           >
                             <option value="string">String</option>
                             <option value="number">Number</option>
@@ -1868,7 +1868,7 @@ export function AgentConfigSidebar({
                             onChange={(e) => setParameterForm({ ...parameterForm, description: e.target.value })}
                             placeholder="El ID de la orden a verificar"
                             rows={2}
-                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            className="w-full px-2 py-1.5 text-sm border border-input rounded focus:outline-none focus:ring-2 focus:ring-primary"
                           />
                         </div>
 
@@ -1880,7 +1880,7 @@ export function AgentConfigSidebar({
                             type="checkbox"
                             checked={parameterForm.required || false}
                             onChange={(e) => setParameterForm({ ...parameterForm, required: e.target.checked })}
-                            className="w-4 h-4 text-purple-600"
+                            className="w-4 h-4 text-primary"
                           />
                         </div>
 
@@ -1900,9 +1900,9 @@ export function AgentConfigSidebar({
                                 });
                               }}
                               placeholder="valor1, valor2, valor3"
-                              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+                              className="w-full px-2 py-1.5 text-sm border border-input rounded focus:outline-none focus:ring-2 focus:ring-primary"
                             />
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-muted-foreground mt-1">
                               Separa los valores con comas
                             </p>
                           </div>
@@ -1918,7 +1918,7 @@ export function AgentConfigSidebar({
                           {editingParameterIndex !== null && (
                             <button
                               onClick={handleCancelParameter}
-                              className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
+                              className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-muted rounded hover:bg-muted transition-colors"
                             >
                               Cancelar
                             </button>
@@ -1952,7 +1952,7 @@ export function AgentConfigSidebar({
                     });
                     setEditingParameterIndex(null);
                   }}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-muted rounded-lg hover:bg-muted transition-colors"
                 >
                   Cancelar
                 </button>

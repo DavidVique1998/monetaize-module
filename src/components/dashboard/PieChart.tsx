@@ -67,13 +67,13 @@ export function PieChart({
 
   return (
     <div className={cn(
-      "bg-white rounded-lg border border-gray-200 p-6 shadow-sm",
+      "bg-card rounded-lg border border-gray-200 p-6 shadow-sm",
       className
     )}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-        <span className="text-sm text-gray-500">{subtitle}</span>
+        <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+        <span className="text-sm text-muted-foreground">{subtitle}</span>
       </div>
       
       {/* Pie Chart */}
@@ -98,7 +98,7 @@ export function PieChart({
           
           {/* Centro del gráfico */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm">
+            <div className="w-16 h-16 bg-card rounded-full flex items-center justify-center shadow-sm">
               <span className="text-sm font-semibold text-gray-700">{total}</span>
             </div>
           </div>
@@ -114,9 +114,9 @@ export function PieChart({
                 className="w-3 h-3 rounded-full mr-2"
                 style={{ backgroundColor: segment.color }}
               />
-              <span className="text-sm text-gray-600">{segment.label}</span>
+              <span className="text-sm text-muted-foreground">{segment.label}</span>
             </div>
-            <span className="text-sm font-medium text-gray-900">
+            <span className="text-sm font-medium text-foreground">
               {segment.value} ({segment.percentage.toFixed(1)}%)
             </span>
           </div>

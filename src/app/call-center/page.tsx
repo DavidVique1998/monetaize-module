@@ -38,25 +38,25 @@ export default function CallCenterPage() {
       label: 'Dials',
       value: 1,
       percentage: 100,
-      color: 'bg-purple-500'
+      color: 'bg-purplebg-background0'
     },
     {
       label: 'Answers',
       value: 1,
       percentage: 100,
-      color: 'bg-purple-500'
+      color: 'bg-purplebg-background0'
     },
     {
       label: 'Conversations',
       value: 0,
       percentage: 0,
-      color: 'bg-yellow-500'
+      color: 'bg-yellowbg-background0'
     },
     {
       label: 'Appointments',
       value: 0,
       percentage: 0,
-      color: 'bg-orange-500'
+      color: 'bg-orangebg-background0'
     }
   ];
 
@@ -84,18 +84,18 @@ export default function CallCenterPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-full bg-gray-50">
+      <div className="flex flex-col h-full bg-background">
         {/* Header */}
         <HeaderBar title="Call Center" />
         
         {/* Tabs */}
-        <div className="flex border-b border-gray-200 bg-white">
+        <div className="flex border-b border-gray-200 bg-card">
           <button
             onClick={() => setActiveTab('data-center')}
             className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
               activeTab === 'data-center'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-graybg-background0 hover:text-gray-700'
             }`}
           >
             Data Center
@@ -104,8 +104,8 @@ export default function CallCenterPage() {
             onClick={() => setActiveTab('call-list')}
             className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
               activeTab === 'call-list'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-graybg-background0 hover:text-gray-700'
             }`}
           >
             Call List
@@ -286,9 +286,9 @@ export default function CallCenterPage() {
 
         {activeTab === 'call-list' && (
           <div className="flex-1 p-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="bg-card rounded-lg border border-gray-200 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Call List</h3>
-              <p className="text-gray-500">Call list functionality will be implemented here.</p>
+              <p className="text-graybg-background0">Call list functionality will be implemented here.</p>
             </div>
           </div>
         )}

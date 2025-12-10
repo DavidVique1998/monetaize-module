@@ -118,7 +118,7 @@ export default function PhoneNumbersPage() {
       <DashboardLayout>
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+            <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
             <p className="text-gray-600">Cargando números de teléfono...</p>
           </div>
         </div>
@@ -128,7 +128,7 @@ export default function PhoneNumbersPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-full bg-gray-50">
+      <div className="flex flex-col h-full bg-background">
         {/* Header */}
         <HeaderBar title="Numbers" />
         
@@ -143,7 +143,7 @@ export default function PhoneNumbersPage() {
                 placeholder="Search numbers..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-3 h-10 w-96 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+                className="pl-10 pr-4 py-3 h-10 w-96 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purplebg-background0 focus:border-transparent bg-card"
               />
             </div>
 
@@ -159,8 +159,8 @@ export default function PhoneNumbersPage() {
 
         {/* Error */}
         {error && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-md flex items-start space-x-3">
-            <AlertCircle className="w-5 h-5 text-red-500 mt-0.5" />
+          <div className="p-4 bg-redbg-background border border-red-200 rounded-md flex items-start space-x-3">
+            <AlertCircle className="w-5 h-5 text-redbg-background0 mt-0.5" />
             <div>
               <p className="text-red-800 font-medium">Error</p>
               <p className="text-red-700 text-sm">{error}</p>
@@ -170,9 +170,9 @@ export default function PhoneNumbersPage() {
 
         {/* Estadísticas */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="bg-card p-4 rounded-lg border border-gray-200">
             <div className="flex items-center">
-              <Phone className="w-8 h-8 text-blue-600" />
+              <Phone className="w-8 h-8 text-primary" />
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-600">Total Números</p>
                 <p className="text-2xl font-bold text-gray-900">{phoneNumbers.length}</p>
@@ -180,7 +180,7 @@ export default function PhoneNumbersPage() {
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="bg-card p-4 rounded-lg border border-gray-200">
             <div className="flex items-center">
               <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
                 <span className="text-red-600 font-bold text-sm">T</span>
@@ -194,10 +194,10 @@ export default function PhoneNumbersPage() {
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="bg-card p-4 rounded-lg border border-gray-200">
             <div className="flex items-center">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-blue-600 font-bold text-sm">T</span>
+                <span className="text-primary font-bold text-sm">T</span>
               </div>
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-600">Telnyx</p>
@@ -208,7 +208,7 @@ export default function PhoneNumbersPage() {
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="bg-card p-4 rounded-lg border border-gray-200">
             <div className="flex items-center">
               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                 <span className="text-green-600 font-bold text-sm">C</span>
@@ -224,7 +224,7 @@ export default function PhoneNumbersPage() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+        <div className="bg-card rounded-lg border border-gray-200 shadow-sm">
           {/* Table Header */}
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="grid grid-cols-6 gap-4 text-sm font-semibold text-gray-700">
@@ -241,18 +241,18 @@ export default function PhoneNumbersPage() {
           {filteredPhoneNumbers.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20">
               <Phone className="w-12 h-12 text-gray-300 mb-4" />
-              <p className="text-gray-500 font-medium">No phone numbers to display</p>
+              <p className="text-graybg-background0 font-medium">No phone numbers to display</p>
             </div>
           ) : (
             <div className="divide-y divide-gray-200">
               {filteredPhoneNumbers.map((phoneNumber) => (
-                <div key={phoneNumber.phone_number} className="px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div key={phoneNumber.phone_number} className="px-6 py-4 hover:bg-graybg-background transition-colors">
                   <div className="grid grid-cols-6 gap-4 items-center">
                     <div>
                       <p className="text-sm font-medium text-gray-900">
                         {phoneNumber.phone_number_pretty || phoneNumber.phone_number}
                       </p>
-                      <p className="text-xs text-gray-500">{phoneNumber.phone_number}</p>
+                      <p className="text-xs text-graybg-background0">{phoneNumber.phone_number}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">{phoneNumber.nickname || '-'}</p>
@@ -271,13 +271,13 @@ export default function PhoneNumbersPage() {
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => handleEdit(phoneNumber)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-2 text-primary hover:bg-primary/5 rounded-lg transition-colors"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(phoneNumber.phone_number || '')}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-2 text-red-600 hover:bg-redbg-background rounded-lg transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

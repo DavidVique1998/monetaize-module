@@ -56,7 +56,9 @@
     "logout": "Cerrar Sesión",
     "language": "Idioma",
     "spanish": "Español",
-    "english": "Inglés"
+    "english": "Inglés",
+    "lightMode": "Modo Claro",
+    "darkMode": "Modo Oscuro"
   },
   "assistants": {
     "title": "Asistentes",

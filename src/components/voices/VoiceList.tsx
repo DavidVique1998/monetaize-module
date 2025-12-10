@@ -45,8 +45,8 @@ export function VoiceList({ voices, selectedVoice, onVoiceSelect, onVoicePreview
       {/* Header con controles */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Voces Disponibles</h2>
-          <p className="text-gray-600">
+          <h2 className="text-2xl font-bold text-foreground">Voces Disponibles</h2>
+          <p className="text-muted-foreground">
             {filteredVoices.length} de {voices.length} voces
           </p>
         </div>
@@ -55,13 +55,13 @@ export function VoiceList({ voices, selectedVoice, onVoiceSelect, onVoicePreview
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setViewMode('grid')}
-            className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-400'}`}
+            className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted'}`}
           >
             <Grid className="w-5 h-5" />
           </button>
           <button
             onClick={() => setViewMode('list')}
-            className={`p-2 rounded-md ${viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-gray-400'}`}
+            className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted'}`}
           >
             <List className="w-5 h-5" />
           </button>
@@ -72,23 +72,23 @@ export function VoiceList({ voices, selectedVoice, onVoiceSelect, onVoicePreview
       <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
         {/* Búsqueda */}
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <input
             type="text"
             placeholder="Buscar por nombre o acento..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-input bg-background rounded-md focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder:text-muted-foreground"
           />
         </div>
 
         {/* Filtro por proveedor */}
         <div className="flex items-center space-x-2">
-          <Filter className="w-4 h-4 text-gray-400" />
+          <Filter className="w-4 h-4 text-muted-foreground" />
           <select
             value={selectedProvider}
             onChange={(e) => setSelectedProvider(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-3 py-2 border border-input bg-background rounded-md focus:ring-2 focus:ring-primary focus:border-transparent text-foreground"
           >
             <option value="all">Todos los proveedores</option>
             {providers.map(provider => (
@@ -103,7 +103,7 @@ export function VoiceList({ voices, selectedVoice, onVoiceSelect, onVoicePreview
         <select
           value={selectedGender}
           onChange={(e) => setSelectedGender(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="px-3 py-2 border border-input bg-background rounded-md focus:ring-2 focus:ring-primary focus:border-transparent text-foreground"
         >
           <option value="all">Todos los géneros</option>
           <option value="male">Masculino</option>
@@ -114,11 +114,11 @@ export function VoiceList({ voices, selectedVoice, onVoiceSelect, onVoicePreview
       {/* Lista de voces */}
       {filteredVoices.length === 0 ? (
         <div className="text-center py-12">
-          <div className="text-gray-400 mb-4">
+          <div className="text-muted-foreground mb-4">
             <Search className="w-12 h-12 mx-auto" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No se encontraron voces</h3>
-          <p className="text-gray-600">Intenta ajustar los filtros de búsqueda</p>
+          <h3 className="text-lg font-medium text-foreground mb-2">No se encontraron voces</h3>
+          <p className="text-muted-foreground">Intenta ajustar los filtros de búsqueda</p>
         </div>
       ) : (
         <div className={
@@ -140,16 +140,16 @@ export function VoiceList({ voices, selectedVoice, onVoiceSelect, onVoicePreview
 
       {/* Información de la voz seleccionada */}
       {selectedVoice && (
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <h3 className="font-semibold text-blue-900 mb-2">Voz Seleccionada</h3>
-          <div className="flex items-center space-x-4 text-sm text-blue-800">
+        <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+          <h3 className="font-semibold text-primary mb-2">Voz Seleccionada</h3>
+          <div className="flex items-center space-x-4 text-sm text-primary">
             <span className="font-medium">{selectedVoice.voice_name}</span>
-            <span className="px-2 py-1 bg-blue-100 rounded text-xs">
+            <span className="px-2 py-1 bg-primary/10 rounded text-xs">
               {selectedVoice.provider}
             </span>
             <span className="capitalize">{selectedVoice.gender}</span>
             {selectedVoice.accent && (
-              <span className="px-2 py-1 bg-blue-100 rounded text-xs">
+              <span className="px-2 py-1 bg-primary/10 rounded text-xs">
                 {selectedVoice.accent}
               </span>
             )}

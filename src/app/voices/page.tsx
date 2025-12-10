@@ -30,7 +30,7 @@ export default function VoicesPage() {
       <DashboardLayout>
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+            <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
             <p className="text-gray-600">Cargando voces disponibles...</p>
           </div>
         </div>
@@ -49,7 +49,7 @@ export default function VoicesPage() {
             Error al cargar las voces
           </h2>
           <p className="text-gray-600 mb-4">{error}</p>
-          <Button onClick={loadVoices} className="bg-blue-600 hover:bg-blue-700">
+          <Button onClick={loadVoices} className="bg-primary hover:bg-primary/90">
             <RefreshCw className="w-4 h-4 mr-2" />
             Reintentar
           </Button>
@@ -78,7 +78,7 @@ export default function VoicesPage() {
               <RefreshCw className="w-4 h-4" />
               <span>Actualizar</span>
             </Button>
-            <Button className="bg-blue-600 hover:bg-blue-700">
+            <Button className="bg-primary hover:bg-primary/90">
               <Settings className="w-4 h-4 mr-2" />
               <span>Configuración</span>
             </Button>
@@ -87,9 +87,9 @@ export default function VoicesPage() {
 
         {/* Estadísticas */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="bg-card p-4 rounded-lg border border-gray-200">
             <div className="flex items-center">
-              <Volume2 className="w-8 h-8 text-blue-600" />
+              <Volume2 className="w-8 h-8 text-primary" />
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-600">Total de Voces</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
@@ -97,7 +97,7 @@ export default function VoicesPage() {
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="bg-card p-4 rounded-lg border border-gray-200">
             <div className="flex items-center">
               <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
                 <span className="text-purple-600 font-bold text-sm">11</span>
@@ -109,7 +109,7 @@ export default function VoicesPage() {
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="bg-card p-4 rounded-lg border border-gray-200">
             <div className="flex items-center">
               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                 <span className="text-green-600 font-bold text-sm">AI</span>
@@ -121,10 +121,10 @@ export default function VoicesPage() {
             </div>
           </div>
 
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="bg-card p-4 rounded-lg border border-gray-200">
             <div className="flex items-center">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-blue-600 font-bold text-sm">DG</span>
+                <span className="text-primary font-bold text-sm">DG</span>
               </div>
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-600">Deepgram</p>
@@ -135,7 +135,7 @@ export default function VoicesPage() {
         </div>
 
         {/* Lista de voces */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-card rounded-lg border border-gray-200 p-6">
           <VoiceList
             voices={voices}
             selectedVoice={selectedVoice}
@@ -180,7 +180,7 @@ export default function VoicesPage() {
                     href={selectedVoice.preview_audio_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:text-blue-800 underline"
+                    className="text-sm text-primary hover:text-blue-800 underline"
                   >
                     Escuchar preview
                   </a>

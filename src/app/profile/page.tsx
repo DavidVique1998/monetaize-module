@@ -179,7 +179,7 @@ export default function ProfilePage() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-full">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
       </DashboardLayout>
     );
@@ -191,7 +191,7 @@ export default function ProfilePage() {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-full bg-gray-50">
+      <div className="flex flex-col h-full bg-background">
         <HeaderBar title="Mi Perfil" />
         
         <div className="flex-1 p-6 overflow-y-auto">
@@ -201,8 +201,8 @@ export default function ProfilePage() {
               <div
                 className={`mb-6 p-4 rounded-lg flex items-start space-x-3 ${
                   message.type === 'success'
-                    ? 'bg-green-50 border border-green-200'
-                    : 'bg-red-50 border border-red-200'
+                    ? 'bg-greenbg-background border border-green-200'
+                    : 'bg-redbg-background border border-red-200'
                 }`}
               >
                 {message.type === 'success' ? (
@@ -221,34 +221,34 @@ export default function ProfilePage() {
             )}
 
             {/* Información de GoHighLevel */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+            <div className="bg-card rounded-lg border border-gray-200 p-6 mb-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Información de GoHighLevel
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Location ID</label>
+                  <label className="text-sm font-medium text-graybg-background0">Location ID</label>
                   <p className="text-sm text-gray-900 mt-1">{user.ghlLocationId || 'N/A'}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Company ID</label>
+                  <label className="text-sm font-medium text-graybg-background0">Company ID</label>
                   <p className="text-sm text-gray-900 mt-1">{user.ghlCompanyId || 'N/A'}</p>
                 </div>
                 {user.ghlLocationName && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Nombre de Location</label>
+                    <label className="text-sm font-medium text-graybg-background0">Nombre de Location</label>
                     <p className="text-sm text-gray-900 mt-1">{user.ghlLocationName}</p>
                   </div>
                 )}
                 {user.ghlLocationAddress && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Dirección</label>
+                    <label className="text-sm font-medium text-graybg-background0">Dirección</label>
                     <p className="text-sm text-gray-900 mt-1">{user.ghlLocationAddress}</p>
                   </div>
                 )}
                 {user.ghlLocationCity && user.ghlLocationState && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Ciudad, Estado</label>
+                    <label className="text-sm font-medium text-graybg-background0">Ciudad, Estado</label>
                     <p className="text-sm text-gray-900 mt-1">
                       {user.ghlLocationCity}, {user.ghlLocationState}
                     </p>
@@ -256,25 +256,25 @@ export default function ProfilePage() {
                 )}
                 {user.ghlLocationPhone && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Teléfono</label>
+                    <label className="text-sm font-medium text-graybg-background0">Teléfono</label>
                     <p className="text-sm text-gray-900 mt-1">{user.ghlLocationPhone}</p>
                   </div>
                 )}
                 {user.ghlLocationEmail && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Email</label>
+                    <label className="text-sm font-medium text-graybg-background0">Email</label>
                     <p className="text-sm text-gray-900 mt-1">{user.ghlLocationEmail}</p>
                   </div>
                 )}
                 {user.ghlLocationWebsite && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Sitio Web</label>
+                    <label className="text-sm font-medium text-graybg-background0">Sitio Web</label>
                     <p className="text-sm text-gray-900 mt-1">{user.ghlLocationWebsite}</p>
                   </div>
                 )}
                 {user.ghlLocationTimezone && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Zona Horaria</label>
+                    <label className="text-sm font-medium text-graybg-background0">Zona Horaria</label>
                     <p className="text-sm text-gray-900 mt-1">{user.ghlLocationTimezone}</p>
                   </div>
                 )}
@@ -282,7 +282,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Token JWT */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+            <div className="bg-card rounded-lg border border-gray-200 p-6 mb-6">
               <div className="flex items-center space-x-3 mb-4">
                 <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                   <Key className="w-5 h-5 text-purple-600" />
@@ -291,7 +291,7 @@ export default function ProfilePage() {
                   <h2 className="text-lg font-semibold text-gray-900">
                     Token JWT para API
                   </h2>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-graybg-background0 mt-1">
                     Genera un token para autenticarte en los endpoints públicos (llamadas y consumo de créditos)
                   </p>
                 </div>
@@ -311,7 +311,7 @@ export default function ProfilePage() {
                       id="permanent-token"
                       checked={permanentToken}
                       onChange={(e) => setPermanentToken(e.target.checked)}
-                      className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 cursor-pointer"
+                      className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purplebg-background0 cursor-pointer"
                     />
                     <label htmlFor="permanent-token" className="text-sm text-gray-700 cursor-pointer">
                       Token permanente (no expira) - Recomendado para integraciones
@@ -340,7 +340,7 @@ export default function ProfilePage() {
               ) : (
                 <div className="space-y-4">
                   {/* Mensaje de advertencia */}
-                  <div className="p-3 bg-yellow-50 rounded border border-yellow-200">
+                  <div className="p-3 bg-yellowbg-background rounded border border-yellow-200">
                     <div className="flex items-start space-x-2">
                       <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
@@ -362,7 +362,7 @@ export default function ProfilePage() {
                     <button
                       type="button"
                       onClick={() => copyToClipboard(jwtToken)}
-                      className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors"
+                      className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-purple-600 hover:text-purple-700 hover:bg-purplebg-background rounded-lg transition-colors"
                     >
                       {copied ? (
                         <>
@@ -378,7 +378,7 @@ export default function ProfilePage() {
                     </button>
                   </div>
                   
-                  <div className="bg-gray-50 rounded border border-gray-200 p-3">
+                  <div className="bg-graybg-background rounded border border-gray-200 p-3">
                     <code className="text-xs text-gray-800 break-all block">{jwtToken}</code>
                   </div>
                   
@@ -399,7 +399,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Formulario de edición */}
-            <form onSubmit={handleSubmit} className="bg-white rounded-lg border border-gray-200 p-6">
+            <form onSubmit={handleSubmit} className="bg-card rounded-lg border border-gray-200 p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Información Personal
               </h2>
@@ -436,7 +436,7 @@ export default function ProfilePage() {
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-redbg-background rounded-lg transition-colors"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Cerrar Sesión
@@ -445,7 +445,7 @@ export default function ProfilePage() {
                   <button
                     type="submit"
                     disabled={saving}
-                    className="inline-flex items-center px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors disabled:cursor-not-allowed"
+                    className="inline-flex items-center px-6 py-2 bg-primary hover:bg-primary/90 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors disabled:cursor-not-allowed"
                   >
                     {saving ? (
                       <>

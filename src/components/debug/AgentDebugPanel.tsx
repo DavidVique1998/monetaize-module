@@ -113,17 +113,17 @@ export function AgentDebugPanel() {
   }, []);
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-6">
+    <div className="bg-card border border-gray-200 rounded-lg p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Info className="w-5 h-5 text-blue-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Agent Debug Panel</h3>
+          <Info className="w-5 h-5 text-primary" />
+          <h3 className="text-lg font-semibold text-foreground">Agent Debug Panel</h3>
         </div>
         <div className="flex space-x-2">
           <button
             onClick={loadDebugInfo}
             disabled={loading}
-            className="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center space-x-1 disabled:opacity-50"
+            className="px-3 py-1.5 text-sm bg-muted hover:bg-muted/80 text-foreground rounded-lg transition-colors flex items-center space-x-1 disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
@@ -131,7 +131,7 @@ export function AgentDebugPanel() {
           <button
             onClick={syncAllAgents}
             disabled={loading}
-            className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
+            className="px-3 py-1.5 text-sm bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors disabled:opacity-50"
           >
             Sync All
           </button>
@@ -140,10 +140,10 @@ export function AgentDebugPanel() {
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3">
-          <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5" />
+          <AlertTriangle className="w-5 h-5 text-destructive mt-0.5" />
           <div>
             <p className="text-red-800 font-medium">Error</p>
-            <p className="text-red-700 text-sm">{error}</p>
+            <p className="text-destructive/90 text-sm">{error}</p>
           </div>
         </div>
       )}
@@ -151,9 +151,9 @@ export function AgentDebugPanel() {
       {debugInfo && (
         <div className="space-y-4">
           {/* User Info */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-2">User Information</h4>
-            <div className="text-sm text-gray-600 space-y-1">
+          <div className="bg-muted rounded-lg p-4">
+            <h4 className="font-medium text-foreground mb-2">User Information</h4>
+            <div className="text-sm text-muted-foreground space-y-1">
               <p><strong>User ID:</strong> {debugInfo.userId}</p>
               <p><strong>Email:</strong> {debugInfo.userEmail}</p>
             </div>
@@ -162,19 +162,19 @@ export function AgentDebugPanel() {
           {/* Stats */}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-blue-50 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-blue-600">{debugInfo.retellAgentsCount}</div>
-              <div className="text-sm text-blue-800">Retell Agents</div>
+              <div className="text-2xl font-bold text-primary">{debugInfo.retellAgentsCount}</div>
+              <div className="text-sm text-primary">Retell Agents</div>
             </div>
             <div className="bg-green-50 rounded-lg p-4 text-center">
               <div className="text-2xl font-bold text-green-600">{debugInfo.localAgentsCount}</div>
-              <div className="text-sm text-green-800">Linked Agents</div>
+              <div className="text-sm text-green-700">Linked Agents</div>
             </div>
           </div>
 
           {/* Missing Links */}
           {debugInfo.missingLinks.length > 0 && (
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <h4 className="font-medium text-yellow-800 mb-3 flex items-center space-x-2">
+              <h4 className="font-medium text-yellow-700 mb-3 flex items-center space-x-2">
                 <AlertTriangle className="w-4 h-4" />
                 <span>Unlinked Agents ({debugInfo.missingLinks.length})</span>
               </h4>
@@ -182,25 +182,25 @@ export function AgentDebugPanel() {
                 {debugInfo.retellAgents
                   .filter(agent => debugInfo.missingLinks.includes(agent.agent_id))
                   .map(agent => (
-                    <div key={agent.agent_id} className="flex items-center justify-between bg-white rounded-lg p-3 border border-yellow-200">
+                    <div key={agent.agent_id} className="flex items-center justify-between bg-card rounded-lg p-3 border border-yellow-200">
                       <div>
-                        <p className="font-medium text-gray-900">{agent.agent_name}</p>
-                        <p className="text-sm text-gray-500">ID: {agent.agent_id}</p>
+                        <p className="font-medium text-foreground">{agent.agent_name}</p>
+                        <p className="text-sm text-muted-foreground">ID: {agent.agent_id}</p>
                         <div className="flex items-center space-x-2 mt-1">
                           <span className={`px-2 py-1 text-xs rounded-full ${
                             agent.is_published 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-gray-100 text-gray-800'
+                              ? 'bg-green-100 text-green-700' 
+                              : 'bg-muted text-muted-foreground'
                           }`}>
                             {agent.is_published ? 'Published' : 'Draft'}
                           </span>
-                          <span className="text-xs text-gray-500">v{agent.version}</span>
+                          <span className="text-xs text-muted-foreground">v{agent.version}</span>
                         </div>
                       </div>
                       <button
                         onClick={() => linkAgent(agent.agent_id)}
                         disabled={linking === agent.agent_id}
-                        className="px-3 py-1.5 text-sm bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors flex items-center space-x-1 disabled:opacity-50"
+                        className="px-3 py-1.5 text-sm bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-700 rounded-lg transition-colors flex items-center space-x-1 disabled:opacity-50"
                       >
                         <Link className="w-4 h-4" />
                         <span>{linking === agent.agent_id ? 'Linking...' : 'Link'}</span>
@@ -214,7 +214,7 @@ export function AgentDebugPanel() {
           {/* Linked Agents */}
           {debugInfo.localAgentsCount > 0 && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <h4 className="font-medium text-green-800 mb-3 flex items-center space-x-2">
+              <h4 className="font-medium text-green-700 mb-3 flex items-center space-x-2">
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Linked Agents ({debugInfo.localAgentsCount})</span>
               </h4>
@@ -222,20 +222,20 @@ export function AgentDebugPanel() {
                 {debugInfo.localAgents.map(agent => {
                   const retellAgent = debugInfo.retellAgents.find(r => r.agent_id === agent.retellAgentId);
                   return (
-                    <div key={agent.id} className="flex items-center justify-between bg-white rounded-lg p-3 border border-green-200">
+                    <div key={agent.id} className="flex items-center justify-between bg-card rounded-lg p-3 border border-green-200">
                       <div>
-                        <p className="font-medium text-gray-900">{agent.name}</p>
-                        <p className="text-sm text-gray-500">ID: {agent.retellAgentId}</p>
+                        <p className="font-medium text-foreground">{agent.name}</p>
+                        <p className="text-sm text-muted-foreground">ID: {agent.retellAgentId}</p>
                         {retellAgent && (
                           <div className="flex items-center space-x-2 mt-1">
                             <span className={`px-2 py-1 text-xs rounded-full ${
                               retellAgent.is_published 
-                                ? 'bg-green-100 text-green-800' 
-                                : 'bg-gray-100 text-gray-800'
+                                ? 'bg-green-100 text-green-700' 
+                                : 'bg-muted text-muted-foreground'
                             }`}>
                               {retellAgent.is_published ? 'Published' : 'Draft'}
                             </span>
-                            <span className="text-xs text-gray-500">v{retellAgent.version}</span>
+                            <span className="text-xs text-muted-foreground">v{retellAgent.version}</span>
                           </div>
                         )}
                       </div>
@@ -250,7 +250,7 @@ export function AgentDebugPanel() {
           {debugInfo.missingLinks.length === 0 && debugInfo.localAgentsCount > 0 && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
               <CheckCircle2 className="w-8 h-8 text-green-600 mx-auto mb-2" />
-              <p className="text-green-800 font-medium">All agents are properly linked!</p>
+              <p className="text-green-700 font-medium">All agents are properly linked!</p>
               <p className="text-green-700 text-sm">You should be able to edit your agents without issues.</p>
             </div>
           )}
@@ -259,8 +259,8 @@ export function AgentDebugPanel() {
 
       {loading && !debugInfo && (
         <div className="text-center py-8">
-          <RefreshCw className="w-8 h-8 text-gray-400 animate-spin mx-auto mb-2" />
-          <p className="text-gray-600">Loading debug information...</p>
+          <RefreshCw className="w-8 h-8 text-muted-foreground animate-spin mx-auto mb-2" />
+          <p className="text-muted-foreground">Loading debug information...</p>
         </div>
       )}
     </div>

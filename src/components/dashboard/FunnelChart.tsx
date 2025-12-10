@@ -28,20 +28,20 @@ export function FunnelChart({
   
   return (
     <div className={cn(
-      "bg-white rounded-lg border border-gray-200 p-6 shadow-sm",
+      "bg-card rounded-lg border border-gray-200 p-6 shadow-sm",
       className
     )}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
-          <select className="appearance-none bg-transparent border-none text-lg font-semibold text-gray-900 focus:outline-none">
+          <select className="appearance-none bg-transparent border-none text-lg font-semibold text-foreground focus:outline-none">
             <option>{title}</option>
             <option>Transfers</option>
             <option>Conversations</option>
           </select>
-          <ChevronDown className="w-4 h-4 text-gray-400" />
+          <ChevronDown className="w-4 h-4 text-muted-foreground" />
         </div>
-        <span className="text-sm text-gray-500">{subtitle}</span>
+        <span className="text-sm text-muted-foreground">{subtitle}</span>
       </div>
       
       {/* Funnel Chart */}

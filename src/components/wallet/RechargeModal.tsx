@@ -100,34 +100,34 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/20 transition-opacity"
+        className="absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity"
         onClick={handleClose}
       />
       
       {/* Sidebar Modal */}
       <div 
         className={cn(
-          "absolute right-0 top-0 h-full w-[500px] bg-white shadow-2xl transform transition-transform duration-300 ease-in-out overflow-y-auto",
+          "absolute right-0 top-0 h-full w-[500px] bg-card shadow-2xl transform transition-transform duration-300 ease-in-out overflow-y-auto border-l border-border",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+        <div className="flex items-center justify-between p-6 border-b border-border sticky top-0 bg-card z-10">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-green-600" />
+            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+              <CreditCard className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">{t('title')}</h2>
-              <p className="text-xs text-gray-500">{t('subtitle')}</p>
+              <h2 className="text-lg font-semibold text-foreground">{t('title')}</h2>
+              <p className="text-xs text-muted-foreground">{t('subtitle')}</p>
             </div>
           </div>
           <button
             onClick={handleClose}
             disabled={loading}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-muted rounded-lg transition-colors"
           >
-            <X className="w-5 h-5 text-gray-400" />
+            <X className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
 
@@ -135,7 +135,7 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
         <div className="p-6 space-y-6">
           {/* Montos predefinidos */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-foreground mb-3">
               {t('selectAmount')}
             </label>
             <div className="grid grid-cols-3 gap-3">
@@ -147,8 +147,8 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
                   className={cn(
                     "px-4 py-3 rounded-lg border-2 transition-all",
                     amount === value && customAmount === ''
-                      ? "border-blue-500 bg-blue-50 text-blue-700 font-semibold"
-                      : "border-gray-200 hover:border-gray-300 text-gray-700"
+                      ? "border-primary bg-primary/10 text-primary font-semibold"
+                      : "border-input hover:border-primary/50 text-foreground"
                   )}
                 >
                   ${value}
@@ -159,11 +159,11 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
 
           {/* Monto personalizado */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               {t('customAmount')}
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 z-10 pointer-events-none">$</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground z-10 pointer-events-none">$</span>
               <input
                 type="number"
                 min="1"
@@ -172,17 +172,17 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
                 onChange={(e) => handleCustomAmountChange(e.target.value)}
                 disabled={loading}
                 placeholder="0.00"
-                className="w-full !pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full !pl-8 pr-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-background text-foreground"
                 style={{ paddingLeft: '2rem' }}
               />
             </div>
           </div>
 
           {/* Monto total */}
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-muted/50 rounded-lg p-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">{t('amountToRecharge')}</span>
-              <span className="text-xl font-bold text-gray-900">
+              <span className="text-sm font-medium text-foreground">{t('amountToRecharge')}</span>
+              <span className="text-xl font-bold text-foreground">
                 ${amount.toFixed(2)}
               </span>
             </div>
@@ -190,14 +190,14 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
 
           {/* Error */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+              <p className="text-sm text-destructive">{error}</p>
             </div>
           )}
 
           {/* Success message */}
           {paymentUrl && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+            <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
               <p className="text-sm text-green-600 mb-2">
                 {t('paymentLinkGenerated')}
               </p>
@@ -213,18 +213,18 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
           )}
 
           {/* Botones */}
-          <div className="flex space-x-3 pt-4 border-t border-gray-200">
+          <div className="flex space-x-3 pt-4 border-t border-border">
             <button
               onClick={handleClose}
               disabled={loading}
-              className="flex-1 bg-white hover:bg-gray-50 disabled:bg-gray-100 text-gray-700 font-semibold px-4 py-2 rounded-lg border-2 border-gray-300 transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
+              className="flex-1 bg-card hover:bg-muted disabled:bg-muted text-foreground font-semibold px-4 py-2 rounded-lg border-2 border-input transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
             >
               {t('cancel')}
             </button>
             <button
               onClick={handleRecharge}
               disabled={loading || amount <= 0}
-              className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold px-4 py-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
+              className="flex-1 bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground text-primary-foreground font-semibold px-4 py-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
@@ -244,4 +244,3 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
     </div>
   );
 }
-

@@ -123,35 +123,35 @@ export function EditPhoneNumberModal({
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/20 transition-opacity"
+        className="absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
       
       {/* Sidebar Modal */}
       <div 
         className={cn(
-          "absolute right-0 top-0 h-full w-[500px] bg-white shadow-2xl transform transition-transform duration-300 ease-in-out overflow-hidden",
+          "absolute right-0 top-0 h-full w-[500px] bg-card shadow-2xl transform transition-transform duration-300 ease-in-out overflow-hidden",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-              <Phone className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+              <Phone className="w-5 h-5 text-primary" />
             </div>
             <div>
               <h2 className="text-xl font-semibold text-gray-900">Editar Número de Teléfono</h2>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 {phoneNumber.phone_number_pretty || phoneNumber.phone_number}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-muted rounded-lg transition-colors"
           >
-            <ChevronRight className="w-5 h-5 text-gray-600" />
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
 
@@ -159,22 +159,22 @@ export function EditPhoneNumberModal({
         <div className="p-6 space-y-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
           {error && (
             <div className="p-4 bg-red-50 border border-red-200 rounded-md flex items-start space-x-3">
-              <AlertCircle className="w-5 h-5 text-red-500 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-destructive mt-0.5" />
               <div>
                 <p className="text-red-800 font-medium">Error</p>
-                <p className="text-red-700 text-sm">{error}</p>
+                <p className="text-destructive/90 text-sm">{error}</p>
               </div>
             </div>
           )}
 
           {/* Información del número (solo lectura) */}
-          <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+          <div className="bg-muted rounded-lg p-4 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-600">Número:</span>
+              <span className="text-sm font-medium text-muted-foreground">Número:</span>
               <span className="text-sm text-gray-900">{phoneNumber.phone_number_pretty || phoneNumber.phone_number}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-600">Tipo:</span>
+              <span className="text-sm font-medium text-muted-foreground">Tipo:</span>
               <span className="text-sm text-gray-900">{phoneNumber.phone_number_type || 'custom'}</span>
             </div>
           </div>
@@ -182,14 +182,14 @@ export function EditPhoneNumberModal({
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Nickname */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
                 Nickname
               </label>
               <input
                 {...register('nickname')}
                 type="text"
                 placeholder="Frontdesk Number"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-muted-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-card"
               />
             </div>
 
@@ -199,12 +199,12 @@ export function EditPhoneNumberModal({
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-muted-foreground mb-2">
                     Agente Entrante
                   </label>
                   <select
                     {...register('inbound_agent_id')}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-muted-foreground bg-card cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Ninguno</option>
                     {agents.map((agent, index) => (
@@ -216,12 +216,12 @@ export function EditPhoneNumberModal({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-muted-foreground mb-2">
                     Agente Saliente
                   </label>
                   <select
                     {...register('outbound_agent_id')}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-muted-foreground bg-card cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Ninguno</option>
                     {agents.map((agent, index) => (
@@ -236,7 +236,7 @@ export function EditPhoneNumberModal({
               {/* Agent Versions */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-muted-foreground mb-2">
                     Versión Agente Entrante
                   </label>
                   <input
@@ -244,15 +244,15 @@ export function EditPhoneNumberModal({
                     type="number"
                     min="1"
                     placeholder="Última versión"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-muted-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-card"
                   />
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     Dejar vacío para usar la última versión
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-muted-foreground mb-2">
                     Versión Agente Saliente
                   </label>
                   <input
@@ -260,9 +260,9 @@ export function EditPhoneNumberModal({
                     type="number"
                     min="1"
                     placeholder="Última versión"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-muted-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-card"
                   />
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     Dejar vacío para usar la última versión
                   </p>
                 </div>
@@ -271,14 +271,14 @@ export function EditPhoneNumberModal({
 
             {/* Inbound Webhook */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
                 Inbound Webhook URL
               </label>
               <input
                 {...register('inbound_webhook_url')}
                 type="url"
                 placeholder="https://example.com/inbound-webhook"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-muted-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-card"
               />
               {errors.inbound_webhook_url && (
                 <p className="mt-1 text-sm text-red-600">{errors.inbound_webhook_url.message}</p>
@@ -288,11 +288,11 @@ export function EditPhoneNumberModal({
         </div>
 
         {/* Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-200 bg-white">
+        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-200 bg-card">
           <button
             onClick={handleSubmit(onSubmit)}
             disabled={isLoading}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center"
           >
             {isLoading ? (
               <>

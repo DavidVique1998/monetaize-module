@@ -78,18 +78,18 @@ export function CreateAssistantModal({ isOpen, onClose, onSelectOption, onAgentC
       {/* Sidebar Modal */}
       <div 
         className={cn(
-          "absolute right-0 top-0 h-full w-[600px] bg-white shadow-2xl transform transition-transform duration-300 ease-in-out overflow-y-auto",
+          "absolute right-0 top-0 h-full w-[600px] bg-card shadow-2xl transform transition-transform duration-300 ease-in-out overflow-y-auto",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
-          <h2 className="text-2xl font-semibold text-gray-900">{t('title')}</h2>
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-card z-10">
+          <h2 className="text-2xl font-semibold text-foreground">{t('title')}</h2>
           <button
             onClick={handleClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+            className="p-2 hover:bg-muted rounded-lg transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5 text-gray-600" />
+            <X className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
 
@@ -97,30 +97,30 @@ export function CreateAssistantModal({ isOpen, onClose, onSelectOption, onAgentC
         <div className="p-6 space-y-8">
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-sm text-red-800">{error}</p>
+              <p className="text-sm text-destructive">{error}</p>
             </div>
           )}
-          <p className="text-lg text-gray-700">{t('question')}</p>
+          <p className="text-lg text-foreground">{t('question')}</p>
 
           {/* Assistant Builder Section */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">{t('assistantBuilder')}</h3>
+            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">{t('assistantBuilder')}</h3>
             
             {/* Generate Assistant */}
             <div 
               onClick={() => handleOptionClick('generate')}
-              className="relative p-6 border border-gray-200 rounded-lg hover:border-purple-500 hover:shadow-md transition-all cursor-pointer group hover:bg-purple-50/30"
+              className="relative p-6 border border-gray-200 rounded-lg hover:border-primary hover:shadow-md transition-all cursor-pointer group hover:bg-purple-50/30"
             >
               <div className="absolute top-4 right-4">
-                <Info className="w-4 h-4 text-gray-400" />
+                <Info className="w-4 h-4 text-muted-foreground" />
               </div>
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Sparkles className="w-6 h-6 text-purple-600" />
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <Sparkles className="w-6 h-6 text-primary" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900 mb-2">{t('generate.title')}</h4>
-                  <p className="text-sm text-gray-600">
+                  <h4 className="font-semibold text-foreground mb-2">{t('generate.title')}</h4>
+                  <p className="text-sm text-muted-foreground">
                     {t('generate.description')}
                   </p>
                 </div>
@@ -130,18 +130,18 @@ export function CreateAssistantModal({ isOpen, onClose, onSelectOption, onAgentC
             {/* Import With ID */}
             <div 
               onClick={() => handleOptionClick('import')}
-              className="relative p-6 border border-gray-200 rounded-lg hover:border-purple-500 hover:shadow-md transition-all cursor-pointer group hover:bg-purple-50/30"
+              className="relative p-6 border border-gray-200 rounded-lg hover:border-primary hover:shadow-md transition-all cursor-pointer group hover:bg-purple-50/30"
             >
               <div className="absolute top-4 right-4">
-                <Info className="w-4 h-4 text-gray-400" />
+                <Info className="w-4 h-4 text-muted-foreground" />
               </div>
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Download className="w-6 h-6 text-purple-600" />
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <Download className="w-6 h-6 text-primary" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900 mb-2">{t('import.title')}</h4>
-                  <p className="text-sm text-gray-600">
+                  <h4 className="font-semibold text-foreground mb-2">{t('import.title')}</h4>
+                  <p className="text-sm text-muted-foreground">
                     {t('import.description')}
                   </p>
                 </div>
@@ -151,18 +151,18 @@ export function CreateAssistantModal({ isOpen, onClose, onSelectOption, onAgentC
             {/* Blank Canvas */}
             <div 
               onClick={() => handleOptionClick('blank')}
-              className="relative p-6 border border-gray-200 rounded-lg hover:border-purple-500 hover:shadow-md transition-all cursor-pointer group hover:bg-purple-50/30"
+              className="relative p-6 border border-gray-200 rounded-lg hover:border-primary hover:shadow-md transition-all cursor-pointer group hover:bg-purple-50/30"
             >
               <div className="absolute top-4 right-4">
-                <Info className="w-4 h-4 text-gray-400" />
+                <Info className="w-4 h-4 text-muted-foreground" />
               </div>
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Box className="w-6 h-6 text-purple-600" />
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <Box className="w-6 h-6 text-primary" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900 mb-2">{t('blank.title')}</h4>
-                  <p className="text-sm text-gray-600">
+                  <h4 className="font-semibold text-foreground mb-2">{t('blank.title')}</h4>
+                  <p className="text-sm text-muted-foreground">
                     {t('blank.description')}
                   </p>
                 </div>
@@ -172,26 +172,26 @@ export function CreateAssistantModal({ isOpen, onClose, onSelectOption, onAgentC
 
           {/* Conversational Pathway Section */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Conversational Pathway</h3>
+            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">Conversational Pathway</h3>
             
             {/* Flowbuilder */}
             <div 
               onClick={() => handleOptionClick('flowbuilder')}
-              className="relative p-6 border border-gray-200 rounded-lg hover:border-purple-500 hover:shadow-md transition-all cursor-pointer group hover:bg-purple-50/30"
+              className="relative p-6 border border-gray-200 rounded-lg hover:border-primary hover:shadow-md transition-all cursor-pointer group hover:bg-purple-50/30"
             >
               <div className="absolute top-4 right-4">
-                <Info className="w-4 h-4 text-gray-400" />
+                <Info className="w-4 h-4 text-muted-foreground" />
               </div>
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Rocket className="w-6 h-6 text-purple-600" />
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <Rocket className="w-6 h-6 text-primary" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
-                    <h4 className="font-semibold text-gray-900">{t('flowbuilder.title')}</h4>
+                    <h4 className="font-semibold text-foreground">{t('flowbuilder.title')}</h4>
                     <span className="bg-purple-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full">BETA</span>
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     {t('flowbuilder.description')}
                   </p>
                 </div>
@@ -201,11 +201,11 @@ export function CreateAssistantModal({ isOpen, onClose, onSelectOption, onAgentC
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 p-6 border-t border-gray-200 bg-white">
+        <div className="sticky bottom-0 p-6 border-t border-gray-200 bg-card">
           <button
             onClick={onClose}
             disabled={isCreating}
-            className="w-full text-gray-700 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full text-foreground font-medium py-2 px-4 rounded-lg hover:bg-muted transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isCreating ? (
               <span className="flex items-center justify-center">

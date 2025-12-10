@@ -387,10 +387,10 @@ export default function EditAssistantPage() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center h-full bg-gray-50">
+        <div className="flex items-center justify-center h-full bg-background">
           <div className="text-center">
             <div className="w-10 h-10 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600 font-medium">Loading assistant...</p>
+            <p className="text-muted-foreground font-medium">Loading assistant...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -400,11 +400,11 @@ export default function EditAssistantPage() {
   if (!agent) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center h-full bg-gray-50">
-          <div className="text-center p-8 bg-white rounded-xl shadow-sm border border-gray-200">
-            <AlertTriangle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Assistant Not Found</h2>
-            <p className="text-gray-600 mb-6">We couldn't find the assistant you're looking for.</p>
+        <div className="flex items-center justify-center h-full bg-background">
+          <div className="text-center p-8 bg-card rounded-xl shadow-sm border border-gray-200">
+            <AlertTriangle className="w-12 h-12 text-yellowbg-background0 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-foreground mb-2">Assistant Not Found</h2>
+            <p className="text-muted-foreground mb-6">We couldn't find the assistant you're looking for.</p>
             <button 
               onClick={() => router.push('/assistants')}
               className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
@@ -419,16 +419,16 @@ export default function EditAssistantPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-full bg-gray-50">
+      <div className="flex flex-col h-full bg-background">
         {/* Modern Header */}
-        <header className="bg-white border-b border-gray-200 shadow-sm z-10 sticky top-0">
+        <header className="bg-card border-b border-gray-200 shadow-sm z-10 sticky top-0">
           <div className="px-6 py-3">
             <div className="flex items-center justify-between">
               {/* Left: Back & Title */}
               <div className="flex items-center space-x-4">
                 <button
                   onClick={() => router.push('/assistants')}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-gray-900"
+                  className="p-2 hover:bg-muted rounded-full transition-colors text-graybg-background0 hover:text-foreground"
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </button>
@@ -447,21 +447,21 @@ export default function EditAssistantPage() {
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') setIsNameEditing(false);
                         }}
-                        className="text-lg font-bold text-gray-900 border-b-2 border-purple-500 focus:outline-none bg-transparent px-1 min-w-[200px]"
+                        className="text-lg font-bold text-foreground border-b-2 border-primary focus:outline-none bg-transparent px-1 min-w-[200px]"
                         autoFocus
                       />
                     ) : (
                       <h1 
-                        className="text-lg font-bold text-gray-900 cursor-pointer hover:text-purple-600 transition-colors flex items-center group"
+                        className="text-lg font-bold text-foreground cursor-pointer hover:text-purple-600 transition-colors flex items-center group"
                         onClick={() => setIsNameEditing(true)}
                       >
                         {agentName || 'Unnamed Assistant'}
-                        <Pencil className="w-3.5 h-3.5 ml-2 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <Pencil className="w-3.5 h-3.5 ml-2 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                       </h1>
                     )}
                     
                     {agent && (agent as any).is_published ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-greenbg-background0/10 text-green-700 border-greenbg-background0/20">
                         Published
                       </span>
                     ) : (
@@ -471,8 +471,8 @@ export default function EditAssistantPage() {
                     )}
                   </div>
                   
-                  <div className="flex items-center text-xs text-gray-500 mt-0.5 space-x-2">
-                    <span className="flex items-center cursor-pointer hover:text-purple-600 transition-colors bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100" onClick={handleCopyId} title="Copy Agent ID">
+                  <div className="flex items-center text-xs text-graybg-background0 mt-0.5 space-x-2">
+                    <span className="flex items-center cursor-pointer hover:text-purple-600 transition-colors bg-muted border border-border" onClick={handleCopyId} title="Copy Agent ID">
                       ID: {agent.agent_id.substring(0, 8)}...
                       <Copy className="w-2.5 h-2.5 ml-1" />
                     </span>
@@ -484,32 +484,32 @@ export default function EditAssistantPage() {
               <div className="flex items-center space-x-3">
                 <div className="hidden md:flex items-center mr-2 text-xs">
                   {isAutoSaving ? (
-                    <span className="text-purple-600 flex items-center bg-purple-50 px-2 py-1 rounded-full">
+                    <span className="text-purple-600 flex items-center bg-purplebg-background px-2 py-1 rounded-full">
                       <div className="w-2.5 h-2.5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mr-1.5" />
                       Saving...
                     </span>
                   ) : !isSaved ? (
-                    <span className="text-yellow-600 flex items-center bg-yellow-50 px-2 py-1 rounded-full">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full mr-1.5" />
+                    <span className="text-yellow-700 flex items-center bg-yellowbg-background0/10 px-2 py-1 rounded-full">
+                      <div className="w-2 h-2 bg-yellowbg-background0/100 rounded-full mr-1.5" />
                       Unsaved changes
                     </span>
                   ) : (
-                    <span className="text-green-600 flex items-center bg-green-50 px-2 py-1 rounded-full">
+                    <span className="text-green-700 flex items-center bg-greenbg-background px-2 py-1 rounded-full">
                       <CheckCircle2 className="w-3 h-3 mr-1.5" />
                       All saved
                     </span>
                   )}
                 </div>
 
-                <div className="h-6 w-px bg-gray-200 mx-1"></div>
+                <div className="h-6 w-px bg-border mx-1"></div>
 
                 <button
                   onClick={handleSave}
                   disabled={isSaved || isSaving}
                   className={`p-2 rounded-lg transition-all border ${
                     isSaved 
-                      ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed shadow-none' 
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900 hover:border-gray-400 shadow-sm'
+                      ? 'bg-graybg-background text-muted-foreground border-gray-200 cursor-not-allowed shadow-none' 
+                      : 'bg-card text-gray-700 border-graybg-border hover:bg-graybg-background hover:text-foreground hover:border-gray-400 shadow-sm'
                   }`}
                   title="Save Changes manually"
                 >
@@ -519,7 +519,7 @@ export default function EditAssistantPage() {
                 <button
                   onClick={handlePublish}
                   disabled={isPublishing || !isSaved || !agent || (agent as any).is_published}
-                  className="flex items-center bg-black hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-400 text-white text-sm font-medium px-5 py-2 rounded-lg transition-all shadow-sm hover:shadow disabled:shadow-none"
+                  className="flex items-center bg-black hover:bg-gray-800 disabled:bg-gray-200 disabled:text-muted-foreground text-white text-sm font-medium px-5 py-2 rounded-lg transition-all shadow-sm hover:shadow disabled:shadow-none"
                 >
                   {isPublishing ? (
                     <>
@@ -539,13 +539,13 @@ export default function EditAssistantPage() {
             {/* Navigation Tabs and Quick Settings Combined Row */}
             <div className="mt-6 flex flex-col xl:flex-row items-center justify-between gap-4">
               {/* Tabs (Left side) */}
-              <div className="flex bg-gray-100 p-1 rounded-lg border border-gray-200 w-full max-w-md xl:max-w-xs shrink-0">
+              <div className="flex bg-muted/10 p-1 rounded-lg border border-gray-200 w-full max-w-md xl:max-w-xs shrink-0">
                 <button
                   onClick={() => setViewMode('edit')}
                   className={`flex-1 flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                     viewMode === 'edit' 
-                      ? 'bg-white text-gray-900 shadow-sm ring-1 ring-black/5' 
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
+                      ? 'bg-card text-foreground shadow-sm ring-1 ring-black/5' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
                   <LayoutTemplate className="w-4 h-4 mr-2" />
@@ -555,8 +555,8 @@ export default function EditAssistantPage() {
                   onClick={() => setViewMode('test')}
                   className={`flex-1 flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                     viewMode === 'test' 
-                      ? 'bg-white text-purple-600 shadow-sm ring-1 ring-black/5' 
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
+                      ? 'bg-card text-purple-600 shadow-sm ring-1 ring-black/5' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
                   <Play className="w-4 h-4 mr-2" />
@@ -569,7 +569,7 @@ export default function EditAssistantPage() {
                 <div className="flex flex-wrap items-center justify-center xl:justify-end gap-3 w-full">
                   {/* Version Selector */}
                   <div className="flex flex-col space-y-1">
-                    <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider pl-1">Version</label>
+                    <label className="text-[10px] font-semibold text-graybg-background0 uppercase tracking-wider pl-1">Version</label>
                     <div className="relative">
                       <select
                         value={selectedVersion ?? ''}
@@ -579,7 +579,7 @@ export default function EditAssistantPage() {
                             handleVersionChange(val);
                           }
                         }}
-                        className="pl-3 pr-8 py-2 w-32 bg-white border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block shadow-sm hover:border-gray-300 transition-all cursor-pointer appearance-none"
+                        className="pl-3 pr-8 py-2 w-32 bg-card border border-gray-200 text-foreground text-sm rounded-lg focus:ring-purplebg-background0 focus:border-primary block shadow-sm hover:border-graybg-border transition-all cursor-pointer appearance-none"
                       >
                         {versions.map((v) => (
                           <option key={v.version} value={v.version}>
@@ -589,7 +589,7 @@ export default function EditAssistantPage() {
                         {versions.length === 0 && <option value="">Current</option>}
                       </select>
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                       </div>
@@ -598,7 +598,7 @@ export default function EditAssistantPage() {
 
                   {/* Model Selector */}
                   <div className="flex flex-col space-y-1">
-                    <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider pl-1">AI Model</label>
+                    <label className="text-[10px] font-semibold text-graybg-background0 uppercase tracking-wider pl-1">AI Model</label>
                     <div className="relative group">
                     
                       <select
@@ -608,7 +608,7 @@ export default function EditAssistantPage() {
                           setIsSaved(false);
                           scheduleAutoSave();
                         }}
-                        className="pl-12 pr-8 py-2 w-full xl:w-56 bg-white border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block shadow-sm hover:border-gray-300 transition-all cursor-pointer appearance-none relative"
+                        className="pl-12 pr-8 py-2 w-full xl:w-56 bg-card border border-gray-200 text-foreground text-sm rounded-lg focus:ring-purplebg-background0 focus:border-primary block shadow-sm hover:border-graybg-border transition-all cursor-pointer appearance-none relative"
                       >
                         {LLM_MODELS.map((model) => (
                           <option key={model.id} value={model.id}>
@@ -617,14 +617,14 @@ export default function EditAssistantPage() {
                         ))}
                       </select>
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <SettingsIcon className="h-3 w-3 text-gray-400" />
+                        <SettingsIcon className="h-3 w-3 text-muted-foreground" />
                       </div>
                     </div>
                   </div>
 
                   {/* Voice Selector */}
                   <div className="flex flex-col space-y-1">
-                    <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider pl-1">Voice</label>
+                    <label className="text-[10px] font-semibold text-graybg-background0 uppercase tracking-wider pl-1">Voice</label>
                     <div className="relative w-full xl:w-56">
                       <VoiceSelector
                         voices={voices}
@@ -641,7 +641,7 @@ export default function EditAssistantPage() {
 
                   {/* Language Selector */}
                   <div className="flex flex-col space-y-1">
-                    <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider pl-1">Language</label>
+                    <label className="text-[10px] font-semibold text-graybg-background0 uppercase tracking-wider pl-1">Language</label>
                     <div className="relative group">
                       <select
                         value={language}
@@ -650,7 +650,7 @@ export default function EditAssistantPage() {
                           setIsSaved(false);
                           scheduleAutoSave();
                         }}
-                        className="pl-12 pr-8 py-2 w-full xl:w-56 bg-white border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block shadow-sm hover:border-gray-300 transition-all cursor-pointer appearance-none relative"
+                        className="pl-12 pr-8 py-2 w-full xl:w-56 bg-card border border-gray-200 text-foreground text-sm rounded-lg focus:ring-purplebg-background0 focus:border-primary block shadow-sm hover:border-graybg-border transition-all cursor-pointer appearance-none relative"
                       >
                         {LANGUAGES.map((lang) => (
                           <option key={lang.code} value={lang.code}>
@@ -659,7 +659,7 @@ export default function EditAssistantPage() {
                         ))}
                       </select>
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                       </div>
@@ -676,26 +676,26 @@ export default function EditAssistantPage() {
           {/* Editor/Test View */}
           <div className="flex-1 flex flex-col overflow-hidden relative">
             {viewMode === 'edit' ? (
-              <div className="flex-1 overflow-y-auto p-6 bg-gray-50/50">
+              <div className="flex-1 overflow-y-auto p-6 bg-background/50">
                 <div className="max-w-5xl mx-auto space-y-6 h-full flex flex-col">
                   {/* Prompt Editor */}
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col flex-1 min-h-[500px] transition-shadow hover:shadow-md">
-                    <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white rounded-t-xl">
+                  <div className="bg-card rounded-xl shadow-sm border border-gray-200 flex flex-col flex-1 min-h-[500px] transition-shadow hover:shadow-md">
+                    <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-card rounded-t-xl">
                       <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-purple-100 rounded-lg">
+                        <div className="p-2 bg-primary/10 rounded-lg">
                           <Sparkles className="w-4 h-4 text-purple-600" />
                         </div>
                         <div>
-                          <h2 className="text-sm font-bold text-gray-900">System Prompt</h2>
-                          <p className="text-xs text-gray-500">Define the persona and behavior of your agent</p>
+                          <h2 className="text-sm font-bold text-foreground">System Prompt</h2>
+                          <p className="text-xs text-graybg-background0">Define the persona and behavior of your agent</p>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-4 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
-                        <span className={`text-xs font-mono font-medium ${characterCount > characterLimit ? 'text-red-500' : 'text-gray-500'}`}>
+                      <div className="flex items-center space-x-4 bg-background px-3 py-1.5 rounded-lg border border-gray-100">
+                        <span className={`text-xs font-mono font-medium ${characterCount > characterLimit ? 'text-redbg-background0' : 'text-graybg-background0'}`}>
                           {characterCount} / {characterLimit}
                         </span>
-                        <div className="h-3 w-px bg-gray-300"></div>
-                        <button className="text-xs text-purple-600 font-medium hover:text-purple-700 flex items-center transition-colors">
+                        <div className="h-3 w-px bg-border"></div>
+                        <button className="text-xs text-purple-600 font-medium hover:text-primary flex items-center transition-colors">
                           <Info className="w-3 h-3 mr-1" />
                           Tips
                         </button>
@@ -706,7 +706,7 @@ export default function EditAssistantPage() {
                         value={prompt}
                         onChange={(e) => handlePromptChange(e.target.value)}
                         placeholder="You are a helpful AI assistant..."
-                        className="absolute inset-0 w-full h-full p-8 text-base leading-relaxed text-gray-800 placeholder-gray-400 focus:outline-none resize-none font-mono selection:bg-purple-100"
+                        className="absolute inset-0 w-full h-full p-8 bg-background text-foreground placeholder-gray-400 focus:outline-none resize-none font-mono selection:bg-primary/10"
                         spellCheck={false}
                       />
                     </div>
@@ -715,13 +715,13 @@ export default function EditAssistantPage() {
               </div>
             ) : (
               /* Test Mode View */
-              <div className="flex-1 overflow-y-auto p-6 bg-gray-100">
+              <div className="flex-1 overflow-y-auto p-6 bg-muted/10">
                 <div className="max-w-6xl mx-auto space-y-6">
                   {/* Warning Banner */}
                   {!isSaved && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+                    <div className="bg-amberbg-background border border-amber-200 rounded-xl p-4 flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-4 durationbg-border">
                       <div className="flex items-center space-x-4">
-                        <div className="p-2 bg-amber-100 rounded-full text-amber-600 shadow-sm">
+                        <div className="p-2 bg-amber-100 rounded-full text-amber-700 shadow-sm">
                           <AlertTriangle className="w-5 h-5" />
                         </div>
                         <div>
@@ -734,7 +734,7 @@ export default function EditAssistantPage() {
                       <button
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white px-5 py-2.5 rounded-lg transition-all shadow-sm hover:shadow disabled:opacity-50 disabled:shadow-none"
+                        className="text-xs font-bold bg-amberbg-background0 hover:bg-amber-600 text-white px-5 py-2.5 rounded-lg transition-all shadow-sm hover:shadow disabled:opacitybg-background disabled:shadow-none"
                       >
                         {isSaving ? 'Saving...' : 'Save & Reload Simulators'}
                       </button>
@@ -743,23 +743,23 @@ export default function EditAssistantPage() {
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-[600px]">
                     {/* Voice Lab Card */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col transition-all hover:shadow-md">
-                      <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-purple-50/50 to-white flex items-center justify-between">
+                    <div className="bg-card rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col transition-all hover:shadow-md">
+                      <div className="px-6 py-5 border-b border-border bg-primary/5 from-primary/10 to-card flex items-center justify-between">
                         <div className="flex items-center space-x-3">
-                          <div className="p-2 bg-white border border-gray-100 rounded-lg shadow-sm">
+                          <div className="p-2 bg-card border border-gray-100 rounded-lg shadow-sm">
                             <Mic className="w-5 h-5 text-purple-600" />
                           </div>
                           <div>
-                            <h3 className="text-sm font-bold text-gray-900">Web Call Simulator</h3>
-                            <p className="text-xs text-gray-500">Test voice interaction latency and quality</p>
+                            <h3 className="text-sm font-bold text-foreground">Web Call Simulator</h3>
+                            <p className="text-xs text-graybg-background0">Test voice interaction latency and quality</p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                          <span className="text-xs font-medium text-green-600 uppercase tracking-wide">Ready</span>
+                          <span className="w-2 h-2 bg-greenbg-background0 rounded-full animate-pulse"></span>
+                          <span className="text-xs font-medium text-green-700 uppercase tracking-wide">Ready</span>
                         </div>
                       </div>
-                      <div className="flex-1 p-8 flex flex-col justify-center bg-white">
+                      <div className="flex-1 p-8 flex flex-col justify-center bg-card">
                         <WebCallInterface 
                           agentId={agentId}
                           agentName={agentName}
@@ -770,19 +770,19 @@ export default function EditAssistantPage() {
                     </div>
 
                     {/* Chat Lab Card */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col transition-all hover:shadow-md">
-                      <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-blue-50/50 to-white flex items-center justify-between">
+                    <div className="bg-card rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col transition-all hover:shadow-md">
+                      <div className="px-6 py-5 border-b border-border bg-primary/5 from-primary/10 to-card flex items-center justify-between">
                         <div className="flex items-center space-x-3">
-                          <div className="p-2 bg-white border border-gray-100 rounded-lg shadow-sm">
-                            <MessageSquare className="w-5 h-5 text-blue-600" />
+                          <div className="p-2 bg-card border border-gray-100 rounded-lg shadow-sm">
+                            <MessageSquare className="w-5 h-5 text-primary" />
                           </div>
                           <div>
-                            <h3 className="text-sm font-bold text-gray-900">Chat Logic Simulator</h3>
-                            <p className="text-xs text-gray-500">Debug conversation flow and tools</p>
+                            <h3 className="text-sm font-bold text-foreground">Chat Logic Simulator</h3>
+                            <p className="text-xs text-graybg-background0">Debug conversation flow and tools</p>
                           </div>
                         </div>
                       </div>
-                      <div className="flex-1 flex flex-col h-full overflow-hidden bg-gray-50/30">
+                      <div className="flex-1 flex flex-col h-full overflow-hidden bg-background/30">
                         <ChatLabInterface 
                           agentId={agentId} 
                           agentName={agentName} 
@@ -797,7 +797,7 @@ export default function EditAssistantPage() {
 
           {/* Right Sidebar - Always visible in Edit Mode, Hidden in Test Mode */}
           {viewMode === 'edit' && (
-            <div className="w-80 border-l border-gray-200 bg-white shadow-xl z-20 overflow-y-auto">
+            <div className="w-80 border-l border-gray-200 bg-card shadow-xl z-20 overflow-y-auto">
               <AgentConfigSidebar
                 agent={agent}
                 settings={additionalSettings}
@@ -814,20 +814,20 @@ export default function EditAssistantPage() {
 
         {/* Global Error/Notification Toasts */}
         {publishError && (
-          <div className="fixed bottom-6 right-6 z-50 bg-red-50 border border-red-200 rounded-xl p-4 shadow-xl max-w-sm animate-in slide-in-from-bottom duration-300 flex items-start space-x-3">
-            <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+          <div className="fixed bottom-6 right-6 zbg-background bg-redbg-background border border-red-200 rounded-xl p-4 shadow-xl max-w-sm animate-in slide-in-from-bottom durationbg-border flex items-start space-x-3">
+            <AlertTriangle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
             <div className="flex-1">
               <p className="text-sm font-bold text-red-800">Publish Failed</p>
-              <p className="text-xs text-red-600 mt-1">{publishError}</p>
+              <p className="text-xs text-destructive mt-1">{publishError}</p>
             </div>
-            <button onClick={() => setPublishError(null)} className="text-red-400 hover:text-red-600 transition-colors">
+            <button onClick={() => setPublishError(null)} className="text-red-400 hover:text-destructive transition-colors">
               <X className="w-4 h-4" />
             </button>
           </div>
         )}
 
         {ownershipError && (
-          <div className="fixed bottom-6 right-6 z-50 bg-orange-50 border border-orange-200 rounded-xl p-4 shadow-xl max-w-sm animate-in slide-in-from-bottom duration-300 flex items-start space-x-3">
+          <div className="fixed bottom-6 right-6 zbg-background bg-orangebg-background border border-orange-200 rounded-xl p-4 shadow-xl max-w-sm animate-in slide-in-from-bottom durationbg-border flex items-start space-x-3">
             <AlertTriangle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
             <div className="flex-1">
               <p className="text-sm font-bold text-orange-800">Ownership Error</p>

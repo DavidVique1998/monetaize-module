@@ -180,7 +180,7 @@ export default function CallHistoryPage() {
     const statusColors: Record<string, { bg: string; text: string; icon: any }> = {
       'ringing': { bg: 'bg-blue-100', text: 'text-blue-700', icon: Phone },
       'ongoing': { bg: 'bg-green-100', text: 'text-green-700', icon: Phone },
-      'ended': { bg: 'bg-gray-100', text: 'text-gray-700', icon: CheckCircle2 },
+      'ended': { bg: 'bg-muted', text: 'text-gray-700', icon: CheckCircle2 },
       'failed': { bg: 'bg-red-100', text: 'text-red-700', icon: XCircle },
     };
 
@@ -212,7 +212,7 @@ export default function CallHistoryPage() {
     <DashboardLayout>
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="bg-card border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-semibold text-gray-900">Call History</h1>
@@ -224,7 +224,7 @@ export default function CallHistoryPage() {
               <button
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-card border border-gray-300 rounded-lg hover:bg-muted/50 transition-colors disabled:opacity-50"
               >
                 <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
                 <span>Refresh</span>
@@ -239,27 +239,27 @@ export default function CallHistoryPage() {
 
         {/* Stats Cards */}
         {stats && (
-          <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
+          <div className="bg-muted/30 border-b border-gray-200 px-6 py-4">
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              <div className="bg-white rounded-lg p-4 border border-gray-200">
+              <div className="bg-card rounded-lg p-4 border border-gray-200">
                 <div className="text-sm text-gray-600">Total Calls</div>
                 <div className="text-2xl font-semibold text-gray-900 mt-1">{stats.totalCalls}</div>
               </div>
-              <div className="bg-white rounded-lg p-4 border border-gray-200">
+              <div className="bg-card rounded-lg p-4 border border-gray-200">
                 <div className="text-sm text-gray-600">Completed</div>
                 <div className="text-2xl font-semibold text-green-600 mt-1">{stats.completedCalls}</div>
               </div>
-              <div className="bg-white rounded-lg p-4 border border-gray-200">
+              <div className="bg-card rounded-lg p-4 border border-gray-200">
                 <div className="text-sm text-gray-600">Failed</div>
                 <div className="text-2xl font-semibold text-red-600 mt-1">{stats.failedCalls}</div>
               </div>
-              <div className="bg-white rounded-lg p-4 border border-gray-200">
+              <div className="bg-card rounded-lg p-4 border border-gray-200">
                 <div className="text-sm text-gray-600">Total Duration</div>
                 <div className="text-2xl font-semibold text-gray-900 mt-1">
                   {formatDuration(stats.totalDuration)}
                 </div>
               </div>
-              <div className="bg-white rounded-lg p-4 border border-gray-200">
+              <div className="bg-card rounded-lg p-4 border border-gray-200">
                 <div className="text-sm text-gray-600">Total Cost</div>
                 <div className="text-2xl font-semibold text-gray-900 mt-1">
                   ${ (stats.totalCost / 100).toFixed(3) }
@@ -270,7 +270,7 @@ export default function CallHistoryPage() {
         )}
 
         {/* Filters */}
-        <div className="bg-white border-b border-gray-200 px-6 py-5">
+        <div className="bg-card border-b border-gray-200 px-6 py-5">
           <div className="space-y-4">
             {/* Search Bar - Full Width */}
             <div className="w-full">
@@ -283,7 +283,7 @@ export default function CallHistoryPage() {
                   placeholder="Search by number, call ID, or agent..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg bg-card text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                 />
               </div>
             </div>
@@ -302,7 +302,7 @@ export default function CallHistoryPage() {
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none cursor-pointer transition-all"
+                    className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg bg-card text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none cursor-pointer transition-all"
                   >
                     <option value="all">All Status</option>
                     <option value="ringing">Ringing</option>
@@ -330,7 +330,7 @@ export default function CallHistoryPage() {
                   <select
                     value={callTypeFilter}
                     onChange={(e) => setCallTypeFilter(e.target.value)}
-                    className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none cursor-pointer transition-all"
+                    className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg bg-card text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none cursor-pointer transition-all"
                   >
                     <option value="all">All Types</option>
                     <option value="phone">Phone</option>
@@ -362,7 +362,7 @@ export default function CallHistoryPage() {
                   <select
                     value={directionFilter}
                     onChange={(e) => setDirectionFilter(e.target.value)}
-                    className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none cursor-pointer transition-all"
+                    className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg bg-card text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none cursor-pointer transition-all"
                   >
                     <option value="all">All Directions</option>
                     <option value="inbound">Inbound</option>
@@ -389,14 +389,14 @@ export default function CallHistoryPage() {
                     type="date"
                     value={dateRange.start}
                     onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-                    className="flex-1 px-3 py-2.5 text-sm border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    className="flex-1 px-3 py-2.5 text-sm border border-gray-300 rounded-lg bg-card text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                   />
                   <span className="text-gray-500 text-sm font-medium">to</span>
                   <input
                     type="date"
                     value={dateRange.end}
                     onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
-                    className="flex-1 px-3 py-2.5 text-sm border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    className="flex-1 px-3 py-2.5 text-sm border border-gray-300 rounded-lg bg-card text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                   />
                 </div>
               </div>
@@ -481,9 +481,9 @@ export default function CallHistoryPage() {
             </div>
           ) : (
             <div className="px-6 py-4">
-              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+              <div className="bg-card rounded-lg border border-gray-200 overflow-hidden">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+                  <thead className="bg-muted/30 border-b border-gray-200">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Call ID
@@ -517,9 +517,9 @@ export default function CallHistoryPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-card divide-y divide-gray-200">
                     {filteredCalls.map((call) => (
-                      <tr key={call.id} className="hover:bg-gray-50 transition-colors">
+                      <tr key={call.id} className="hover:bg-muted/50 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-mono text-gray-900">
                             {call.retellCallId.substring(0, 12)}...
@@ -539,7 +539,7 @@ export default function CallHistoryPage() {
                           {call.direction === 'inbound' ? (
                             <PhoneIncoming className="w-4 h-4 text-green-600" />
                           ) : (
-                            <PhoneOutgoing className="w-4 h-4 text-blue-600" />
+                            <PhoneOutgoing className="w-4 h-4 text-primary" />
                           )}
                         </td>
                         <td className="px-6 py-4">

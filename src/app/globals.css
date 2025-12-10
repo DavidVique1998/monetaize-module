@@ -1,25 +1,113 @@
 @import "tailwindcss";
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 0 0% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 3.9%;
-  --primary: 0 0% 9%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 0 0% 96.1%;
-  --secondary-foreground: 0 0% 9%;
-  --muted: 0 0% 96.1%;
-  --muted-foreground: 0 0% 45.1%;
-  --accent: 0 0% 96.1%;
-  --accent-foreground: 0 0% 9%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 89.8%;
-  --input: 0 0% 89.8%;
-  --ring: 0 0% 3.9%;
+  /* Palette: Deep Sky Blue */
+  --color-deep-sky-blue-50: #e6f8ff;
+  --color-deep-sky-blue-100: #cdf1fe;
+  --color-deep-sky-blue-200: #9be3fd;
+  --color-deep-sky-blue-300: #68d5fd;
+  --color-deep-sky-blue-400: #36c7fc;
+  --color-deep-sky-blue-500: #04b9fb;
+  --color-deep-sky-blue-600: #0394c9;
+  --color-deep-sky-blue-700: #026f97;
+  --color-deep-sky-blue-800: #024a64;
+  --color-deep-sky-blue-900: #012532;
+  --color-deep-sky-blue-950: #011a23;
+
+  /* Palette: Deep Twilight */
+  --color-deep-twilight-50: #e7eafd;
+  --color-deep-twilight-100: #cfd5fc;
+  --color-deep-twilight-200: #a0abf8;
+  --color-deep-twilight-300: #7082f5;
+  --color-deep-twilight-400: #4058f2;
+  --color-deep-twilight-500: #112eee;
+  --color-deep-twilight-600: #0d25bf;
+  --color-deep-twilight-700: #0a1c8f;
+  --color-deep-twilight-800: #07125f;
+  --color-deep-twilight-900: #030930;
+  --color-deep-twilight-950: #020621;
+
+  /* Palette: Electric Rose */
+  --color-electric-rose-50: #fde7f4;
+  --color-electric-rose-100: #fbd0ea;
+  --color-electric-rose-200: #f7a1d5;
+  --color-electric-rose-300: #f471c0;
+  --color-electric-rose-400: #f042aa;
+  --color-electric-rose-500: #ec1395;
+  --color-electric-rose-600: #bd0f77;
+  --color-electric-rose-700: #8e0b5a;
+  --color-electric-rose-800: #5e083c;
+  --color-electric-rose-900: #2f041e;
+  --color-electric-rose-950: #210315;
+
+  /* Palette: Indigo Bloom */
+  --color-indigo-bloom-50: #f2ebf9;
+  --color-indigo-bloom-100: #e6d7f4;
+  --color-indigo-bloom-200: #ccafe9;
+  --color-indigo-bloom-300: #b288dd;
+  --color-indigo-bloom-400: #9960d2;
+  --color-indigo-bloom-500: #7f38c7;
+  --color-indigo-bloom-600: #662d9f;
+  --color-indigo-bloom-700: #4c2277;
+  --color-indigo-bloom-800: #331650;
+  --color-indigo-bloom-900: #190b28;
+  --color-indigo-bloom-950: #12081c;
+
+  /* Palette: Midnight Violet */
+  --color-midnight-violet-50: #eee9fc;
+  --color-midnight-violet-100: #ddd3f8;
+  --color-midnight-violet-200: #bca6f2;
+  --color-midnight-violet-300: #9a7aeb;
+  --color-midnight-violet-400: #784ee4;
+  --color-midnight-violet-500: #5721de;
+  --color-midnight-violet-600: #451bb1;
+  --color-midnight-violet-700: #341485;
+  --color-midnight-violet-800: #230d59;
+  --color-midnight-violet-900: #11072c;
+  --color-midnight-violet-950: #0c051f;
+
+  /* Palette: Indigo Ink */
+  --color-indigo-ink-50: #efe9fb;
+  --color-indigo-ink-100: #dfd4f7;
+  --color-indigo-ink-200: #bfa8f0;
+  --color-indigo-ink-300: #9f7de8;
+  --color-indigo-ink-400: #7f52e0;
+  --color-indigo-ink-500: #5f26d9;
+  --color-indigo-ink-600: #4c1fad;
+  --color-indigo-ink-700: #391782;
+  --color-indigo-ink-800: #260f57;
+  --color-indigo-ink-900: #13082b;
+  --color-indigo-ink-950: #0d051e;
+
+  /* Semantic Variables (Light Mode) */
+  --background: #ffffff; /* Cleaner white for light mode */
+  --foreground: var(--color-deep-twilight-950);
+  
+  --card: #ffffff;
+  --card-foreground: var(--color-deep-twilight-950);
+  
+  --popover: #ffffff;
+  --popover-foreground: var(--color-deep-twilight-950);
+  
+  --primary: var(--color-deep-twilight-600);
+  --primary-foreground: #ffffff;
+  
+  --secondary: var(--color-deep-sky-blue-50);
+  --secondary-foreground: var(--color-deep-sky-blue-900);
+  
+  --muted: var(--color-deep-twilight-50);
+  --muted-foreground: var(--color-deep-twilight-600);
+  
+  --accent: var(--color-deep-sky-blue-100);
+  --accent-foreground: var(--color-deep-sky-blue-900);
+  
+  --destructive: var(--color-electric-rose-500);
+  --destructive-foreground: #ffffff;
+  
+  --border: var(--color-deep-twilight-100);
+  --input: var(--color-deep-twilight-100);
+  --ring: var(--color-deep-twilight-300);
+  
   --radius: 0.5rem;
 }
 
@@ -32,31 +120,71 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    /* Semantic Variables (Dark Mode) */
+    --background: var(--color-deep-twilight-950);
+    --foreground: var(--color-deep-twilight-50);
+    
+    --card: var(--color-deep-twilight-900);
+    --card-foreground: var(--color-deep-twilight-50);
+    
+    --popover: var(--color-deep-twilight-900);
+    --popover-foreground: var(--color-deep-twilight-50);
+    
+    --primary: var(--color-deep-twilight-500);
+    --primary-foreground: #ffffff;
+    
+    --secondary: var(--color-deep-twilight-800);
+    --secondary-foreground: var(--color-deep-twilight-50);
+    
+    --muted: var(--color-deep-twilight-900);
+    --muted-foreground: var(--color-deep-twilight-400);
+    
+    --accent: var(--color-deep-twilight-800);
+    --accent-foreground: var(--color-deep-twilight-50);
+    
+    --destructive: var(--color-electric-rose-600);
+    --destructive-foreground: #ffffff;
+    
+    --border: var(--color-deep-twilight-800);
+    --input: var(--color-deep-twilight-800);
+    --ring: var(--color-deep-twilight-600);
   }
 }
 
+/* Also support .dark class for manual toggle */
+.dark {
+    --background: var(--color-deep-twilight-950);
+    --foreground: var(--color-deep-twilight-50);
+    
+    --card: var(--color-deep-twilight-900);
+    --card-foreground: var(--color-deep-twilight-50);
+    
+    --popover: var(--color-deep-twilight-900);
+    --popover-foreground: var(--color-deep-twilight-50);
+    
+    --primary: var(--color-deep-twilight-500);
+    --primary-foreground: #ffffff;
+    
+    --secondary: var(--color-deep-twilight-800);
+    --secondary-foreground: var(--color-deep-twilight-50);
+    
+    --muted: var(--color-deep-twilight-900);
+    --muted-foreground: var(--color-deep-twilight-400);
+    
+    --accent: var(--color-deep-twilight-800);
+    --accent-foreground: var(--color-deep-twilight-50);
+    
+    --destructive: var(--color-electric-rose-600);
+    --destructive-foreground: #ffffff;
+    
+    --border: var(--color-deep-twilight-800);
+    --input: var(--color-deep-twilight-800);
+    --ring: var(--color-deep-twilight-600);
+}
+
 body {
-  background: hsl(var(--background));
-  color: hsl(var(--foreground));
+  background: var(--background);
+  color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
@@ -75,10 +203,10 @@ textarea,
 select {
   width: 100%;
   padding: 0.5rem 1rem;
-  background-color: white;
-  color: #111827; /* text-gray-900 */
-  border: 1px solid #d1d5db; /* border-gray-300 */
-  border-radius: 0.5rem;
+  background-color: var(--background);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   outline: none;
   transition: all 0.2s;
 }
@@ -95,10 +223,8 @@ input[type="time"]:focus,
 input[type="datetime-local"]:focus,
 textarea:focus,
 select:focus {
-  background-color: white;
-  color: #111827; /* text-gray-900 */
-  border-color: transparent;
-  box-shadow: 0 0 0 2px #3b82f6; /* focus:ring-blue-500 */
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--ring);
 }
 
 input[type="text"]::placeholder,
@@ -109,7 +235,7 @@ input[type="tel"]::placeholder,
 input[type="url"]::placeholder,
 input[type="search"]::placeholder,
 textarea::placeholder {
-  color: #9ca3af; /* text-gray-400 */
+  color: var(--muted-foreground);
 }
 
 input[type="text"]:disabled,
@@ -124,8 +250,8 @@ input[type="time"]:disabled,
 input[type="datetime-local"]:disabled,
 textarea:disabled,
 select:disabled {
-  background-color: #f3f4f6; /* bg-gray-100 */
-  color: #6b7280; /* text-gray-500 */
+  background-color: var(--muted);
+  color: var(--muted-foreground);
   cursor: not-allowed;
 }
 
@@ -140,9 +266,9 @@ select:disabled {
 }
 
 .StripeElement--invalid {
-  color: #ef4444;
+  color: var(--destructive);
 }
 
 .StripeElement--webkit-autofill {
-  background-color: #fef3c7 !important;
+  background-color: var(--accent) !important;
 }

@@ -28,10 +28,10 @@ export function ConversationList({
   onSearchChange
 }: ConversationListProps) {
   return (
-    <div className="flex flex-col h-full bg-white border-r border-gray-200">
+    <div className="flex flex-col h-full bg-card border-r border-border">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">Inbox</h2>
+      <div className="p-4 border-b border-border">
+        <h2 className="text-lg font-semibold text-foreground mb-3">Inbox</h2>
         
         {/* Search */}
         <div className="relative">
@@ -54,7 +54,7 @@ export function ConversationList({
             <p className="text-sm">No conversations yet</p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-border">
             {conversations.map((conversation) => {
               const isSelected = selectedConversation === conversation.id;
               
@@ -67,7 +67,7 @@ export function ConversationList({
                     transition-all duration-200
                     ${isSelected 
                       ? 'bg-purple-50 border-l-4 border-purple-600 !border-b-transparent' 
-                      : 'hover:bg-purple-50/50 border-l-4 border-transparent'}
+                      : 'hover:bg-primary/5 border-l-4 border-transparent'}
                   `}
                 >
                   {/* Avatar */}
@@ -88,14 +88,14 @@ export function ConversationList({
                   {/* Content */}
                   <div className="ml-3 flex-1 min-w-0 text-left">
                     <div className="flex items-center justify-between">
-                      <p className={`text-sm font-medium truncate text-left ${isSelected ? 'text-purple-700' : 'text-gray-900'}`}>
+                      <p className={`text-sm font-medium truncate text-left ${isSelected ? 'text-purple-700' : 'text-foreground'}`}>
                         {conversation.name}
                       </p>
-                      <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
+                      <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">
                         {conversation.timestamp}
                       </span>
                     </div>
-                    <p className={`text-sm truncate mt-1 text-left ${isSelected ? 'text-purple-600' : 'text-gray-500'}`}>
+                    <p className={`text-sm truncate mt-1 text-left ${isSelected ? 'text-purple-600' : 'text-muted-foreground'}`}>
                       {conversation.lastMessage}
                     </p>
                   </div>
@@ -107,8 +107,8 @@ export function ConversationList({
       </div>
 
       {/* Pagination */}
-      <div className="p-4 border-t border-gray-200 bg-gray-50">
-        <div className="flex items-center justify-between text-sm text-gray-600">
+      <div className="p-4 border-t border-border bg-muted">
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
           <span>Showing 1 - {conversations.length}</span>
           <div className="flex items-center space-x-2">
             <span>Page 1 of 537</span>

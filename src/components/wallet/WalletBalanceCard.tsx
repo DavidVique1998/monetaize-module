@@ -64,21 +64,21 @@ export function WalletBalanceCard({ className, onRechargeClick }: WalletBalanceC
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
           <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-2">
-            <Wallet className="w-4 h-4 text-blue-600" />
+            <Wallet className="w-4 h-4 text-primary" />
           </div>
           <div>
-            <h3 className="text-base font-semibold text-gray-900">{t('title')}</h3>
+            <h3 className="text-base font-semibold text-foreground">{t('title')}</h3>
             <p className="text-xs text-gray-500">{t('availableBalance')}</p>
           </div>
         </div>
         <button
           onClick={fetchBalance}
           disabled={loading}
-          className="p-1.5 hover:bg-white/50 rounded-lg transition-colors"
+          className="p-1.5 hover:bg-muted/50 rounded-lg transition-colors"
           title={t('updateBalance')}
         >
           <RefreshCw className={cn(
-            "w-4 h-4 text-blue-600",
+            "w-4 h-4 text-primary",
             loading && "animate-spin"
           )} />
         </button>
@@ -86,8 +86,8 @@ export function WalletBalanceCard({ className, onRechargeClick }: WalletBalanceC
 
       {error ? (
         <div className="flex items-center justify-center p-4 bg-red-50 border border-red-200 rounded-lg">
-          <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
-          <span className="text-sm text-red-600">{error}</span>
+          <AlertCircle className="w-5 h-5 text-destructive mr-2" />
+          <span className="text-sm text-destructive">{error}</span>
         </div>
       ) : (
         <>
@@ -95,7 +95,7 @@ export function WalletBalanceCard({ className, onRechargeClick }: WalletBalanceC
           <div className="mb-4">
             <div className={cn(
               "text-3xl font-bold mb-2 transition-colors",
-              isNegative ? "text-red-600" : "text-green-600"
+              isNegative ? "text-destructive" : "text-green-600"
             )}>
               {formattedBalance}
             </div>
@@ -109,7 +109,7 @@ export function WalletBalanceCard({ className, onRechargeClick }: WalletBalanceC
           {onRechargeClick && (
             <button
               onClick={onRechargeClick}
-              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground disabled:bg-muted disabled:text-muted-foreground text-sm font-semibold px-4 py-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed shadow-md hover:shadow-lg"
             >
               {t('rechargeBalance')}
             </button>

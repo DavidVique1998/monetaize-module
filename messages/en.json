@@ -56,7 +56,9 @@
     "logout": "Logout",
     "language": "Language",
     "spanish": "Spanish",
-    "english": "English"
+    "english": "English",
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode"
   },
   "assistants": {
     "title": "Assistants",

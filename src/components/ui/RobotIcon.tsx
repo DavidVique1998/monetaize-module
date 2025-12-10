@@ -23,7 +23,7 @@ export function RobotIcon({ className }: RobotIconProps) {
           <div className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full shadow-sm group-hover:bg-red-400 transition-colors"></div>
           
           {/* Boca */}
-          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-1 bg-gray-700 rounded-full group-hover:bg-gray-600 transition-colors"></div>
+          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-1 -700 rounded-full group-hover:bg-gray-600 transition-colors"></div>
         </div>
         
         {/* Antena */}
