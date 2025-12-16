@@ -26,8 +26,20 @@ const orbitron = Orbitron({
 });
 
 export const metadata: Metadata = {
-  title: "Monetaize",
-  description: "Monetaize - Retell AI Management Platform",
+  title: {
+    default: "CAMIA | Agentes de Inteligencia Artificial | En Todos tus Canales",
+    template: "%s | CAMIA"
+  },
+  description: "Agentes IA en Facebook, Instagram, WhatsApp, Páginas Web, Llamadas Telefónicas y Correos Electrónicos.",
+  icons: {
+    icon: '/images/favicon.ico',
+    shortcut: '/images/favicon.ico',
+    apple: '/images/favicon.ico',
+  },
+  openGraph: {
+    title: "CAMIA | Agentes de Inteligencia Artificial | En Todos tus Canales",
+    description: "Agentes IA en Facebook, Instagram, WhatsApp, Páginas Web, Llamadas Telefónicas y Correos Electrónicos.",
+  },
 };
 
 const messages = {

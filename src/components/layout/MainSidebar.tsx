@@ -6,6 +6,7 @@ import { Navigation } from '@/components/navigation/Navigation';
 import { WalletBalance } from '@/components/wallet/WalletBalance';
 import { RechargeModal } from '@/components/wallet/RechargeModal';
 import { UserProfile } from '@/components/ui/UserProfile';
+import { CamiaLogo } from '@/components/ui/CamiaLogo';
 import { Pin, PinOff, Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
@@ -130,22 +131,7 @@ export function MainSidebar({
           <>
             <SidebarHeader className="p-2">
               <div className="flex items-center justify-center">
-                <span 
-                  className={cn(
-                    "text-2xl tracking-tight",
-                    "transition-all duration-300"
-                  )}
-                  style={{
-                    fontFamily: 'var(--font-orbitron)',
-                    fontWeight: 800, // Extra bold
-                    color: mounted && resolvedTheme === 'dark' ? '#ffffff' : '#0f172a',
-                    textShadow: mounted && resolvedTheme === 'dark' 
-                      ? '0 0 12px rgba(231, 22, 128, 1), 0 0 24px rgba(231, 22, 128, 0.6), 0 0 36px rgba(231, 22, 128, 0.3)'
-                      : '0 0 8px rgba(231, 22, 128, 0.8), 0 0 16px rgba(231, 22, 128, 0.5), 0 0 24px rgba(231, 22, 128, 0.3)',
-                  }}
-                >
-                  C
-                </span>
+                <CamiaLogo size="sm" showGlow={true} collapsed={true} />
               </div>
             </SidebarHeader>
             <SidebarContent className="py-2">
@@ -165,24 +151,14 @@ export function MainSidebar({
             {/* Header con logo de texto CAMIA */}
             <SidebarHeader>
               <div className="flex items-center space-x-3">
-                <h1 
+                <div
                   className={cn(
-                    "text-5xl tracking-tight",
                     "transition-all duration-300 ease-in-out",
                     showFullLogo ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
                   )}
-                  style={{
-                    fontFamily: 'var(--font-orbitron)',
-                    fontWeight: 800, // Extra bold
-                    color: mounted && resolvedTheme === 'dark' ? '#ffffff' : '#0f172a',
-                    textShadow: mounted && resolvedTheme === 'dark' 
-                      ? '0 0 12px rgba(231, 22, 128, 1), 0 0 24px rgba(231, 22, 128, 0.6), 0 0 36px rgba(231, 22, 128, 0.3)'
-                      : '0 0 8px rgba(231, 22, 128, 0.8), 0 0 16px rgba(231, 22, 128, 0.5), 0 0 24px rgba(231, 22, 128, 0.3)',
-                    transitionDelay: showFullLogo ? '0ms' : '0ms',
-                  }}
                 >
-                  CAMIA
-                </h1>
+                  <CamiaLogo size="xl" showGlow={true} animated={true} />
+                </div>
               </div>
               
               {/* Botón de pin */}

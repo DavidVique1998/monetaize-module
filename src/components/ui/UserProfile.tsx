@@ -103,10 +103,23 @@ export function UserProfile({
   const handleLogout = async () => {
     setIsDropdownOpen(false);
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      router.push('/install_ghl');
+      const response = await fetch('/api/auth/logout', { 
+        method: 'POST',
+        credentials: 'include' // Asegurar que las cookies se incluyan en la petición
+      });
+      
+      if (response.ok) {
+        // Forzar recarga completa para limpiar cualquier estado en caché
+        window.location.href = '/install_ghl';
+      } else {
+        console.error('Error logging out:', await response.text());
+        // Aún así, intentar redirigir
+        router.push('/install_ghl');
+      }
     } catch (error) {
       console.error('Error logging out:', error);
+      // Aún así, intentar redirigir
+      router.push('/install_ghl');
     }
   };
 
