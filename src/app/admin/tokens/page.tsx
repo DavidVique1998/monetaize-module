@@ -2,7 +2,8 @@
 
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useState, useEffect } from 'react';
-import { Key, Copy, CheckCircle2, Loader2, AlertCircle, User, Building2 } from 'lucide-react';
+import { Key, Copy, CheckCircle2, AlertCircle, User, Building2 } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 
 interface User {
   id: string;
@@ -94,7 +95,7 @@ export default function AdminTokensPage() {
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center space-x-3 mb-2">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
               <Key className="w-5 h-5 text-purple-600" />
             </div>
             <div>
@@ -115,9 +116,9 @@ export default function AdminTokensPage() {
         )}
 
         {success && (
-          <div className="mb-4 bg-greenbg-muted/50 border border-green-200 rounded-lg p-4 flex items-start">
-            <CheckCircle2 className="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-green-600">{success}</p>
+          <div className="mb-4 border border-emerald-600/20 rounded-lg p-4 flex items-start">
+            <CheckCircle2 className="w-5 h-5 text-emerald-400 mr-2 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-emerald-400">{success}</p>
           </div>
         )}
 
@@ -176,7 +177,7 @@ Content-Type: application/json
         {/* Lista de usuarios */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
+            <Spinner size="md" className="text-foreground/70" />
           </div>
         ) : (
           <div className="bg-card rounded-lg border border-gray-200 shadow-sm">
@@ -201,7 +202,7 @@ Content-Type: application/json
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                             <User className="w-5 h-5 text-primary" />
                           </div>
                           <div className="flex-1">
@@ -236,7 +237,7 @@ Content-Type: application/json
                       >
                         {generating === user.id ? (
                           <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <Spinner size="sm" className="text-white" />
                             <span>Generando...</span>
                           </>
                         ) : (

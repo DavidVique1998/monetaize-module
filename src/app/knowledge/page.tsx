@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { HeaderBar } from '@/components/dashboard/HeaderBar';
 import { KnowledgeBase } from '@/types/knowledge-base';
-import { Plus, BookOpen, Trash2, Edit2, ExternalLink, FileText, Globe, Loader2 } from 'lucide-react';
+import { Plus, BookOpen, Trash2, Edit2, ExternalLink, FileText, Globe } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { CreateKnowledgeBaseModal } from '@/components/knowledge/CreateKnowledgeBaseModal';
 import { AddSourcesModal } from '@/components/knowledge/AddSourcesModal';
 
@@ -13,6 +15,10 @@ export default function KnowledgePage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAddSourcesModal, setShowAddSourcesModal] = useState(false);
   const [selectedKnowledgeBase, setSelectedKnowledgeBase] = useState<KnowledgeBase | null>(null);
+  const actionButtonClass =
+    "inline-flex items-center justify-center h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold";
+  const iconButtonClass =
+    "inline-flex items-center justify-center h-9 w-9 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold";
 
   const loadKnowledgeBases = async () => {
     try {
@@ -65,7 +71,7 @@ export default function KnowledgePage() {
 
   const getStatusBadge = (status: string) => {
     const statusColors: Record<string, string> = {
-      complete: 'bg-green-100 text-green-800',
+      complete: 'bg-emerald-600/20 text-emerald-400',
       in_progress: 'bg-yellow-100 text-yellow-800',
       error: 'bg-red-100 text-red-800',
     };
@@ -85,59 +91,57 @@ export default function KnowledgePage() {
 
   return (
     <DashboardLayout>
-      <div className="p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Knowledge Bases</h1>
-            <p className="text-gray-600 mt-1">
-              Gestiona tus bases de conocimiento para proporcionar contexto a tus agentes
-            </p>
-          </div>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
-          >
-            <Plus className="w-5 h-5" />
-            Nueva Knowledge Base
-          </button>
-        </div>
-
-        {/* Lista de Knowledge Bases */}
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
-          </div>
-        ) : knowledgeBases.length === 0 ? (
-          <div className="text-center py-12 -50 rounded-lg border border-gray-200">
-            <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No hay Knowledge Bases</h3>
-            <p className="text-gray-600 mb-4">
-              Crea tu primera Knowledge Base para proporcionar contexto a tus agentes
-            </p>
+      <div className="flex flex-col h-full bg-background">
+        <HeaderBar
+          title="Knowledge Bases"
+          description="Gestiona tus bases de conocimiento para proporcionar contexto a tus agentes"
+          actions={
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors inline-flex items-center gap-2"
+              className={`${actionButtonClass} gap-2`}
             >
               <Plus className="w-5 h-5" />
-              Crear Knowledge Base
+              Nueva Knowledge Base
             </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {knowledgeBases.map((kb) => (
-              <div
-                key={kb.knowledge_base_id}
-                className="bg-card border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow"
+          }
+        />
+
+        <div className="flex-1 p-6 space-y-6 overflow-y-auto">
+          {/* Lista de Knowledge Bases */}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Spinner size="lg" className="text-foreground/70" />
+            </div>
+          ) : knowledgeBases.length === 0 ? (
+            <div className="text-center py-12 -50 rounded-lg border border-gray-200">
+              <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No hay Knowledge Bases</h3>
+              <p className="text-gray-600 mb-4">
+                Crea tu primera Knowledge Base para proporcionar contexto a tus agentes
+              </p>
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className={`${actionButtonClass} inline-flex items-center gap-2`}
               >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                      {kb.knowledge_base_name}
-                    </h3>
-                    {getStatusBadge(kb.status)}
+                <Plus className="w-5 h-5" />
+                Crear Knowledge Base
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg-grid-cols-3 gap-4">
+              {knowledgeBases.map((kb) => (
+                <div
+                  key={kb.knowledge_base_id}
+                  className="bg-card border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                        {kb.knowledge_base_name}
+                      </h3>
+                      {getStatusBadge(kb.status)}
+                    </div>
                   </div>
-                </div>
 
                 <div className="space-y-2 mb-4">
                   {kb.knowledge_base_sources && kb.knowledge_base_sources.length > 0 && (
@@ -165,23 +169,24 @@ export default function KnowledgePage() {
                 <div className="flex items-center gap-2 pt-4 border-t border-gray-200">
                   <button
                     onClick={() => handleAddSources(kb)}
-                    className="flex-1 px-3 py-2 text-sm text-purple-600 border border-purple-200 rounded hover:bg-purple-50 transition-colors flex items-center justify-center gap-2"
+                    className={`${actionButtonClass} flex-1 h-8 text-sm gap-2`}
                   >
                     <Plus className="w-4 h-4" />
                     Agregar Fuentes
                   </button>
                   <button
                     onClick={() => handleDelete(kb.knowledge_base_id)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
+                    className={iconButtonClass}
                     title="Eliminar"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Modal para crear Knowledge Base */}

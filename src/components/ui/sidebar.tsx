@@ -9,7 +9,7 @@ interface SidebarProps {
 export function Sidebar({ children, className }: SidebarProps) {
   return (
     <div className={cn(
-      "flex flex-col h-full w-64 bg-card border-r border-border shadow-lg",
+      "flex flex-col h-full w-64 bg-card/95 border-r border-gray-200 shadow-lg supports-[backdrop-filter]:backdrop-blur-xl",
       className
     )}>
       {children}
@@ -24,7 +24,7 @@ interface SidebarHeaderProps {
 
 export function SidebarHeader({ children, className }: SidebarHeaderProps) {
   return (
-    <div className={cn("flex items-center justify-center p-6 border-b border-border", className)}>
+    <div className={cn("flex items-center justify-center p-6 border-b border-gray-200", className)}>
       {children}
     </div>
   );
@@ -50,7 +50,7 @@ interface SidebarFooterProps {
 
 export function SidebarFooter({ children, className }: SidebarFooterProps) {
   return (
-    <div className={cn("p-4 border-t border-border bg-muted/30", className)}>
+    <div className={cn("p-4 border-t border-gray-200 bg-muted/30", className)}>
       {children}
     </div>
   );

@@ -62,6 +62,7 @@
   },
   "assistants": {
     "title": "Assistants",
+    "headerDescription": "Organize your assistants and folders in one place.",
     "searchPlaceholder": "Search for an assistant...",
     "createFolder": "Create Folder",
     "createAssistant": "Create Assistant",
@@ -261,6 +262,7 @@
   },
   "phoneNumbers": {
     "title": "Numbers",
+    "headerDescription": "Manage phone numbers, routing and assignments.",
     "searchPlaceholder": "Search numbers...",
     "newNumber": "New Number",
     "loading": "Loading phone numbers...",

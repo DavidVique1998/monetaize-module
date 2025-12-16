@@ -15,7 +15,7 @@ interface MetricCardProps {
 
 const colorClasses = {
   purple: 'text-primary',
-  green: 'text-green-600',
+  green: 'text-emerald-400',
   yellow: 'text-yellow-600',
   red: 'text-destructive',
   orange: 'text-orange-600',
@@ -33,7 +33,7 @@ export function MetricCard({
 }: MetricCardProps) {
   return (
     <div className={cn(
-      "bg-card rounded-lg border border-border p-4 shadow-sm hover:shadow-md transition-shadow",
+      "bg-card rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow",
       className
     )}>
       <div className="flex items-center justify-between">

@@ -56,9 +56,9 @@ export function VoiceSettingsModal({
       <div className="absolute inset-0 bg-black/20 transition-opacity" onClick={onClose} />
       <div className="absolute right-0 top-0 h-full w-[500px] bg-card shadow-2xl overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-card sticky top-0 z-10">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-card sticky top-0 z-10">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
               <Volume2 className="w-5 h-5 text-primary" />
             </div>
             <div>
@@ -184,7 +184,7 @@ export function VoiceSettingsModal({
         </div>
 
         {/* Footer */}
-        <div className="border-t border-border px-6 py-4 flex justify-end space-x-3 bg-card sticky bottom-0">
+        <div className="border-t border-gray-200 px-6 py-4 flex justify-end space-x-3 bg-card sticky bottom-0">
           <button 
             onClick={handleSave} 
             className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm font-medium transition-colors"

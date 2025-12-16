@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { LogIn, CheckCircle, AlertCircle, Loader2, Building2 } from 'lucide-react';
+import { LogIn, CheckCircle, AlertCircle, Building2 } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 
 function InstallGHLContent() {
   const searchParams = useSearchParams();
@@ -103,7 +104,7 @@ function InstallGHLContent() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-card rounded-2xl shadow-xl p-8">
           <div className="flex flex-col items-center justify-center py-8">
-            <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
+            <Spinner size="lg" className="mb-4 text-foreground/70" />
             <p className="text-sm text-gray-600">Verificando sesión...</p>
           </div>
         </div>
@@ -134,18 +135,18 @@ function InstallGHLContent() {
           <div
             className={`mb-6 p-4 rounded-lg flex items-start space-x-3 ${
               message.type === 'success'
-                ? 'bg-green-50 border border-green-200'
+                ? 'bg-emerald-600/10 border border-emerald-600/20'
                 : 'bg-red-50 border border-red-200'
             }`}
           >
             {message.type === 'success' ? (
-              <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+              <CheckCircle className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" />
             ) : (
               <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
             )}
             <p
               className={`text-sm flex-1 ${
-                message.type === 'success' ? 'text-green-800' : 'text-red-800'
+                message.type === 'success' ? 'text-emerald-400' : 'text-red-800'
               }`}
             >
               {message.text}
@@ -161,7 +162,7 @@ function InstallGHLContent() {
         >
           {isLoading ? (
             <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              <Spinner size="sm" className="mr-2 text-white" />
               Procesando...
             </>
           ) : (
@@ -191,7 +192,7 @@ export default function InstallGHLPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-card rounded-2xl shadow-xl p-8">
           <div className="flex flex-col items-center justify-center py-8">
-            <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
+            <Spinner size="lg" className="mb-4 text-foreground/70" />
             <p className="text-sm text-gray-600">Cargando...</p>
           </div>
         </div>

@@ -165,9 +165,9 @@ export function AgentDebugPanel() {
               <div className="text-2xl font-bold text-primary">{debugInfo.retellAgentsCount}</div>
               <div className="text-sm text-primary">Retell Agents</div>
             </div>
-            <div className="bg-green-50 rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-green-600">{debugInfo.localAgentsCount}</div>
-              <div className="text-sm text-green-700">Linked Agents</div>
+            <div className="bg-emerald-600/10 rounded-lg p-4 text-center">
+              <div className="text-2xl font-bold text-emerald-400">{debugInfo.localAgentsCount}</div>
+              <div className="text-sm text-emerald-400">Linked Agents</div>
             </div>
           </div>
 
@@ -189,7 +189,7 @@ export function AgentDebugPanel() {
                         <div className="flex items-center space-x-2 mt-1">
                           <span className={`px-2 py-1 text-xs rounded-full ${
                             agent.is_published 
-                              ? 'bg-green-100 text-green-700' 
+                              ? 'bg-emerald-600/20 text-emerald-400' 
                               : 'bg-muted text-muted-foreground'
                           }`}>
                             {agent.is_published ? 'Published' : 'Draft'}
@@ -213,8 +213,8 @@ export function AgentDebugPanel() {
 
           {/* Linked Agents */}
           {debugInfo.localAgentsCount > 0 && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <h4 className="font-medium text-green-700 mb-3 flex items-center space-x-2">
+            <div className="bg-emerald-600/10 border border-emerald-600/20 rounded-lg p-4">
+              <h4 className="font-medium text-emerald-400 mb-3 flex items-center space-x-2">
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Linked Agents ({debugInfo.localAgentsCount})</span>
               </h4>
@@ -222,7 +222,7 @@ export function AgentDebugPanel() {
                 {debugInfo.localAgents.map(agent => {
                   const retellAgent = debugInfo.retellAgents.find(r => r.agent_id === agent.retellAgentId);
                   return (
-                    <div key={agent.id} className="flex items-center justify-between bg-card rounded-lg p-3 border border-green-200">
+                    <div key={agent.id} className="flex items-center justify-between bg-card rounded-lg p-3 border border-emerald-600/20">
                       <div>
                         <p className="font-medium text-foreground">{agent.name}</p>
                         <p className="text-sm text-muted-foreground">ID: {agent.retellAgentId}</p>
@@ -230,7 +230,7 @@ export function AgentDebugPanel() {
                           <div className="flex items-center space-x-2 mt-1">
                             <span className={`px-2 py-1 text-xs rounded-full ${
                               retellAgent.is_published 
-                                ? 'bg-green-100 text-green-700' 
+                                ? 'bg-emerald-600/20 text-emerald-400' 
                                 : 'bg-muted text-muted-foreground'
                             }`}>
                               {retellAgent.is_published ? 'Published' : 'Draft'}
@@ -239,7 +239,7 @@ export function AgentDebugPanel() {
                           </div>
                         )}
                       </div>
-                      <CheckCircle2 className="w-5 h-5 text-green-600" />
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                     </div>
                   );
                 })}
@@ -248,10 +248,10 @@ export function AgentDebugPanel() {
           )}
 
           {debugInfo.missingLinks.length === 0 && debugInfo.localAgentsCount > 0 && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-              <CheckCircle2 className="w-8 h-8 text-green-600 mx-auto mb-2" />
-              <p className="text-green-700 font-medium">All agents are properly linked!</p>
-              <p className="text-green-700 text-sm">You should be able to edit your agents without issues.</p>
+            <div className="bg-emerald-600/10 border border-emerald-600/20 rounded-lg p-4 text-center">
+              <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
+              <p className="text-emerald-400 font-medium">All agents are properly linked!</p>
+              <p className="text-emerald-400 text-sm">You should be able to edit your agents without issues.</p>
             </div>
           )}
         </div>

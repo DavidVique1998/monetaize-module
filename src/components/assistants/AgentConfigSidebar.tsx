@@ -40,7 +40,7 @@ interface ConfigSectionProps {
 
 function ConfigSection({ title, icon, isExpanded, onToggle, children }: ConfigSectionProps) {
   return (
-    <div className="border-b border-border">
+    <div className="border-b border-gray-200">
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors"
@@ -144,6 +144,21 @@ export function AgentConfigSidebar({
     description: '',
     required: false,
   });
+  // Post-call analysis state
+  const [postCallForm, setPostCallForm] = useState<{
+    type: 'string' | 'enum' | 'boolean' | 'number';
+    name: string;
+    description: string;
+    examples: string;
+    choices: string;
+  }>({
+    type: 'string',
+    name: '',
+    description: '',
+    examples: '',
+    choices: '',
+  });
+  const [editingPostCallIndex, setEditingPostCallIndex] = useState<number | null>(null);
 
   // Obtener LLM ID del agente
   const getLLMId = (): string | null => {
@@ -376,6 +391,90 @@ export function AgentConfigSidebar({
     setEditingParameterIndex(null);
   };
 
+  // Post-call analysis handlers
+  const handleAddPostCallEntry = () => {
+    setEditingPostCallIndex(null);
+    setPostCallForm({
+      type: 'string',
+      name: '',
+      description: '',
+      examples: '',
+      choices: '',
+    });
+  };
+
+  const handleEditPostCallEntry = (index: number, data: any[]) => {
+    const item = data[index];
+    setEditingPostCallIndex(index);
+    setPostCallForm({
+      type: (item?.type as 'string' | 'enum' | 'boolean' | 'number') || 'string',
+      name: item?.name || '',
+      description: item?.description || '',
+      examples: Array.isArray(item?.examples) ? item.examples.join(', ') : '',
+      choices: Array.isArray(item?.choices) ? item.choices.join(', ') : '',
+    });
+  };
+
+  const handleDeletePostCallEntry = (index: number, data: any[]) => {
+    const updated = [...data];
+    updated.splice(index, 1);
+    onSettingsChange({ post_call_analysis_data: updated });
+    setEditingPostCallIndex(null);
+    setPostCallForm({
+      type: 'string',
+      name: '',
+      description: '',
+      examples: '',
+      choices: '',
+    });
+  };
+
+  const handleSavePostCallEntry = (data: any[]) => {
+    if (!postCallForm.name || !postCallForm.description) {
+      alert('Nombre y descripción son requeridos');
+      return;
+    }
+    const examplesArr = postCallForm.examples
+      ? postCallForm.examples.split(',').map((e) => e.trim()).filter(Boolean)
+      : [];
+    const choicesArr = postCallForm.choices
+      ? postCallForm.choices.split(',').map((e) => e.trim()).filter(Boolean)
+      : [];
+
+    let newEntry: any = {
+      type: postCallForm.type,
+      name: postCallForm.name,
+      description: postCallForm.description,
+    };
+
+    if (postCallForm.type === 'string' && examplesArr.length > 0) {
+      newEntry.examples = examplesArr;
+    }
+
+    if (postCallForm.type === 'enum') {
+      if (choicesArr.length === 0) {
+        alert('Las opciones (choices) son requeridas para tipo enum');
+        return;
+      }
+      newEntry.choices = choicesArr;
+    }
+    const updated = [...data];
+    if (editingPostCallIndex !== null) {
+      updated[editingPostCallIndex] = newEntry;
+    } else {
+      updated.push(newEntry);
+    }
+    onSettingsChange({ post_call_analysis_data: updated });
+    setEditingPostCallIndex(null);
+    setPostCallForm({
+      type: 'string',
+      name: '',
+      description: '',
+      examples: '',
+      choices: '',
+    });
+  };
+
   const handleDeleteTool = async (index: number) => {
     const llmId = getLLMId();
     if (!llmId) return;
@@ -449,6 +548,13 @@ export function AgentConfigSidebar({
     if (toolType === 'book_appointment_cal') {
       if (!toolForm.cal_api_key || !toolForm.event_type_id || !toolForm.timezone) {
         alert('Cal API Key, Event Type ID y Timezone son requeridos para Book Appointment Cal');
+        return;
+      }
+    }
+
+    if (toolType === 'check_availability_cal') {
+      if (!toolForm.cal_api_key || !toolForm.event_type_id) {
+        alert('Cal API Key y Event Type ID son requeridos para Check Availability Cal');
         return;
       }
     }
@@ -548,6 +654,15 @@ export function AgentConfigSidebar({
       toolToSave.timezone = toolForm.timezone;
     }
 
+    // Para tools tipo Check Availability Cal
+    if (toolType === 'check_availability_cal') {
+      toolToSave.cal_api_key = toolForm.cal_api_key;
+      toolToSave.event_type_id = toolForm.event_type_id;
+      if (toolForm.timezone) {
+        toolToSave.timezone = toolForm.timezone;
+      }
+    }
+
     // Para tools tipo Press Digit
     if (toolType === 'press_digit' && toolForm.sms_content) {
       toolToSave.sms_content = toolForm.sms_content;
@@ -620,7 +735,7 @@ export function AgentConfigSidebar({
   };
 
   return (
-    <div className="w-80 bg-card border-l border-border overflow-y-auto">
+    <div className="w-80 bg-card border-l border-gray-200 overflow-y-auto">
   
 
       {/* Configuration Sections */}
@@ -656,7 +771,7 @@ export function AgentConfigSidebar({
                     {tools.map((tool, index) => (
                       <div
                         key={index}
-                        className="p-2 bg-muted/30 border border-border rounded-lg flex items-start justify-between"
+                        className="p-2 bg-muted/30 border border-gray-200 rounded-lg flex items-start justify-between"
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
@@ -709,7 +824,7 @@ export function AgentConfigSidebar({
                 <button
                   onClick={handleAddTool}
                   disabled={!getLLMId()}
-                  className="w-full px-3 py-2 text-sm text-primary border border-primary/20 rounded-lg hover:bg-purple-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="inline-flex items-center justify-center w-full h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Plus className="w-4 h-4" />
                   Agregar Tool
@@ -768,7 +883,7 @@ export function AgentConfigSidebar({
                 </div>
 
                 {knowledgeBases.length === 0 && (
-                  <div className="p-2 bg-muted/30 border border-border rounded-lg">
+                  <div className="p-2 bg-muted/30 border border-gray-200 rounded-lg">
                     <p className="text-xs text-muted-foreground mb-2">
                       No hay Knowledge Bases disponibles. Crea una en la página de Knowledge Bases.
                     </p>
@@ -782,8 +897,8 @@ export function AgentConfigSidebar({
                 )}
 
                 {selectedKnowledgeBaseId && (
-                  <div className="p-2 bg-green-500/10 border border-green-200 rounded-lg">
-                    <p className="text-xs text-green-700">
+                  <div className="p-2 bg-emerald-600/10 border border-emerald-600/20 rounded-lg">
+                    <p className="text-xs text-emerald-400">
                       ✓ Knowledge Base conectada correctamente
                     </p>
                   </div>
@@ -1061,22 +1176,234 @@ export function AgentConfigSidebar({
               Configure data extraction after calls complete.
             </p>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-semibold text-foreground mb-2">
                 Analysis Model
               </label>
               <select
-                value={getValue('post_call_analysis_model', 'gpt-4o-mini')}
+                value={getValue('post_call_analysis_model', 'gpt-4.1-mini')}
                 onChange={(e) => onSettingsChange({ post_call_analysis_model: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               >
-                <option value="gpt-4o-mini">GPT-4o Mini</option>
-                <option value="gpt-4o">GPT-4o</option>
-                <option value="gpt-4">GPT-4</option>
+                <option value="gpt-4.1">gpt-4.1</option>
+                <option value="gpt-4.1-mini">gpt-4.1-mini</option>
+                <option value="gpt-4.1-nano">gpt-4.1-nano</option>
+                <option value="gpt-5">gpt-5</option>
+                <option value="gpt-5-mini">gpt-5-mini</option>
+                <option value="gpt-5-nano">gpt-5-nano</option>
+                <option value="claude-4.5-sonnet">claude-4.5-sonnet</option>
+                <option value="claude-4.5-haiku">claude-4.5-haiku</option>
+                <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
               </select>
             </div>
-            <button className="w-full px-3 py-2 text-sm text-primary border border-primary/20 rounded-lg hover:bg-purple-50 transition-colors">
-              Configure Extraction Fields
-            </button>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-foreground mb-1">
+                  Success Prompt (opcional)
+                </label>
+                <textarea
+                  value={getValue('analysis_successful_prompt', '') || ''}
+                  onChange={(e) => onSettingsChange({ analysis_successful_prompt: e.target.value })}
+                  rows={2}
+                  placeholder="The agent finished the task and the call was complete without being cutoff."
+                  className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-foreground mb-1">
+                  Summary Prompt (opcional)
+                </label>
+                <textarea
+                  value={getValue('analysis_summary_prompt', '') || ''}
+                  onChange={(e) => onSettingsChange({ analysis_summary_prompt: e.target.value })}
+                  rows={2}
+                  placeholder="Summarize the call in a few sentences."
+                  className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+            </div>
+
+            <div className="border border-gray-200 rounded-lg p-3 space-y-3 bg-muted/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-semibold text-foreground">Campos a extraer</h4>
+                  <p className="text-xs text-muted-foreground">Define variables adicionales que quieres obtener del análisis.</p>
+                </div>
+                <button
+                  onClick={handleAddPostCallEntry}
+                  className="text-xs text-primary hover:text-primary/80 flex items-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Agregar
+                </button>
+              </div>
+
+              {Array.isArray(getValue('post_call_analysis_data', [])) && getValue('post_call_analysis_data', []).length > 0 && (
+                <div className="space-y-2">
+                  {getValue('post_call_analysis_data', []).map((item: any, index: number) => (
+                    <div
+                      key={index}
+                      className="p-2 bg-card border border-gray-200 rounded-lg flex items-start justify-between"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-medium text-foreground truncate">{item.name}</span>
+                          <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                            {item.type || 'string'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{item.description}</p>
+                        {Array.isArray(item.examples) && item.examples.length > 0 && (
+                          <p className="text-[11px] text-muted-foreground mt-1">
+                            Ejemplos: {item.examples.join(', ')}
+                          </p>
+                        )}
+                        {Array.isArray(item.choices) && item.choices.length > 0 && (
+                          <p className="text-[11px] text-muted-foreground mt-1">
+                            Choices: {item.choices.join(', ')}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 ml-2">
+                        <button
+                          onClick={() => handleEditPostCallEntry(index, getValue('post_call_analysis_data', []))}
+                          className="p-1 text-muted-foreground hover:text-primary hover:bg-purple-50 rounded transition-colors"
+                          title="Editar campo"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeletePostCallEntry(index, getValue('post_call_analysis_data', []))}
+                          className="p-1 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                          title="Eliminar campo"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {(editingPostCallIndex !== null || getValue('post_call_analysis_data', []).length === 0) && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-foreground">
+                      {editingPostCallIndex !== null ? 'Editar campo' : 'Nuevo campo'}
+                    </h4>
+                    {editingPostCallIndex !== null && (
+                      <button
+                        onClick={() => {
+                          setEditingPostCallIndex(null);
+                          setPostCallForm({
+                            type: 'string',
+                            name: '',
+                            description: '',
+                            examples: '',
+                            choices: '',
+                          });
+                        }}
+                        className="text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-foreground mb-1">Tipo *</label>
+                      <select
+                        value={postCallForm.type}
+                        onChange={(e) => setPostCallForm({ ...postCallForm, type: e.target.value as any })}
+                        className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <option value="string">string</option>
+                        <option value="enum">enum</option>
+                        <option value="boolean">boolean</option>
+                        <option value="number">number</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-foreground mb-1">Nombre *</label>
+                      <input
+                        type="text"
+                        value={postCallForm.name}
+                        onChange={(e) => setPostCallForm({ ...postCallForm, name: e.target.value })}
+                        placeholder="customer_name"
+                        className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-foreground mb-1">Descripción *</label>
+                      <textarea
+                        value={postCallForm.description}
+                        onChange={(e) => setPostCallForm({ ...postCallForm, description: e.target.value })}
+                        rows={2}
+                        placeholder="The name of the customer."
+                        className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                    {(postCallForm.type === 'string') && (
+                      <div>
+                        <label className="block text-xs font-semibold text-foreground mb-1">Ejemplos (opcional)</label>
+                        <input
+                          type="text"
+                          value={postCallForm.examples}
+                          onChange={(e) => setPostCallForm({ ...postCallForm, examples: e.target.value })}
+                          placeholder="John Doe, Jane Smith"
+                          className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                        <p className="text-[11px] text-muted-foreground mt-1">Separa por comas.</p>
+                      </div>
+                    )}
+                    {postCallForm.type === 'enum' && (
+                      <div>
+                        <label className="block text-xs font-semibold text-foreground mb-1">Choices (requerido)</label>
+                        <input
+                          type="text"
+                          value={postCallForm.choices}
+                          onChange={(e) => setPostCallForm({ ...postCallForm, choices: e.target.value })}
+                          placeholder="good, bad"
+                          className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                        <p className="text-[11px] text-muted-foreground mt-1">Lista de valores permitidos, separados por comas.</p>
+                      </div>
+                    )}
+                    {(postCallForm.type === 'boolean' || postCallForm.type === 'number') && (
+                      <p className="text-[11px] text-muted-foreground">
+                        Para boolean/number no se requieren ejemplos ni choices.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleSavePostCallEntry(getValue('post_call_analysis_data', []))}
+                      className="inline-flex items-center justify-center flex-1 h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold"
+                    >
+                      {editingPostCallIndex !== null ? 'Actualizar' : 'Agregar'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditingPostCallIndex(null);
+                        setPostCallForm({
+                          type: 'string',
+                          name: '',
+                          description: '',
+                          examples: '',
+                          choices: '',
+                        });
+                      }}
+                      className="inline-flex items-center justify-center h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </ConfigSection>
 
@@ -1219,7 +1546,7 @@ export function AgentConfigSidebar({
             <p className="text-xs text-muted-foreground">
               Configure Model Context Protocol connections.
             </p>
-            <button className="w-full px-3 py-2 text-sm text-primary border border-primary/20 rounded-lg hover:bg-purple-50 transition-colors">
+            <button className="inline-flex items-center justify-center w-full h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold">
               Add MCP Connection
             </button>
           </div>
@@ -1230,7 +1557,7 @@ export function AgentConfigSidebar({
       {showToolModal && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-card rounded-lg shadow-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between">
+            <div className="sticky top-0 bg-card border-b border-gray-200 px-6 py-4 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-foreground">
                 {editingToolIndex !== null ? 'Editar Tool' : 'Agregar Tool'}
               </h3>
@@ -1315,7 +1642,7 @@ export function AgentConfigSidebar({
                     } else if (newType === 'transfer_call') {
                       resetForm.transfer_destination = { type: 'predefined' };
                       resetForm.transfer_option = { type: 'cold_transfer' };
-                    } else if (newType === 'book_appointment_cal') {
+                    } else if (newType === 'book_appointment_cal' || newType === 'check_availability_cal') {
                       resetForm.cal_api_key = '';
                       resetForm.event_type_id = undefined;
                       resetForm.timezone = '';
@@ -1334,12 +1661,14 @@ export function AgentConfigSidebar({
                   <option value="bridge_transfer">Bridge Transfer</option>
                   <option value="cancel_transfer">Cancel Transfer</option>
                   <option value="book_appointment_cal">Book Appointment (Cal.com)</option>
+                  <option value="check_availability_cal">Check Availability (Cal.com)</option>
                   <option value="press_digit">Press Digit</option>
                 </select>
                 <p className="text-xs text-muted-foreground mt-1">
                   {(toolForm.type as RetellToolType) === 'custom' && 'Custom function tool con HTTP'}
                   {(toolForm.type as RetellToolType) === 'transfer_call' && 'Para transferir llamadas a otro número o agente'}
                   {(toolForm.type as RetellToolType) === 'book_appointment_cal' && 'Para agendar citas usando Cal.com'}
+                  {(toolForm.type as RetellToolType) === 'check_availability_cal' && 'Consultar disponibilidad en Cal.com antes de reservar'}
                   {!toolForm.type && 'Selecciona el tipo de tool'}
                 </p>
               </div>
@@ -1380,7 +1709,7 @@ export function AgentConfigSidebar({
               {((toolForm.type as RetellToolType) === 'custom' || (toolForm.type as RetellToolType) === 'function') && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-semibold text-foreground mb-1">
                       URL del Endpoint *
                     </label>
                     <input
@@ -1388,18 +1717,18 @@ export function AgentConfigSidebar({
                       value={toolForm.url || ''}
                       onChange={(e) => setToolForm({ ...toolForm, url: e.target.value })}
                       placeholder="https://api.example.com/endpoint"
-                      className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-semibold text-foreground mb-1">
                       Método HTTP
                     </label>
                     <select
                       value={toolForm.method || 'POST'}
                       onChange={(e) => setToolForm({ ...toolForm, method: e.target.value as any })}
-                      className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                       <option value="GET">GET</option>
                       <option value="POST">POST</option>
@@ -1413,7 +1742,7 @@ export function AgentConfigSidebar({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-semibold text-foreground mb-1">
                       Headers HTTP (JSON opcional)
                     </label>
                     <textarea
@@ -1428,7 +1757,7 @@ export function AgentConfigSidebar({
                       }}
                       placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'
                       rows={3}
-                      className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary font-mono text-xs"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary font-mono text-xs"
                     />
                     <p className="text-xs text-muted-foreground mt-1">
                       Formato JSON con los headers HTTP a enviar
@@ -1436,7 +1765,7 @@ export function AgentConfigSidebar({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-semibold text-foreground mb-1">
                       Query Parameters (JSON opcional)
                     </label>
                     <textarea
@@ -1451,16 +1780,16 @@ export function AgentConfigSidebar({
                       }}
                       placeholder='{"page": "1", "sort": "asc"}'
                       rows={2}
-                      className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary font-mono text-xs"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary font-mono text-xs"
                     />
                     <p className="text-xs text-muted-foreground mt-1">
                       Query parameters a agregar a la URL
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-border">
+                  <div className="flex items-center justify-between pt-2 border-t border-input">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-semibold text-foreground mb-1">
                         Speak After Execution *
                       </label>
                       <p className="text-xs text-muted-foreground">
@@ -1475,9 +1804,9 @@ export function AgentConfigSidebar({
                     />
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-border">
+                  <div className="flex items-center justify-between pt-2 border-t border-input">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-semibold text-foreground mb-1">
                         Speak During Execution
                       </label>
                       <p className="text-xs text-muted-foreground">
@@ -1494,7 +1823,7 @@ export function AgentConfigSidebar({
 
                   {toolForm.speak_during_execution && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-semibold text-foreground mb-1">
                         Execution Message Description
                       </label>
                       <textarea
@@ -1502,7 +1831,7 @@ export function AgentConfigSidebar({
                         onChange={(e) => setToolForm({ ...toolForm, execution_message_description: e.target.value })}
                         placeholder="El mensaje que el agente dirá al llamar este tool. Asegúrate de que encaje suavemente en la conversación."
                         rows={2}
-                        className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                       <p className="text-xs text-muted-foreground mt-1">
                         Descripción del mensaje que el agente dirá durante la ejecución
@@ -1511,7 +1840,7 @@ export function AgentConfigSidebar({
                   )}
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-semibold text-foreground mb-1">
                       Timeout (ms)
                     </label>
                     <input
@@ -1526,7 +1855,7 @@ export function AgentConfigSidebar({
                           setToolForm({ ...toolForm, timeout_ms: value });
                         }
                       }}
-                      className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                     <p className="text-xs text-muted-foreground mt-1">
                       Tiempo máximo en milisegundos (1000-600000, default: 120000 = 2 min)
@@ -1534,7 +1863,7 @@ export function AgentConfigSidebar({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-semibold text-foreground mb-1">
                       Response Variables (JSON opcional)
                     </label>
                     <textarea
@@ -1549,7 +1878,7 @@ export function AgentConfigSidebar({
                       }}
                       placeholder='{"user_name": "data.user.name", "order_status": "data.status"}'
                       rows={3}
-                      className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary font-mono text-xs"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary font-mono text-xs"
                     />
                     <p className="text-xs text-muted-foreground mt-1">
                       Mapeo de nombres de variables a JSON paths en la respuesta. Estos valores estarán disponibles como variables dinámicas.
@@ -1682,8 +2011,8 @@ export function AgentConfigSidebar({
                 </>
               )}
 
-              {/* Book Appointment Cal */}
-              {(toolForm.type as RetellToolType) === 'book_appointment_cal' && (
+              {/* Book/Check Availability Cal */}
+              {(['book_appointment_cal', 'check_availability_cal'] as RetellToolType[]).includes(toolForm.type as RetellToolType) && (
                 <>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1713,7 +2042,7 @@ export function AgentConfigSidebar({
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Timezone *
+                      Timezone {toolForm.type === 'book_appointment_cal' ? '*' : '(opcional)'}
                     </label>
                     <input
                       type="text"
@@ -1722,6 +2051,11 @@ export function AgentConfigSidebar({
                       placeholder="America/Los_Angeles"
                       className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     />
+                    {toolForm.type === 'check_availability_cal' && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Si no se especifica, se usará la zona horaria del usuario o de Retell.
+                      </p>
+                    )}
                   </div>
                 </>
               )}
@@ -1746,7 +2080,7 @@ export function AgentConfigSidebar({
               {((toolForm.type as RetellToolType) === 'custom' || (toolForm.type as RetellToolType) === 'function' || (toolForm.type as RetellToolType) === 'mcp') && (
                 <>
                   {/* Parámetros */}
-                  <div className="border-t border-border pt-4">
+                  <div className="border-t border-gray-200 pt-4">
                     <div className="flex items-center justify-between mb-3">
                       <label className="block text-sm font-medium text-gray-700">
                         Parámetros
@@ -1766,7 +2100,7 @@ export function AgentConfigSidebar({
                         {toolForm.parameters.map((param, index) => (
                           <div
                             key={index}
-                            className="p-2 bg-muted/30 border border-border rounded-lg flex items-start justify-between"
+                            className="p-2 bg-muted/30 border border-gray-200 rounded-lg flex items-start justify-between"
                           >
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
@@ -1814,15 +2148,15 @@ export function AgentConfigSidebar({
 
                     {/* Formulario de parámetro */}
                     {(editingParameterIndex !== null || (toolForm.parameters && toolForm.parameters.length === 0)) && (
-                      <div className="p-3 bg-purple-50 border border-primary/20 rounded-lg space-y-3">
+                      <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <h4 className="text-sm font-medium text-foreground">
+                          <h4 className="text-sm font-semibold text-foreground">
                             {editingParameterIndex !== null ? 'Editar Parámetro' : 'Nuevo Parámetro'}
                           </h4>
                           {editingParameterIndex !== null && (
                             <button
                               onClick={handleCancelParameter}
-                              className="text-muted-foreground/70 hover:text-muted-foreground"
+                              className="text-muted-foreground hover:text-foreground transition-colors"
                             >
                               <X className="w-4 h-4" />
                             </button>
@@ -1830,7 +2164,7 @@ export function AgentConfigSidebar({
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                          <label className="block text-xs font-semibold text-foreground mb-1">
                             Nombre *
                           </label>
                           <input
@@ -1838,18 +2172,18 @@ export function AgentConfigSidebar({
                             value={parameterForm.name || ''}
                             onChange={(e) => setParameterForm({ ...parameterForm, name: e.target.value })}
                             placeholder="order_id"
-                            className="w-full px-2 py-1.5 text-sm border border-input rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                          <label className="block text-xs font-semibold text-foreground mb-1">
                             Tipo *
                           </label>
                           <select
                             value={parameterForm.type || 'string'}
                             onChange={(e) => setParameterForm({ ...parameterForm, type: e.target.value as RetellToolParameter['type'] })}
-                            className="w-full px-2 py-1.5 text-sm border border-input rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                           >
                             <option value="string">String</option>
                             <option value="number">Number</option>
@@ -1860,7 +2194,7 @@ export function AgentConfigSidebar({
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                          <label className="block text-xs font-semibold text-foreground mb-1">
                             Descripción *
                           </label>
                           <textarea
@@ -1868,12 +2202,12 @@ export function AgentConfigSidebar({
                             onChange={(e) => setParameterForm({ ...parameterForm, description: e.target.value })}
                             placeholder="El ID de la orden a verificar"
                             rows={2}
-                            className="w-full px-2 py-1.5 text-sm border border-input rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                           />
                         </div>
 
                         <div className="flex items-center justify-between">
-                          <label className="text-xs font-medium text-gray-700">
+                          <label className="text-xs font-semibold text-foreground">
                             Requerido
                           </label>
                           <input
@@ -1886,7 +2220,7 @@ export function AgentConfigSidebar({
 
                         {(parameterForm.type === 'string' || parameterForm.type === 'number') && (
                           <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                            <label className="block text-xs font-semibold text-foreground mb-1">
                               Valores Permitidos (Enum) - Opcional
                             </label>
                             <input
@@ -1900,7 +2234,7 @@ export function AgentConfigSidebar({
                                 });
                               }}
                               placeholder="valor1, valor2, valor3"
-                              className="w-full px-2 py-1.5 text-sm border border-input rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                              className="w-full px-3 py-2 text-sm border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                             <p className="text-xs text-muted-foreground mt-1">
                               Separa los valores con comas
@@ -1911,14 +2245,14 @@ export function AgentConfigSidebar({
                         <div className="flex gap-2">
                           <button
                             onClick={handleSaveParameter}
-                            className="flex-1 px-3 py-1.5 text-xs font-medium text-white bg-purple-600 rounded hover:bg-purple-700 transition-colors"
+                            className="inline-flex items-center justify-center flex-1 h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold"
                           >
                             {editingParameterIndex !== null ? 'Actualizar' : 'Agregar'}
                           </button>
                           {editingParameterIndex !== null && (
                             <button
                               onClick={handleCancelParameter}
-                              className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-muted rounded hover:bg-muted transition-colors"
+                              className="inline-flex items-center justify-center h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold"
                             >
                               Cancelar
                             </button>

@@ -9,6 +9,7 @@ import { UserProfile } from '@/components/ui/UserProfile';
 import { Pin, PinOff, Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { useTheme } from 'next-themes';
 
 interface User {
   id: string;
@@ -39,9 +40,31 @@ export function MainSidebar({
   onTogglePin
 }: MainSidebarProps) {
   const router = useRouter();
+  const { theme, resolvedTheme } = useTheme();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [showFullLogo, setShowFullLogo] = useState(false);
+
+  // Evitar hidratación incorrecta con el tema
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Controlar la aparición del logo completo con delay
+  useEffect(() => {
+    if (isVisible) {
+      // Delay de 200ms para que aparezca después de que el sidebar comience a expandirse
+      const timer = setTimeout(() => {
+        setShowFullLogo(true);
+      }, 200);
+      return () => clearTimeout(timer);
+    } else {
+      // Ocultar inmediatamente cuando se colapsa
+      setShowFullLogo(false);
+    }
+  }, [isVisible]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -106,8 +129,23 @@ export function MainSidebar({
         {!isVisible ? (
           <>
             <SidebarHeader className="p-2">
-              <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-300 rounded-lg shadow-md">
-                <Coins className="w-5 h-5 text-white" />
+              <div className="flex items-center justify-center">
+                <span 
+                  className={cn(
+                    "text-2xl tracking-tight",
+                    "transition-all duration-300"
+                  )}
+                  style={{
+                    fontFamily: 'var(--font-orbitron)',
+                    fontWeight: 800, // Extra bold
+                    color: mounted && resolvedTheme === 'dark' ? '#ffffff' : '#0f172a',
+                    textShadow: mounted && resolvedTheme === 'dark' 
+                      ? '0 0 12px rgba(231, 22, 128, 1), 0 0 24px rgba(231, 22, 128, 0.6), 0 0 36px rgba(231, 22, 128, 0.3)'
+                      : '0 0 8px rgba(231, 22, 128, 0.8), 0 0 16px rgba(231, 22, 128, 0.5), 0 0 24px rgba(231, 22, 128, 0.3)',
+                  }}
+                >
+                  C
+                </span>
               </div>
             </SidebarHeader>
             <SidebarContent className="py-2">
@@ -124,10 +162,27 @@ export function MainSidebar({
           </>
         ) : (
           <>
-            {/* Header con logo de Monetaize */}
+            {/* Header con logo de texto CAMIA */}
             <SidebarHeader>
               <div className="flex items-center space-x-3">
-                <img src="/images/logo.png" alt="Monetaize"/>
+                <h1 
+                  className={cn(
+                    "text-5xl tracking-tight",
+                    "transition-all duration-300 ease-in-out",
+                    showFullLogo ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+                  )}
+                  style={{
+                    fontFamily: 'var(--font-orbitron)',
+                    fontWeight: 800, // Extra bold
+                    color: mounted && resolvedTheme === 'dark' ? '#ffffff' : '#0f172a',
+                    textShadow: mounted && resolvedTheme === 'dark' 
+                      ? '0 0 12px rgba(231, 22, 128, 1), 0 0 24px rgba(231, 22, 128, 0.6), 0 0 36px rgba(231, 22, 128, 0.3)'
+                      : '0 0 8px rgba(231, 22, 128, 0.8), 0 0 16px rgba(231, 22, 128, 0.5), 0 0 24px rgba(231, 22, 128, 0.3)',
+                    transitionDelay: showFullLogo ? '0ms' : '0ms',
+                  }}
+                >
+                  CAMIA
+                </h1>
               </div>
               
               {/* Botón de pin */}

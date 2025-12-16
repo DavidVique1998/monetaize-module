@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { X, CreditCard, Loader2, ExternalLink } from 'lucide-react';
+import { X, CreditCard, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
+import { Spinner } from '@/components/ui/spinner';
 
 interface RechargeModalProps {
   isOpen: boolean;
@@ -107,14 +108,14 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
       {/* Sidebar Modal */}
       <div 
         className={cn(
-          "absolute right-0 top-0 h-full w-[500px] bg-card shadow-2xl transform transition-transform duration-300 ease-in-out overflow-y-auto border-l border-border",
+          "absolute right-0 top-0 h-full w-[500px] bg-card shadow-2xl transform transition-transform duration-300 ease-in-out overflow-y-auto border-l border-gray-200",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border sticky top-0 bg-card z-10">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-card z-10">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
               <CreditCard className="w-5 h-5 text-primary" />
             </div>
             <div>
@@ -197,15 +198,15 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
 
           {/* Success message */}
           {paymentUrl && (
-            <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
-              <p className="text-sm text-green-600 mb-2">
+            <div className="bg-emerald-600/10 border border-emerald-600/20 rounded-lg p-3">
+              <p className="text-sm text-emerald-400 mb-2">
                 {t('paymentLinkGenerated')}
               </p>
               <a
                 href={paymentUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-green-700 hover:underline flex items-center"
+                className="text-sm text-emerald-400 hover:underline flex items-center"
               >
                 {t('openPaymentLink')} <ExternalLink className="w-3 h-3 ml-1" />
               </a>
@@ -213,7 +214,7 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
           )}
 
           {/* Botones */}
-          <div className="flex space-x-3 pt-4 border-t border-border">
+          <div className="flex space-x-3 pt-4 border-t border-gray-200">
             <button
               onClick={handleClose}
               disabled={loading}
@@ -228,7 +229,7 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Spinner size="sm" className="mr-2 text-primary-foreground" />
                   {t('processing')}
                 </>
               ) : (

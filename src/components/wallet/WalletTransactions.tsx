@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { History, ArrowDownCircle, ArrowUpCircle, Loader2, RefreshCw } from 'lucide-react';
+import { History, ArrowDownCircle, ArrowUpCircle, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
+import { Spinner } from '@/components/ui/spinner';
 
 interface WalletTransactionsProps {
   className?: string;
@@ -67,7 +68,7 @@ export function WalletTransactions({ className, limit = 20 }: WalletTransactions
   const getTransactionIcon = (type: string) => {
     switch (type) {
       case 'RECHARGE':
-        return <ArrowDownCircle className="w-5 h-5 text-green-600" />;
+        return <ArrowDownCircle className="w-5 h-5 text-emerald-400" />;
       case 'CONSUMPTION':
         return <ArrowUpCircle className="w-5 h-5 text-destructive" />;
       default:
@@ -103,8 +104,8 @@ export function WalletTransactions({ className, limit = 20 }: WalletTransactions
   };
 
   return (
-    <div className={cn("bg-card rounded-lg border border-border p-4 flex flex-col", className)}>
-      <div className="flex items-center justify-between mb-4 flex-shrink-0">
+    <div className={cn("bg-card rounded-xl border border-gray-200 p-4 flex flex-col gap-3 shadow-sm", className)}>
+      <div className="flex items-center justify-between flex-shrink-0">
         <div className="flex items-center">
           <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mr-2">
             <History className="w-4 h-4 text-primary" />
@@ -128,25 +129,25 @@ export function WalletTransactions({ className, limit = 20 }: WalletTransactions
       </div>
 
       {error && (
-        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-2 mb-3 flex-shrink-0">
+        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-2 flex-shrink-0">
           <p className="text-xs text-destructive">{error}</p>
         </div>
       )}
 
       <div 
-        className="flex-1 overflow-y-auto min-h-0 pr-1" 
-        style={{ maxHeight: 'calc(100vh - 250px)' }}
+        className="flex-1 overflow-y-auto min-h-0 pr-1"
+        style={{ maxHeight: 'calc(100vh - 260px)' }}
       >
         {loading && !history ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
+            <Spinner size="md" className="text-foreground/70" />
           </div>
         ) : history && history.transactions.length > 0 ? (
           <div className="space-y-2">
             {history.transactions.map((transaction) => (
               <div
                 key={transaction.id}
-                className="flex items-start justify-between p-3 border border-border rounded-lg hover:bg-muted/50 transition-colors"
+                className="flex items-start justify-between p-3 border border-gray-200 rounded-lg hover:bg-muted/40 transition-colors shadow-[0_1px_0_rgba(0,0,0,0.03)]"
               >
                 <div className="flex items-start space-x-3 flex-1 min-w-0">
                   <div className="flex-shrink-0 mt-0.5">
@@ -160,7 +161,7 @@ export function WalletTransactions({ className, limit = 20 }: WalletTransactions
                       <span className={cn(
                         "text-xs px-1.5 py-0.5 rounded-full font-medium",
                         transaction.status === 'COMPLETED'
-                          ? "bg-green-500/10 text-green-600"
+                          ? "bg-emerald-600/10 text-emerald-400"
                           : transaction.status === 'PENDING'
                           ? "bg-yellow-500/10 text-yellow-600"
                           : transaction.status === 'FAILED'
@@ -182,7 +183,7 @@ export function WalletTransactions({ className, limit = 20 }: WalletTransactions
                   <p className={cn(
                     "text-sm font-semibold",
                     transaction.type === 'RECHARGE' || transaction.type === 'REFUND'
-                      ? "text-green-600"
+                      ? "text-emerald-400"
                       : "text-destructive"
                   )}>
                     {transaction.type === 'RECHARGE' || transaction.type === 'REFUND' ? '+' : '-'}

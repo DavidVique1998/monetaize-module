@@ -21,7 +21,7 @@ export function PhoneNumberCard({ phoneNumber, onEdit, onDelete, onTest }: Phone
       case 'retell-telnyx':
         return 'bg-primary/10 text-primary';
       case 'custom':
-        return 'bg-green-500/10 text-green-700';
+        return 'bg-emerald-600/10 text-emerald-400';
       default:
         return 'bg-muted text-muted-foreground';
     }
@@ -41,11 +41,11 @@ export function PhoneNumberCard({ phoneNumber, onEdit, onDelete, onTest }: Phone
   };
 
   return (
-    <div className="bg-card border border-border rounded-lg p-6 hover:shadow-md transition-shadow">
+    <div className="bg-card border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+          <div className="w-10 h-8 bg-primary/10 rounded-full flex items-center justify-center">
             <Phone className="w-5 h-5 text-primary" />
           </div>
           <div>
@@ -81,7 +81,7 @@ export function PhoneNumberCard({ phoneNumber, onEdit, onDelete, onTest }: Phone
         <div className="space-y-2">
           <div className="flex items-center space-x-2">
             {phoneNumber.inbound_agent_id ? (
-              <CheckCircle className="w-4 h-4 text-green-600" />
+              <CheckCircle className="w-4 h-4 text-emerald-400" />
             ) : (
               <XCircle className="w-4 h-4 text-muted-foreground" />
             )}
@@ -93,7 +93,7 @@ export function PhoneNumberCard({ phoneNumber, onEdit, onDelete, onTest }: Phone
           
           <div className="flex items-center space-x-2">
             {phoneNumber.outbound_agent_id ? (
-              <CheckCircle className="w-4 h-4 text-green-600" />
+              <CheckCircle className="w-4 h-4 text-emerald-400" />
             ) : (
               <XCircle className="w-4 h-4 text-muted-foreground" />
             )}
@@ -139,7 +139,7 @@ export function PhoneNumberCard({ phoneNumber, onEdit, onDelete, onTest }: Phone
       </div>
 
       {/* Acciones */}
-      <div className="flex items-center justify-between pt-4 border-t border-border">
+      <div className="flex items-center justify-between pt-4 border-t border-gray-200">
         <div className="flex items-center space-x-2">
           <button
             onClick={() => onTest?.(phoneNumber.phone_number)}

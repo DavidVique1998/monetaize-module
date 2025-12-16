@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { HeaderBar } from '@/components/dashboard/HeaderBar';
 import { 
   Phone, 
   PhoneIncoming, 
@@ -15,11 +16,20 @@ import {
   AlertCircle,
   CheckCircle2,
   XCircle,
-  Loader2,
   X,
   DollarSign,
   Hash
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Spinner } from '@/components/ui/spinner';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
 
 interface Call {
   id: string;
@@ -58,6 +68,11 @@ export default function CallHistoryPage() {
   const [stats, setStats] = useState<CallStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const actionButtonClass = cn(
+    "inline-flex items-center justify-center h-8 px-4 rounded-md text-sm font-semibold transition-colors",
+    "bg-foreground text-background hover:bg-foreground/90",
+    "disabled:opacity-60 disabled:cursor-not-allowed"
+  );
   
   // Filtros
   const [searchTerm, setSearchTerm] = useState('');
@@ -179,7 +194,7 @@ export default function CallHistoryPage() {
   const getStatusBadge = (status: string) => {
     const statusColors: Record<string, { bg: string; text: string; icon: any }> = {
       'ringing': { bg: 'bg-blue-100', text: 'text-blue-700', icon: Phone },
-      'ongoing': { bg: 'bg-green-100', text: 'text-green-700', icon: Phone },
+      'ongoing': { bg: 'bg-emerald-600/20', text: 'text-emerald-400', icon: Phone },
       'ended': { bg: 'bg-muted', text: 'text-gray-700', icon: CheckCircle2 },
       'failed': { bg: 'bg-red-100', text: 'text-red-700', icon: XCircle },
     };
@@ -211,31 +226,26 @@ export default function CallHistoryPage() {
   return (
     <DashboardLayout>
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="bg-card border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-semibold text-gray-900">Call History</h1>
-              <p className="text-sm text-gray-600 mt-1">
-                Historial completo de llamadas telefónicas y web
-              </p>
-            </div>
+        <HeaderBar 
+          title="Call History" 
+          description="Complete history of phone and web calls."
+          actions={
             <div className="flex items-center space-x-3">
               <button
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-card border border-gray-300 rounded-lg hover:bg-muted/50 transition-colors disabled:opacity-50"
+                className={cn(actionButtonClass, "gap-2")}
               >
                 <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
                 <span>Refresh</span>
               </button>
-              <button className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors">
+              <button className={cn(actionButtonClass, "gap-2")}>
                 <Download className="w-4 h-4" />
                 <span>Export</span>
               </button>
             </div>
-          </div>
-        </div>
+          }
+        />
 
         {/* Stats Cards */}
         {stats && (
@@ -247,7 +257,7 @@ export default function CallHistoryPage() {
               </div>
               <div className="bg-card rounded-lg p-4 border border-gray-200">
                 <div className="text-sm text-gray-600">Completed</div>
-                <div className="text-2xl font-semibold text-green-600 mt-1">{stats.completedCalls}</div>
+                <div className="text-2xl font-semibold text-emerald-400 mt-1">{stats.completedCalls}</div>
               </div>
               <div className="bg-card rounded-lg p-4 border border-gray-200">
                 <div className="text-sm text-gray-600">Failed</div>
@@ -471,7 +481,7 @@ export default function CallHistoryPage() {
         <div className="flex-1 overflow-auto">
           {loading ? (
             <div className="flex items-center justify-center h-64">
-              <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+              <Spinner size="lg" className="text-foreground/70" />
             </div>
           ) : filteredCalls.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-gray-500">
@@ -481,140 +491,140 @@ export default function CallHistoryPage() {
             </div>
           ) : (
             <div className="px-6 py-4">
-              <div className="bg-card rounded-lg border border-gray-200 overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-muted/30 border-b border-gray-200">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Call ID
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Type
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Direction
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        From / To
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Duration
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Cost
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Cost/Min
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Tokens
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Date
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-card divide-y divide-gray-200">
-                    {filteredCalls.map((call) => (
-                      <tr key={call.id} className="hover:bg-muted/50 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-mono text-gray-900">
-                            {call.retellCallId.substring(0, 12)}...
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-                            call.callType === 'phone' 
-                              ? 'bg-blue-100 text-blue-700' 
-                              : 'bg-purple-100 text-purple-700'
-                          }`}>
-                            {call.callType === 'phone' ? <Phone className="w-3 h-3 mr-1" /> : <Phone className="w-3 h-3 mr-1" />}
-                            {call.callType}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+            <div className="bg-card rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+              <Table>
+                <TableHeader className="bg-muted/40">
+                  <TableRow>
+                    <TableHead className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Call ID
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Type
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Direction
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      From / To
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Status
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Duration
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Cost
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Cost/Min
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Tokens
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Date
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody className="bg-card">
+                  {filteredCalls.map((call) => (
+                    <TableRow key={call.id} className="hover:bg-muted/50 transition-colors">
+                      <TableCell className="px-4 py-3 whitespace-nowrap">
+                        <div className="text-sm font-mono text-foreground">
+                          {call.retellCallId.substring(0, 12)}...
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-4 py-3 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                          call.callType === 'phone' 
+                            ? 'bg-blue-100 text-blue-700' 
+                            : 'bg-purple-100 text-purple-700'
+                        }`}>
+                          <Phone className="w-3 h-3 mr-1" />
+                          {call.callType}
+                        </span>
+                      </TableCell>
+                      <TableCell className="px-4 py-3 whitespace-nowrap">
+                        {call.direction === 'inbound' ? (
+                          <PhoneIncoming className="w-4 h-4 text-emerald-400" />
+                        ) : (
+                          <PhoneOutgoing className="w-4 h-4 text-primary" />
+                        )}
+                      </TableCell>
+                      <TableCell className="px-4 py-3">
+                        <div className="text-sm text-foreground">
                           {call.direction === 'inbound' ? (
-                            <PhoneIncoming className="w-4 h-4 text-green-600" />
+                            <>
+                              <div className="font-medium">From: {formatPhoneNumber(call.fromNumber)}</div>
+                              <div className="text-muted-foreground">To: {formatPhoneNumber(call.toNumber)}</div>
+                            </>
                           ) : (
-                            <PhoneOutgoing className="w-4 h-4 text-primary" />
+                            <>
+                              <div className="font-medium">To: {formatPhoneNumber(call.toNumber)}</div>
+                              {call.fromNumber && (
+                                <div className="text-muted-foreground">From: {formatPhoneNumber(call.fromNumber)}</div>
+                              )}
+                            </>
                           )}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">
-                            {call.direction === 'inbound' ? (
-                              <>
-                                <div className="font-medium">From: {formatPhoneNumber(call.fromNumber)}</div>
-                                <div className="text-gray-500">To: {formatPhoneNumber(call.toNumber)}</div>
-                              </>
-                            ) : (
-                              <>
-                                <div className="font-medium">To: {formatPhoneNumber(call.toNumber)}</div>
-                                {call.fromNumber && (
-                                  <div className="text-gray-500">From: {formatPhoneNumber(call.fromNumber)}</div>
-                                )}
-                              </>
-                            )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-4 py-3 whitespace-nowrap">
+                        {getStatusBadge(call.status)}
+                      </TableCell>
+                      <TableCell className="px-4 py-3 whitespace-nowrap">
+                        <div className="flex items-center space-x-1 text-sm text-foreground">
+                          <Clock className="w-4 h-4 text-muted-foreground" />
+                          <span>{formatDuration(call.duration, call.totalDurationSeconds)}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-4 py-3 whitespace-nowrap">
+                        <div className="flex items-center space-x-1 text-sm text-foreground">
+                          <DollarSign className="w-4 h-4 text-emerald-400" />
+                          <span className="font-medium">{formatCost(call.cost)}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-4 py-3 whitespace-nowrap">
+                        {calculateCostPerMinute(call.cost, call.duration, call.totalDurationSeconds) ? (
+                          <div className="text-sm text-foreground">
+                            ${calculateCostPerMinute(call.cost, call.duration, call.totalDurationSeconds)}/min
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {getStatusBadge(call.status)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center space-x-1 text-sm text-gray-900">
-                            <Clock className="w-4 h-4 text-gray-400" />
-                            <span>{formatDuration(call.duration, call.totalDurationSeconds)}</span>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">N/A</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="px-4 py-3 whitespace-nowrap">
+                        {call.tokensUsed ? (
+                          <div className="flex items-center space-x-1 text-sm text-foreground">
+                            <Hash className="w-4 h-4 text-primary" />
+                            <span>{formatTokens(call.tokensUsed)}</span>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center space-x-1 text-sm text-gray-900">
-                            <DollarSign className="w-4 h-4 text-green-600" />
-                            <span className="font-medium">{formatCost(call.cost)}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {calculateCostPerMinute(call.cost, call.duration, call.totalDurationSeconds) ? (
-                            <div className="text-sm text-gray-700">
-                              ${calculateCostPerMinute(call.cost, call.duration, call.totalDurationSeconds)}/min
-                            </div>
-                          ) : (
-                            <span className="text-sm text-gray-400">N/A</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {call.tokensUsed ? (
-                            <div className="flex items-center space-x-1 text-sm text-gray-900">
-                              <Hash className="w-4 h-4 text-purple-600" />
-                              <span>{formatTokens(call.tokensUsed)}</span>
-                            </div>
-                          ) : (
-                            <span className="text-sm text-gray-400">N/A</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {call.startTime 
-                            ? new Date(call.startTime).toLocaleString('es-ES', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })
-                            : new Date(call.createdAt).toLocaleString('es-ES', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })
-                          }
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">N/A</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="px-4 py-3 whitespace-nowrap text-sm text-muted-foreground">
+                        {call.startTime 
+                          ? new Date(call.startTime).toLocaleString('es-ES', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
+                          : new Date(call.createdAt).toLocaleString('es-ES', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
+                        }
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
               </div>
             </div>
           )}

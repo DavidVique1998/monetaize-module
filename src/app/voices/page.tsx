@@ -111,8 +111,8 @@ export default function VoicesPage() {
 
           <div className="bg-card p-4 rounded-lg border border-gray-200">
             <div className="flex items-center">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                <span className="text-green-600 font-bold text-sm">AI</span>
+              <div className="w-8 h-8 bg-emerald-600/20 rounded-full flex items-center justify-center">
+                <span className="text-emerald-400 font-bold text-sm">AI</span>
               </div>
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-600">OpenAI</p>

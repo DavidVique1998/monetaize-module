@@ -69,7 +69,7 @@ export function ModelConfigDrawer({
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <Settings className="w-5 h-5 text-muted-foreground" />
             <h2 className="text-lg font-semibold text-gray-900">Model Configuration</h2>
@@ -97,7 +97,7 @@ export function ModelConfigDrawer({
                     "flex items-center space-x-3 p-3 border rounded-lg cursor-pointer transition-colors",
                     selectedLlmId === llm.llm_id
                       ? "border-primary bg-primary/10"
-                      : "border-border hover:border-border hover:bg-muted"
+                      : "border-gray-200 hover:border-gray-200 hover:bg-muted"
                   )}
                 >
                   <input
@@ -140,7 +140,7 @@ export function ModelConfigDrawer({
         </div>
 
         {/* Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-border bg-card">
+        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-200 bg-card">
           <button
             onClick={handleSave}
             disabled={isSaving || selectedLlmId === llmId}

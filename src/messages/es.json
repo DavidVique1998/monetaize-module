@@ -56,10 +56,13 @@
     "logout": "Cerrar Sesión",
     "language": "Idioma",
     "spanish": "Español",
-    "english": "Inglés"
+    "english": "Inglés",
+    "lightMode": "Modo Claro",
+    "darkMode": "Modo Oscuro"
   },
   "assistants": {
     "title": "Asistentes",
+    "headerDescription": "Crea, configura y prueba tus asistentes de voz/chat.",
     "searchPlaceholder": "Buscar un asistente...",
     "createFolder": "Crear Carpeta",
     "createAssistant": "Crear Asistente",
@@ -351,6 +354,7 @@
   },
   "phoneNumbers": {
     "title": "Números",
+    "headerDescription": "Gestiona e importa números telefónicos para tus agentes.",
     "searchPlaceholder": "Buscar números...",
     "newNumber": "Nuevo Número",
     "loading": "Cargando números de teléfono...",
@@ -449,6 +453,9 @@
   "wallet": {
     "title": "Billetera",
     "subtitle": "Gestiona tu saldo y configura recargas automáticas",
+    "balance": {
+      "rechargeBalance": "Recargar saldo"
+    },
     "rechargeSuccess": {
       "title": "¡Recarga exitosa!",
       "message": "Tu wallet ha sido recargada con {amount}. El saldo se actualizará automáticamente en breve."

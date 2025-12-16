@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Wallet, RefreshCw, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
+import { Spinner } from '@/components/ui/spinner';
 
 interface WalletBalanceProps {
   className?: string;
@@ -54,18 +55,18 @@ export function WalletBalance({ className, isCollapsed = false, onRechargeClick 
   if (isCollapsed) {
     return (
       <div className={cn(
-        "bg-card rounded-lg border border-border p-2 shadow-sm hover:shadow-md transition-shadow cursor-pointer",
+        "bg-card rounded-lg border border-gray-200 p-2 shadow-sm hover:shadow-md transition-shadow cursor-pointer",
         className
       )}
       onClick={onRechargeClick}
       >
         <div className="flex items-center justify-center">
           {loading ? (
-            <RefreshCw className="w-5 h-5 text-muted-foreground animate-spin" />
+            <Spinner size="sm" className="text-foreground/70" />
           ) : (
             <Wallet className={cn(
               "w-5 h-5 transition-colors",
-              balance && balance.balance < 0 ? "text-destructive" : "text-green-600"
+              balance && balance.balance < 0 ? "text-destructive" : "text-emerald-400"
             )} />
           )}
         </div>
@@ -80,7 +81,7 @@ export function WalletBalance({ className, isCollapsed = false, onRechargeClick 
 
   return (
     <div className={cn(
-      "bg-card rounded-lg border border-border p-4 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col",
+      "bg-card rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col",
       className
     )}>
       <div className="flex items-center justify-between mb-2">
@@ -93,10 +94,11 @@ export function WalletBalance({ className, isCollapsed = false, onRechargeClick 
           disabled={loading}
           className="p-1 hover:bg-muted rounded transition-colors"
         >
-          <RefreshCw className={cn(
-            "w-3 h-3 text-muted-foreground",
-            loading && "animate-spin"
-          )} />
+          {loading ? (
+            <Spinner size="sm" className="text-foreground/70" />
+          ) : (
+            <RefreshCw className="w-3 h-3 text-muted-foreground" />
+          )}
         </button>
       </div>
 
@@ -109,14 +111,14 @@ export function WalletBalance({ className, isCollapsed = false, onRechargeClick 
         <>
           <div className={cn(
             "text-2xl font-bold mb-3 transition-colors",
-            isNegative ? "text-destructive" : "text-green-600"
+            isNegative ? "text-destructive" : "text-emerald-400"
           )}>
             {formattedBalance}
           </div>
           {onRechargeClick && (
             <button
               onClick={onRechargeClick}
-              className="w-full bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground text-primary-foreground text-sm font-semibold px-4 py-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed mt-auto"
+              className="inline-flex items-center justify-center w-full h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed mt-auto"
             >
               {t('rechargeBalance')}
             </button>

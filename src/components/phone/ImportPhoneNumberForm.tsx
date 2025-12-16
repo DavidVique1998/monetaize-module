@@ -90,7 +90,7 @@ export function ImportPhoneNumberForm({ onSuccess, onCancel, agents = [] }: Impo
   return (
     <div className="max-w-2xl mx-auto p-6 bg-card rounded-lg">
       <div className="flex items-center space-x-3 mb-6">
-        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+        <div className="w-10 h-8 bg-primary/10 rounded-full flex items-center justify-center">
           <Phone className="w-5 h-5 text-primary" />
         </div>
         <div>
@@ -285,7 +285,7 @@ export function ImportPhoneNumberForm({ onSuccess, onCancel, agents = [] }: Impo
         </div>
 
         {/* Botones */}
-        <div className="flex items-center justify-end space-x-3 pt-6 border-t border-border">
+        <div className="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
           <Button
             type="button"
             variant="outline"

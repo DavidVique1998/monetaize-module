@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { CreditCard, Plus, Trash2, Loader2, AlertCircle, CheckCircle2, Lock, X } from 'lucide-react';
+import { CreditCard, Plus, Trash2, AlertCircle, CheckCircle2, Lock, X } from 'lucide-react';
 import { 
   useStripe, 
   useElements, 
@@ -10,6 +10,7 @@ import {
   CardCvcElement 
 } from '@stripe/react-stripe-js';
 import { StripeProviderWrapper } from './StripeProviderWrapper';
+import { Spinner } from '@/components/ui/spinner';
 
 interface PaymentMethod {
   id: string;
@@ -218,7 +219,7 @@ function PaymentMethodManagerInner({
     return (
       <div className="bg-card rounded-lg border border-gray-200 p-4">
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
+          <Spinner size="md" className="text-foreground/70" />
         </div>
       </div>
     );
@@ -255,9 +256,9 @@ function PaymentMethodManagerInner({
       )}
 
       {success && (
-        <div className="mb-3 bg-greenbg-muted/30 border border-green-200 rounded-lg p-2 flex items-start">
-          <CheckCircle2 className="w-4 h-4 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-green-600">Método de pago guardado exitosamente</p>
+        <div className="mb-3 bg-emerald-600/30 border border-emerald-600/20 rounded-lg p-2 flex items-start">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 mr-2 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-emerald-400">Método de pago guardado exitosamente</p>
         </div>
       )}
 
@@ -328,11 +329,11 @@ function PaymentMethodManagerInner({
               <button
                 onClick={handleSavePaymentMethod}
                 disabled={saving || !stripe}
-                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground disabled:bg-muted disabled:text-muted-foreground text-sm font-semibold px-4 py-2 rounded-lg transition-colors flex items-center justify-center"
+                className="inline-flex items-center justify-center flex-1 h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Spinner size="sm" />
                     Guardando...
                   </>
                 ) : (
@@ -361,13 +362,6 @@ function PaymentMethodManagerInner({
           <p className="text-sm text-muted-foreground mb-4">
             No tienes métodos de pago guardados
           </p>
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="inline-flex items-center space-x-1 px-4 py-2 text-sm text-primary border border-blue-200 rounded-lg hover:bg-muted transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Agregar Método de Pago</span>
-          </button>
         </div>
       ) : (
         <div className="space-y-2">
@@ -377,7 +371,7 @@ function PaymentMethodManagerInner({
               className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border border-gray-200"
             >
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
                   <CreditCard className="w-5 h-5 text-primary" />
                 </div>
                 <div>

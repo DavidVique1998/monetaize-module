@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Settings, Loader2, CheckCircle2, AlertCircle, CreditCard } from 'lucide-react';
+import { Settings, CheckCircle2, AlertCircle, CreditCard } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { PaymentMethodManager } from './PaymentMethodManager';
 import { useTranslations } from 'next-intl';
 
@@ -119,23 +120,23 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
 
   if (loading) {
     return (
-      <div className={`bg-card rounded-lg border border-graybg-input p-6 ${className}`}>
+      <div className={`bg-card rounded-xl border border-gray-200 p-6 shadow-sm ${className}`}>
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
+          <Spinner size="md" className="text-foreground/70" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`bg-card rounded-lg border border-graybg-input p-4 ${className}`}>
+    <div className={`bg-card rounded-xl border border-gray-200 p-4 shadow-sm ${className}`}>
       <div className="flex items-center mb-3">
         <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mr-2">
-          <Settings className="w-4 h-4 text-purple-600" />
+          <Settings className="w-4 h-4 text-primary" />
         </div>
         <div>
           <h3 className="text-base font-semibold text-foreground">{t('title')}</h3>
-          <p className="text-xs text-gray-500">{t('subtitle')}</p>
+          <p className="text-xs text-muted-foreground">{t('subtitle')}</p>
         </div>
       </div>
 
@@ -148,38 +149,38 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
       </div>
 
       {error && (
-        <div className="mb-3 bg-red-50 border border-redbg-input rounded-lg p-2 flex items-start">
+        <div className="mb-3 bg-destructive/10 border border-destructive/20 rounded-lg p-2 flex items-start">
           <AlertCircle className="w-4 h-4 text-destructive mr-2 flex-shrink-0 mt-0.5" />
-          <p className="text-md text-destructive">{error}</p>
+          <p className="text-sm text-destructive">{error}</p>
         </div>
       )}
 
       {success && (
-        <div className="mb-3 bg-green-50 border border-greenbg-input rounded-lg p-2 flex items-start">
-          <CheckCircle2 className="w-4 h-4 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-          <p className="text-md text-green-600">{t('saved')}</p>
+        <div className="mb-3 bg-emerald-600/10 border border-emerald-600/20 rounded-lg p-2 flex items-start">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 mr-2 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-emerald-400">{t('saved')}</p>
         </div>
       )}
 
       <div className="space-y-3">
         {/* Método de pago guardado */}
         {settings?.paymentMethodId && (
-          <div className="bg-green-50 border border-greenbg-input rounded-lg p-3 flex items-center space-x-2">
-            <CreditCard className="w-4 h-4 text-green-600 flex-shrink-0" />
-            <p className="text-sm text-green-700 flex-1">
+          <div className="bg-emerald-600/10 border border-emerald-600/20 rounded-lg p-3 flex items-center space-x-2">
+            <CreditCard className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <p className="text-sm text-emerald-400 flex-1">
               {t('paymentMethodSaved')}
             </p>
           </div>
         )}
 
         {enabled && !settings?.paymentMethodId && (
-          <div className="bg-yellow-50 border border-yellowbg-input rounded-lg p-3 flex items-start space-x-2">
-            <AlertCircle className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
+          <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 flex items-start space-x-2">
+            <AlertCircle className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-yellow-700">
+              <p className="text-sm font-medium text-yellow-600">
                 {t('paymentMethodRequired')}
               </p>
-              <p className="text-xs text-yellow-700 mt-1">
+              <p className="text-xs text-yellow-600 mt-1">
                 {t('paymentMethodRequiredDesc')}
               </p>
             </div>
@@ -232,7 +233,7 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
                 value={threshold}
                 onChange={(e) => setThreshold(parseFloat(e.target.value) || 0)}
                 disabled={!enabled}
-                className="w-full !pl-6 pr-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-muted disabled:cursor-not-allowed"
+                className="w-full !pl-6 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-background text-foreground disabled:bg-muted disabled:cursor-not-allowed"
                 style={{ paddingLeft: '1.5rem' }}
               />
             </div>
@@ -251,7 +252,7 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
                 value={rechargeAmount}
                 onChange={(e) => setRechargeAmount(parseFloat(e.target.value) || 0)}
                 disabled={!enabled}
-                className="w-full !pl-6 pr-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-muted disabled:cursor-not-allowed"
+                className="w-full !pl-6 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-background text-foreground disabled:bg-muted disabled:cursor-not-allowed"
                 style={{ paddingLeft: '1.5rem' }}
               />
             </div>
@@ -260,8 +261,8 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
 
         {/* Información adicional */}
         {settings?.lastRechargeAt && (
-          <div className="bg-blue-50 border border-bluebg-input rounded-lg p-2">
-            <p className="text-sm text-blue-700">
+          <div className="bg-primary/10 border border-primary/30 rounded-lg p-2">
+            <p className="text-sm text-primary">
               {t('lastRecharge')}: {new Date(settings.lastRechargeAt).toLocaleDateString(document.documentElement.lang === 'es' ? 'es-ES' : 'en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
@@ -271,11 +272,11 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
         <button
           onClick={handleSave}
           disabled={saving || threshold <= 0 || rechargeAmount <= 0 || (enabled && !settings?.paymentMethodId)}
-          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground disabled:bg-muted disabled:text-muted-foreground text-sm font-semibold px-4 py-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center w-full h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? (
             <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              <Spinner size="sm" />
               {t('saving')}
             </>
           ) : (

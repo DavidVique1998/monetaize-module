@@ -35,7 +35,7 @@ export function ConversationDetail({ conversation }: ConversationDetailProps) {
   return (
     <div className="flex flex-col h-full bg-card">
       {/* Header */}
-      <div className="p-6 border-b border-border">
+      <div className="p-6 border-b border-gray-200">
         <h3 className="text-lg font-semibold text-foreground">{conversation.name}</h3>
         <p className="text-sm text-gray-500 mt-1">{conversation.id}</p>
         <p className="text-xs text-gray-500 mt-2">
@@ -53,7 +53,7 @@ export function ConversationDetail({ conversation }: ConversationDetailProps) {
             <div
               className={`max-w-[70%] rounded-lg p-4 ${
                 message.type === 'incoming'
-                  ? 'bg-card border border-border'
+                  ? 'bg-card border border-gray-200'
                   : 'bg-card text-foreground'
               }`}
             >

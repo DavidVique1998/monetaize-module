@@ -49,7 +49,7 @@ export function VoiceCard({ voice, isSelected, onSelect, onPreview }: VoiceCardP
       case 'elevenlabs':
         return 'bg-purple-500/10 text-purple-700 border-purple-500/20';
       case 'openai':
-        return 'bg-green-500/10 text-green-700 border-green-500/20';
+        return 'bg-emerald-600/10 text-emerald-400 border-emerald-600/20';
       case 'deepgram':
         return 'bg-bluebg-muted text-blue-800';
       default:

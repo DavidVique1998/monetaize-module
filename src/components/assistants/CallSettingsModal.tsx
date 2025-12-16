@@ -22,7 +22,7 @@ interface CollapsibleSectionProps {
 
 function CollapsibleSection({ title, icon, isExpanded, onToggle, children }: CollapsibleSectionProps) {
   return (
-    <div className="border border-border rounded-lg overflow-hidden">
+    <div className="border border-gray-200 rounded-lg overflow-hidden">
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between px-4 py-3 bg-muted hover:bg-muted/80 transition-colors"
@@ -203,9 +203,9 @@ export function CallSettingsModal({ isOpen, onClose, agent, agentId, onSave }: C
       <div className="absolute inset-0 bg-black/20 transition-opacity" onClick={onClose} />
       <div className="absolute right-0 top-0 h-full w-[600px] bg-card shadow-2xl overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-card sticky top-0 z-10">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-card sticky top-0 z-10">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
               <Phone className="w-5 h-5 text-primary" />
             </div>
             <div>
@@ -248,7 +248,7 @@ export function CallSettingsModal({ isOpen, onClose, agent, agentId, onSave }: C
             <button
                 onClick={() => setOptInSignedUrl(!optInSignedUrl)}
                 className={`w-full py-2 rounded-lg font-semibold transition-colors text-sm ${
-                  optInSignedUrl ? 'bg-green-500/10 text-green-700 hover:bg-green-500/20' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  optInSignedUrl ? 'bg-emerald-600/10 text-emerald-400 hover:bg-emerald-600/20' : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 }`}
               >
                 {optInSignedUrl ? 'OPT-IN ENABLED' : 'OPT-IN DISABLED'}
@@ -380,7 +380,7 @@ export function CallSettingsModal({ isOpen, onClose, agent, agentId, onSave }: C
                 <button
                   onClick={() => setEnableBackchanneling(!enableBackchanneling)}
                   className={`w-full py-2 rounded-lg font-semibold text-sm transition-colors ${
-                    enableBackchanneling ? 'bg-green-500/10 text-green-700 hover:bg-green-500/20' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    enableBackchanneling ? 'bg-emerald-600/10 text-emerald-400 hover:bg-emerald-600/20' : 'bg-muted text-muted-foreground hover:bg-muted/80'
                   }`}
                 >
                   {enableBackchanneling ? 'ENABLED' : 'DISABLED'}
@@ -404,7 +404,7 @@ export function CallSettingsModal({ isOpen, onClose, agent, agentId, onSave }: C
                 <button
                   onClick={() => setEnableSpeechNormalization(!enableSpeechNormalization)}
                   className={`w-full py-2 rounded-lg font-semibold text-sm transition-colors ${
-                    enableSpeechNormalization ? 'bg-green-500/10 text-green-700 hover:bg-green-500/20' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    enableSpeechNormalization ? 'bg-emerald-600/10 text-emerald-400 hover:bg-emerald-600/20' : 'bg-muted text-muted-foreground hover:bg-muted/80'
                   }`}
                 >
                   {enableSpeechNormalization ? 'ENABLED' : 'DISABLED'}
@@ -441,7 +441,7 @@ export function CallSettingsModal({ isOpen, onClose, agent, agentId, onSave }: C
             <button
                 onClick={() => setAllowUserDtmf(!allowUserDtmf)}
                 className={`w-full py-2 rounded-lg font-semibold text-sm transition-colors ${
-                  allowUserDtmf ? 'bg-green-500/10 text-green-700 hover:bg-green-500/20' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  allowUserDtmf ? 'bg-emerald-600/10 text-emerald-400 hover:bg-emerald-600/20' : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 }`}
               >
                 {allowUserDtmf ? 'ENABLED' : 'DISABLED'}
@@ -507,7 +507,7 @@ export function CallSettingsModal({ isOpen, onClose, agent, agentId, onSave }: C
             <button
               onClick={() => setVoicemailDetection(!voicemailDetection)}
                   className={`w-full py-2 rounded-lg font-semibold text-sm transition-colors ${
-                    voicemailDetection ? 'bg-green-500/10 text-green-700 hover:bg-green-500/20' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    voicemailDetection ? 'bg-emerald-600/10 text-emerald-400 hover:bg-emerald-600/20' : 'bg-muted text-muted-foreground hover:bg-muted/80'
                   }`}
                 >
                   {voicemailDetection ? 'ENABLED' : 'DISABLED'}
@@ -515,7 +515,7 @@ export function CallSettingsModal({ isOpen, onClose, agent, agentId, onSave }: C
           </div>
 
               {voicemailDetection && (
-                <div className="space-y-3 pt-2 border-t border-border">
+                <div className="space-y-3 pt-2 border-t border-gray-200">
           <div className="space-y-2">
                     <label className="text-sm font-semibold text-gray-900">Action</label>
                     <div className="grid grid-cols-3 gap-2">
@@ -580,7 +580,7 @@ export function CallSettingsModal({ isOpen, onClose, agent, agentId, onSave }: C
         </div>
 
         {/* Footer */}
-        <div className="border-t border-border px-6 py-4 flex justify-end space-x-3 bg-card sticky bottom-0">
+        <div className="border-t border-gray-200 px-6 py-4 flex justify-end space-x-3 bg-card sticky bottom-0">
           <button onClick={handleSave} className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm font-medium transition-colors">
             Apply Changes
           </button>

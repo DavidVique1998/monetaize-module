@@ -25,12 +25,12 @@ export function NewContactModal({ isOpen, onClose }: NewContactModalProps) {
       {/* Sidebar Modal */}
       <div 
         className={cn(
-          "absolute right-0 top-0 h-full w-[400px] bg-card shadow-2xl transform transition-transform duration-300 ease-in-out border-l border-border",
+          "absolute right-0 top-0 h-full w-[400px] bg-card shadow-2xl transform transition-transform duration-300 ease-in-out border-l border-gray-200",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
         {/* Header with close button */}
-        <div className="flex items-center justify-between p-6 border-b border-border">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-foreground">{t('title')}</h2>
           <button
             onClick={onClose}
@@ -144,7 +144,7 @@ export function NewContactModal({ isOpen, onClose }: NewContactModalProps) {
         </div>
 
         {/* Footer with button */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-border bg-card">
+        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-200 bg-card">
           <button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2 px-4 rounded-lg transition-colors">
             {t('addContact')}
           </button>

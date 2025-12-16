@@ -57,32 +57,34 @@ export function WalletBalanceCard({ className, onRechargeClick }: WalletBalanceC
 
   return (
     <div className={cn(
-      "bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6 shadow-lg hover:shadow-xl transition-all duration-300",
+      "relative overflow-hidden rounded-xl border border-gray-200 bg-card shadow-sm hover:shadow-md transition-all duration-300 supports-[backdrop-filter]:backdrop-blur-xl",
+      "before:absolute before:inset-0 before:bg-gradient-to-br before:from-primary/6 before:via-secondary/4 before:to-transparent before:pointer-events-none",
       className
     )}>
+      <div className="relative p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center">
-          <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-2">
-            <Wallet className="w-4 h-4 text-primary" />
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mr-2">
+              <Wallet className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-base font-semibold text-foreground">{t('title')}</h3>
+              <p className="text-xs text-muted-foreground">{t('availableBalance')}</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-base font-semibold text-foreground">{t('title')}</h3>
-            <p className="text-xs text-gray-500">{t('availableBalance')}</p>
-          </div>
+          <button
+            onClick={fetchBalance}
+            disabled={loading}
+            className="p-1.5 hover:bg-muted/60 rounded-lg transition-colors"
+            title={t('updateBalance')}
+          >
+            <RefreshCw className={cn(
+              "w-4 h-4 text-primary",
+              loading && "animate-spin"
+            )} />
+          </button>
         </div>
-        <button
-          onClick={fetchBalance}
-          disabled={loading}
-          className="p-1.5 hover:bg-muted/50 rounded-lg transition-colors"
-          title={t('updateBalance')}
-        >
-          <RefreshCw className={cn(
-            "w-4 h-4 text-primary",
-            loading && "animate-spin"
-          )} />
-        </button>
-      </div>
 
       {error ? (
         <div className="flex items-center justify-center p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -95,11 +97,11 @@ export function WalletBalanceCard({ className, onRechargeClick }: WalletBalanceC
           <div className="mb-4">
             <div className={cn(
               "text-3xl font-bold mb-2 transition-colors",
-              isNegative ? "text-destructive" : "text-green-600"
+              isNegative ? "text-destructive" : "text-emerald-400"
             )}>
               {formattedBalance}
             </div>
-            <div className="flex items-center text-sm text-gray-600">
+            <div className="flex items-center text-sm text-muted-foreground">
               <TrendingUp className="w-4 h-4 mr-1" />
               <span>{t('balanceUpdated')}</span>
             </div>
@@ -109,13 +111,14 @@ export function WalletBalanceCard({ className, onRechargeClick }: WalletBalanceC
           {onRechargeClick && (
             <button
               onClick={onRechargeClick}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground disabled:bg-muted disabled:text-muted-foreground text-sm font-semibold px-4 py-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+              className="inline-flex items-center justify-center w-full h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {t('rechargeBalance')}
             </button>
           )}
         </>
       )}
+      </div>
     </div>
   );
 }

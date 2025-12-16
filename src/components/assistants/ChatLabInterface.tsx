@@ -6,11 +6,11 @@ import {
   Trash2, 
   AlertTriangle, 
   Sparkles, 
-  Loader2,
   MessageSquare,
   User
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { Spinner } from '@/components/ui/spinner';
 
 interface ChatLabInterfaceProps {
   agentId: string;
@@ -213,7 +213,7 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-y-auto space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-border p-4 bg-background/50 backdrop-blur-sm sticky top-0 z-10">
+      <div className="flex items-center justify-between border-b border-gray-200 p-4 bg-background/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="flex items-center space-x-2">
           <MessageSquare className="w-5 h-5 text-muted-foreground" />
           <label className="text-sm font-bold text-foreground">
@@ -244,18 +244,18 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
             {/* Validation State */}
             {isValidating ? (
               <div className="bg-accent/50 border border-accent rounded-xl p-4 flex items-center justify-center space-x-3 text-primary">
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Spinner size="sm" className="text-foreground/70" />
                 <span className="text-sm font-medium">{t('validating')}</span>
               </div>
             ) : agentValidation ? (
               agentValidation.isValid ? (
-                <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 flex flex-col items-center text-center space-y-2">
-                  <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
-                    <Sparkles className="w-4 h-4 text-green-600 dark:text-green-400" />
+                <div className="bg-emerald-600/10 border border-emerald-600/20 rounded-xl p-4 flex flex-col items-center text-center space-y-2">
+                  <div className="w-8 h-8 bg-emerald-600/20 rounded-full flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-emerald-400 dark:text-emerald-400" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-green-800 dark:text-green-300">{t('readyToChat')}</p>
-                    <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                    <p className="text-sm font-bold text-emerald-400 dark:text-emerald-400">{t('readyToChat')}</p>
+                    <p className="text-xs text-emerald-400 dark:text-emerald-400 mt-1">
                       {agentValidation.agent?.response_engine?.type === 'retell-llm' 
                         ? `${t('retellLlm')} (${agentValidation.agent?.llm_info?.prompt_length || 0} chars)` 
                         : t('conversationFlow')} • v{agentValidation.agent?.validated_version ?? agentValidation.agent?.version ?? 0}
@@ -297,7 +297,7 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <Spinner size="sm" className="mr-2 text-primary-foreground" />
                       {t('initializing')}
                     </>
                   ) : (
@@ -320,7 +320,7 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${
                   message.role === 'user' 
                     ? 'bg-primary' 
-                    : 'bg-card border border-border'
+                    : 'bg-card border border-gray-200'
                 }`}>
                   {message.role === 'user' ? (
                     <User className="w-4 h-4 text-primary-foreground" />
@@ -337,7 +337,7 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
                   <div className={`rounded-2xl px-5 py-3 shadow-sm text-sm leading-relaxed ${
                     message.role === 'user'
                       ? 'bg-primary text-primary-foreground rounded-tr-sm'
-                      : 'bg-card border border-border text-foreground rounded-tl-sm'
+                      : 'bg-card border border-gray-200 text-foreground rounded-tl-sm'
                   }`}>
                     <p className="whitespace-pre-wrap">{message.content}</p>
                   </div>
@@ -349,10 +349,10 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
           {isLoading && (
             <div className="flex justify-start">
               <div className="flex items-start space-x-3 max-w-[85%]">
-              <div className="w-8 h-8 bg-card border border-border rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+              <div className="w-8 h-8 bg-card border border-gray-200 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
                   <Sparkles className="w-4 h-4 text-primary" />
                 </div>
-                <div className="bg-card border border-border rounded-2xl rounded-tl-sm px-5 py-4 shadow-sm">
+                <div className="bg-card border border-gray-200 rounded-2xl rounded-tl-sm px-5 py-4 shadow-sm">
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-primary/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                     <div className="w-2 h-2 bg-primary/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -369,7 +369,7 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
 
       {/* Message Input */}
       {isChatActive && (
-        <div className="p-4 bg-background border-t border-border">
+        <div className="p-4 bg-background border-t border-gray-200">
           <div className="max-w-3xl mx-auto relative">
             <input
               type="text"

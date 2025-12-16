@@ -20,7 +20,7 @@ interface LineChartProps {
 
 const colorClasses = {
   purple: 'text-primary bg-primary/10',
-  green: 'text-green-600 bg-green-100',
+  green: 'text-emerald-400 bg-emerald-600/20',
   blue: 'text-primary bg-primary/10',
   yellow: 'text-yellow-600 bg-yellow-100',
   red: 'text-red-600 bg-red-100',

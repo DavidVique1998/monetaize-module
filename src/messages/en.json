@@ -56,10 +56,13 @@
     "logout": "Logout",
     "language": "Language",
     "spanish": "Spanish",
-    "english": "English"
+    "english": "English",
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode"
   },
   "assistants": {
     "title": "Assistants",
+    "headerDescription": "Create, configure, and test your voice/chat assistants.",
     "searchPlaceholder": "Search for an assistant...",
     "createFolder": "Create Folder",
     "createAssistant": "Create Assistant",
@@ -351,6 +354,7 @@
   },
   "phoneNumbers": {
     "title": "Numbers",
+    "headerDescription": "Manage and import phone numbers for your agents.",
     "searchPlaceholder": "Search numbers...",
     "newNumber": "New Number",
     "loading": "Loading phone numbers...",

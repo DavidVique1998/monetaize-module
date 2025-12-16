@@ -9,9 +9,9 @@ export function ContactsTable() {
   const tCommon = useTranslations('common');
   
   return (
-    <div className="bg-card rounded-lg border border-border shadow-sm">
+    <div className="bg-card rounded-lg border border-gray-200 shadow-sm">
       {/* Table Header */}
-      <div className="px-6 py-4 border-b border-border">
+      <div className="px-6 py-4 border-b border-gray-200">
         <div className="grid grid-cols-5 gap-4 text-sm font-semibold text-muted-foreground">
           <div>{t('table.name')}</div>
           <div>{t('table.email')}</div>
@@ -28,7 +28,7 @@ export function ContactsTable() {
       </div>
 
       {/* Pagination */}
-      <div className="px-6 py-4 border-t border-border flex items-center justify-between">
+      <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <select className="appearance-none px-3 py-1.5 border border-input rounded-lg text-sm text-foreground bg-background cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
             <option>10</option>

@@ -24,7 +24,8 @@ export type RetellToolType =
   | 'bridge_transfer'       // Transferir llamada (bridge)
   | 'cancel_transfer'       // Cancelar transferencia
   | 'press_digit'           // Presionar dígitos
-  | 'book_appointment_cal'; // Agendar cita con Cal.com
+  | 'book_appointment_cal'  // Agendar cita con Cal.com
+  | 'check_availability_cal'; // Revisar disponibilidad en Cal.com
 
 /**
  * Estructura base de un tool en Retell AI
@@ -290,6 +291,21 @@ export interface BookAppointmentCalTool extends RetellTool {
 }
 
 /**
+ * Tool predefinido: Check Availability Cal
+ */
+export interface CheckAvailabilityCalTool extends RetellTool {
+  type: 'check_availability_cal';
+  name: string;
+  description: string;
+  cal_api_key: string;
+  event_type_id: number;
+  /**
+   * Opcional, si no se envía Retell usará la timezone del usuario o del servidor
+   */
+  timezone?: string;
+}
+
+/**
  * Tool predefinido: Press Digit
  */
 export interface PressDigitTool extends RetellTool {
@@ -487,6 +503,24 @@ export const CommonRetellTools = {
     timezone: string;
   }): BookAppointmentCalTool => ({
     type: 'book_appointment_cal',
+    name: config.name,
+    description: config.description,
+    cal_api_key: config.cal_api_key,
+    event_type_id: config.event_type_id,
+    timezone: config.timezone,
+  }),
+
+  /**
+   * Tool para consultar disponibilidad en Cal.com
+   */
+  checkAvailabilityCal: (config: {
+    name: string;
+    description: string;
+    cal_api_key: string;
+    event_type_id: number;
+    timezone?: string;
+  }): CheckAvailabilityCalTool => ({
+    type: 'check_availability_cal',
     name: config.name,
     description: config.description,
     cal_api_key: config.cal_api_key,

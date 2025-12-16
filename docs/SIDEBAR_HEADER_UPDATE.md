@@ -13,7 +13,7 @@
 ```tsx
 <div className="flex items-center space-x-3">
   {/* Icono con gradiente */}
-  <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md">
+  <div className="flex items-center justify-center w-10 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md">
     <Zap className="w-6 h-6 text-white" />
   </div>
   

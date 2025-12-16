@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { HeaderBar } from '@/components/dashboard/HeaderBar';
-import { Save, Loader2, AlertCircle, CheckCircle, LogOut, Key, Copy, Check } from 'lucide-react';
+import { Save, AlertCircle, CheckCircle, LogOut, Key, Copy, Check } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 
 interface User {
   id: string;
@@ -179,7 +180,7 @@ export default function ProfilePage() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-full">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <Spinner size="lg" className="text-foreground/70" />
         </div>
       </DashboardLayout>
     );
@@ -201,18 +202,18 @@ export default function ProfilePage() {
               <div
                 className={`mb-6 p-4 rounded-lg flex items-start space-x-3 ${
                   message.type === 'success'
-                    ? 'bg-greenbg-background border border-green-200'
+                    ? 'bg-emerald-600/10 border border-emerald-600/20'
                     : 'bg-redbg-background border border-red-200'
                 }`}
               >
                 {message.type === 'success' ? (
-                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <CheckCircle className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" />
                 ) : (
                   <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
                 )}
                 <p
                   className={`text-sm flex-1 ${
-                    message.type === 'success' ? 'text-green-800' : 'text-red-800'
+                    message.type === 'success' ? 'text-emerald-400' : 'text-red-800'
                   }`}
                 >
                   {message.text}
@@ -284,7 +285,7 @@ export default function ProfilePage() {
             {/* Token JWT */}
             <div className="bg-card rounded-lg border border-gray-200 p-6 mb-6">
               <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
                   <Key className="w-5 h-5 text-purple-600" />
                 </div>
                 <div className="flex-1">
@@ -326,7 +327,7 @@ export default function ProfilePage() {
                   >
                     {generatingToken ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Spinner size="sm" className="mr-2 text-white" />
                         Generando...
                       </>
                     ) : (
@@ -356,7 +357,7 @@ export default function ProfilePage() {
                     <div>
                     <p className="text-sm font-medium text-gray-700">Tu Token JWT:</p>
                       {permanentToken && (
-                        <p className="text-xs text-green-600 mt-1">✓ Token permanente (no expira)</p>
+                        <p className="text-xs text-emerald-400 mt-1">✓ Token permanente (no expira)</p>
                       )}
                     </div>
                     <button
@@ -449,7 +450,7 @@ export default function ProfilePage() {
                   >
                     {saving ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Spinner size="sm" className="mr-2 text-white" />
                         Guardando...
                       </>
                     ) : (

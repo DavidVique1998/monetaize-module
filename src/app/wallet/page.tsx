@@ -1,6 +1,7 @@
 'use client';
 
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { HeaderBar } from '@/components/dashboard/HeaderBar';
 import { WalletBalanceCard } from '@/components/wallet/WalletBalanceCard';
 import { WalletTransactions } from '@/components/wallet/WalletTransactions';
 import { AutoRechargeSettings } from '@/components/wallet/AutoRechargeSettings';
@@ -53,24 +54,22 @@ function WalletContent() {
   return (
     <DashboardLayout>
       <div className="p-4 md:p-6 min-h-full">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            {t('subtitle')}
-          </p>
-        </div>
+        <HeaderBar 
+          title={t('title')} 
+          description={t('subtitle')} 
+          
+        />
 
         {/* Mensaje de éxito después del pago */}
         {showSuccessMessage && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-start justify-between">
+          <div className="mb-6 bg-emerald-600/10 border border-emerald-600/20 rounded-lg p-4 flex items-start justify-between">
             <div className="flex items-start space-x-3 flex-1">
-              <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
-                <h3 className="text-sm font-semibold text-green-900">
+                <h3 className="text-sm font-semibold text-emerald-400">
                   {t('rechargeSuccess.title')}
                 </h3>
-                <p className="text-sm text-green-700 mt-1">
+                <p className="text-sm text-emerald-400 mt-1">
                   {t('rechargeSuccess.message', { amount: rechargeAmount ? `$${rechargeAmount}` : '$0' })}
                 </p>
               </div>
@@ -80,9 +79,9 @@ function WalletContent() {
                 setShowSuccessMessage(false);
                 router.replace('/wallet');
               }}
-              className="ml-4 p-1 hover:bg-green-100 rounded transition-colors flex-shrink-0"
+              className="ml-4 p-1 hover:bg-emerald-600/20 rounded transition-colors flex-shrink-0"
             >
-              <X className="w-4 h-4 text-green-600" />
+              <X className="w-4 h-4 text-emerald-400" />
             </button>
           </div>
         )}

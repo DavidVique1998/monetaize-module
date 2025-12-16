@@ -178,7 +178,7 @@ export function UserProfile({
 
       {/* Dropdown Menu */}
       {isDropdownOpen && (
-        <div className="absolute bottom-full left-0 right-0 mb-2 bg-popover rounded-lg border border-border shadow-lg py-2 z-50 transform transition-all duration-200 ease-out opacity-100 translate-y-0">
+        <div className="absolute bottom-full left-0 right-0 mb-2 bg-popover/95 backdrop-blur-md rounded-lg border border-gray-200 shadow-xl py-2 z-50 transform transition-all duration-200 ease-out opacity-100 translate-y-0">
           <MenuItem
             icon={<User className="w-4 h-4" />}
             label={t('viewProfile')}

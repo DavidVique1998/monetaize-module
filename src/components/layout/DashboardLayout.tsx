@@ -27,7 +27,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background text-foreground transition-colors">
       {/* Sidebar */}
       <MainSidebar 
         isCollapsed={isCollapsed}
@@ -40,10 +40,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       
       {/* Main Content */}
       <div className={cn(
-        "flex-1 flex flex-col overflow-auto",
+        "flex-1 flex flex-col overflow-auto bg-background text-foreground transition-colors",
         isPinned ? "pl-64" : "pl-12"
       )}>
-        {children}
+        <div className="flex-1 bg-background text-foreground">
+          {children}
+        </div>
       </div>
     </div>
   );

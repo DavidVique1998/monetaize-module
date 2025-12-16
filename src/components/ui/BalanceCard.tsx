@@ -16,13 +16,13 @@ export function BalanceCard({ balance, currency = '$', className, isCollapsed = 
   if (isCollapsed) {
     return (
       <div className={cn(
-        "bg-card rounded-lg border border-border p-2 shadow-sm hover:shadow-md transition-shadow",
+        "bg-card rounded-lg border border-gray-200 p-2 shadow-sm hover:shadow-md transition-shadow",
         className
       )}>
         <div className="flex items-center justify-center">
           <Wallet className={cn(
             "w-5 h-5 transition-colors",
-            isNegative ? "text-destructive" : "text-green-600"
+            isNegative ? "text-destructive" : "text-emerald-400"
           )} />
         </div>
       </div>
@@ -31,7 +31,7 @@ export function BalanceCard({ balance, currency = '$', className, isCollapsed = 
 
   return (
     <div className={cn(
-      "bg-card rounded-lg border border-border p-4 shadow-sm hover:shadow-md transition-shadow",
+      "bg-card rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow",
       className
     )}>
       <div className="flex items-center justify-between">
@@ -44,7 +44,7 @@ export function BalanceCard({ balance, currency = '$', className, isCollapsed = 
         </div>
         <div className={cn(
           "text-lg font-bold transition-colors",
-          isNegative ? "text-destructive" : "text-green-600"
+          isNegative ? "text-destructive" : "text-emerald-400"
         )}>
           {formattedBalance}
         </div>

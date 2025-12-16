@@ -32,6 +32,7 @@ import {
   LayoutTemplate,
   MessageSquare
 } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 
 // Idiomas disponibles según Retell AI
 const LANGUAGES = [
@@ -389,7 +390,7 @@ export default function EditAssistantPage() {
       <DashboardLayout>
         <div className="flex items-center justify-center h-full bg-background">
           <div className="text-center">
-            <div className="w-10 h-10 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <Spinner size="lg" className="mx-auto mb-4 text-foreground/70" />
             <p className="text-muted-foreground font-medium">Loading assistant...</p>
           </div>
         </div>
@@ -419,9 +420,9 @@ export default function EditAssistantPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-full bg-background">
+      <div className="flex flex-col h-screen bg-background overflow-visible">
         {/* Modern Header */}
-        <header className="bg-card border-b border-gray-200 shadow-sm z-10 sticky top-0">
+        <header className="bg-card border-b border-gray-200 shadow-sm sticky top-0">
           <div className="px-6 py-3">
             <div className="flex items-center justify-between">
               {/* Left: Back & Title */}
@@ -461,7 +462,7 @@ export default function EditAssistantPage() {
                     )}
                     
                     {agent && (agent as any).is_published ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-greenbg-background0/10 text-green-700 border-greenbg-background0/20">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-400 text-emerald-400 border-greenbg-background0/20">
                         Published
                       </span>
                     ) : (
@@ -472,7 +473,7 @@ export default function EditAssistantPage() {
                   </div>
                   
                   <div className="flex items-center text-xs text-graybg-background0 mt-0.5 space-x-2">
-                    <span className="flex items-center cursor-pointer hover:text-purple-600 transition-colors bg-muted border border-border" onClick={handleCopyId} title="Copy Agent ID">
+                    <span className="flex items-center cursor-pointer hover:text-purple-600 transition-colors bg-muted border border-gray-200" onClick={handleCopyId} title="Copy Agent ID">
                       ID: {agent.agent_id.substring(0, 8)}...
                       <Copy className="w-2.5 h-2.5 ml-1" />
                     </span>
@@ -485,7 +486,7 @@ export default function EditAssistantPage() {
                 <div className="hidden md:flex items-center mr-2 text-xs">
                   {isAutoSaving ? (
                     <span className="text-purple-600 flex items-center bg-purplebg-background px-2 py-1 rounded-full">
-                      <div className="w-2.5 h-2.5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mr-1.5" />
+                      <Spinner size="sm" className="mr-1.5 text-purple-600" />
                       Saving...
                     </span>
                   ) : !isSaved ? (
@@ -494,7 +495,7 @@ export default function EditAssistantPage() {
                       Unsaved changes
                     </span>
                   ) : (
-                    <span className="text-green-700 flex items-center bg-greenbg-background px-2 py-1 rounded-full">
+                    <span className="text-emerald-400 flex items-center bg-emerald-100 px-2 py-1 rounded-full">
                       <CheckCircle2 className="w-3 h-3 mr-1.5" />
                       All saved
                     </span>
@@ -519,16 +520,16 @@ export default function EditAssistantPage() {
                 <button
                   onClick={handlePublish}
                   disabled={isPublishing || !isSaved || !agent || (agent as any).is_published}
-                  className="flex items-center bg-black hover:bg-gray-800 disabled:bg-gray-200 disabled:text-muted-foreground text-white text-sm font-medium px-5 py-2 rounded-lg transition-all shadow-sm hover:shadow disabled:shadow-none"
+                  className="inline-flex items-center justify-center h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isPublishing ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      <Spinner size="sm" />
                       Publishing
                     </>
                   ) : (
                     <>
-                      <Rocket className="w-4 h-4 mr-2" />
+                      <Rocket className="w-4 h-4" />
                       Publish
                     </>
                   )}
@@ -680,7 +681,7 @@ export default function EditAssistantPage() {
                 <div className="max-w-5xl mx-auto space-y-6 h-full flex flex-col">
                   {/* Prompt Editor */}
                   <div className="bg-card rounded-xl shadow-sm border border-gray-200 flex flex-col flex-1 min-h-[500px] transition-shadow hover:shadow-md">
-                    <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-card rounded-t-xl">
+                    <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-card rounded-t-xl">
                       <div className="flex items-center space-x-3">
                         <div className="p-2 bg-primary/10 rounded-lg">
                           <Sparkles className="w-4 h-4 text-purple-600" />
@@ -744,7 +745,7 @@ export default function EditAssistantPage() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-[600px]">
                     {/* Voice Lab Card */}
                     <div className="bg-card rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col transition-all hover:shadow-md">
-                      <div className="px-6 py-5 border-b border-border bg-primary/5 from-primary/10 to-card flex items-center justify-between">
+                      <div className="px-6 py-5 border-b border-gray-200 bg-primary/5 from-primary/10 to-card flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <div className="p-2 bg-card border border-gray-100 rounded-lg shadow-sm">
                             <Mic className="w-5 h-5 text-purple-600" />
@@ -755,8 +756,8 @@ export default function EditAssistantPage() {
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <span className="w-2 h-2 bg-greenbg-background0 rounded-full animate-pulse"></span>
-                          <span className="text-xs font-medium text-green-700 uppercase tracking-wide">Ready</span>
+                          <span className="w-2 h-2 bg-emerald-4000 rounded-full animate-pulse"></span>
+                          <span className="text-xs font-medium text-emerald-400 uppercase tracking-wide">Ready</span>
                         </div>
                       </div>
                       <div className="flex-1 p-8 flex flex-col justify-center bg-card">
@@ -771,7 +772,7 @@ export default function EditAssistantPage() {
 
                     {/* Chat Lab Card */}
                     <div className="bg-card rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col transition-all hover:shadow-md">
-                      <div className="px-6 py-5 border-b border-border bg-primary/5 from-primary/10 to-card flex items-center justify-between">
+                      <div className="px-6 py-5 border-b border-gray-200 bg-primary/5 from-primary/10 to-card flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <div className="p-2 bg-card border border-gray-100 rounded-lg shadow-sm">
                             <MessageSquare className="w-5 h-5 text-primary" />
@@ -797,7 +798,7 @@ export default function EditAssistantPage() {
 
           {/* Right Sidebar - Always visible in Edit Mode, Hidden in Test Mode */}
           {viewMode === 'edit' && (
-            <div className="w-80 border-l border-gray-200 bg-card shadow-xl z-20 overflow-y-auto">
+            <div className="w-80 border-l border-gray-200 bg-card shadow-xl overflow-y-auto sticky top-16 self-start h-[calc(100vh-4rem)] flex-shrink-0">
               <AgentConfigSidebar
                 agent={agent}
                 settings={additionalSettings}

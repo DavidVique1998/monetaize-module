@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { X, Sparkles, Download, Box, Rocket, Info, Loader2 } from 'lucide-react';
+import { X, Sparkles, Download, Box, Rocket, Info } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { createBlankAssistant } from '@/app/actions/assistants';
 import { useTranslations } from 'next-intl';
 
@@ -209,7 +210,7 @@ export function CreateAssistantModal({ isOpen, onClose, onSelectOption, onAgentC
           >
             {isCreating ? (
               <span className="flex items-center justify-center">
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Spinner size="sm" className="mr-2 text-foreground" />
                 {t('creating')}
               </span>
             ) : (

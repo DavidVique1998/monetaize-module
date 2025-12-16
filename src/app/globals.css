@@ -1,114 +1,61 @@
 @import "tailwindcss";
 
 :root {
-  /* Palette: Deep Sky Blue */
-  --color-deep-sky-blue-50: #e6f8ff;
-  --color-deep-sky-blue-100: #cdf1fe;
-  --color-deep-sky-blue-200: #9be3fd;
-  --color-deep-sky-blue-300: #68d5fd;
-  --color-deep-sky-blue-400: #36c7fc;
-  --color-deep-sky-blue-500: #04b9fb;
-  --color-deep-sky-blue-600: #0394c9;
-  --color-deep-sky-blue-700: #026f97;
-  --color-deep-sky-blue-800: #024a64;
-  --color-deep-sky-blue-900: #012532;
-  --color-deep-sky-blue-950: #011a23;
+  /* Brand palette inspired by requested colors */
+  --brand-navy-100: #dbe2ff;
+  --brand-navy-300: #5c6fc4;
+  --brand-navy-500: #0d1f6e;
+  --brand-navy-900: #0c143a;
 
-  /* Palette: Deep Twilight */
-  --color-deep-twilight-50: #e7eafd;
-  --color-deep-twilight-100: #cfd5fc;
-  --color-deep-twilight-200: #a0abf8;
-  --color-deep-twilight-300: #7082f5;
-  --color-deep-twilight-400: #4058f2;
-  --color-deep-twilight-500: #112eee;
-  --color-deep-twilight-600: #0d25bf;
-  --color-deep-twilight-700: #0a1c8f;
-  --color-deep-twilight-800: #07125f;
-  --color-deep-twilight-900: #030930;
-  --color-deep-twilight-950: #020621;
+  --brand-rose-100: #ffd7ea;
+  --brand-rose-400: #e8509f;
+  --brand-rose-600: #ad0e56;
 
-  /* Palette: Electric Rose */
-  --color-electric-rose-50: #fde7f4;
-  --color-electric-rose-100: #fbd0ea;
-  --color-electric-rose-200: #f7a1d5;
-  --color-electric-rose-300: #f471c0;
-  --color-electric-rose-400: #f042aa;
-  --color-electric-rose-500: #ec1395;
-  --color-electric-rose-600: #bd0f77;
-  --color-electric-rose-700: #8e0b5a;
-  --color-electric-rose-800: #5e083c;
-  --color-electric-rose-900: #2f041e;
-  --color-electric-rose-950: #210315;
+  --brand-cyan-100: #d7f1ff;
+  --brand-cyan-300: #5ad0ff;
+  --brand-cyan-500: #0aaffd;
 
-  /* Palette: Indigo Bloom */
-  --color-indigo-bloom-50: #f2ebf9;
-  --color-indigo-bloom-100: #e6d7f4;
-  --color-indigo-bloom-200: #ccafe9;
-  --color-indigo-bloom-300: #b288dd;
-  --color-indigo-bloom-400: #9960d2;
-  --color-indigo-bloom-500: #7f38c7;
-  --color-indigo-bloom-600: #662d9f;
-  --color-indigo-bloom-700: #4c2277;
-  --color-indigo-bloom-800: #331650;
-  --color-indigo-bloom-900: #190b28;
-  --color-indigo-bloom-950: #12081c;
+  --brand-magenta-500: #e71680;
+  --brand-ink-900: #0c061f;
 
-  /* Palette: Midnight Violet */
-  --color-midnight-violet-50: #eee9fc;
-  --color-midnight-violet-100: #ddd3f8;
-  --color-midnight-violet-200: #bca6f2;
-  --color-midnight-violet-300: #9a7aeb;
-  --color-midnight-violet-400: #784ee4;
-  --color-midnight-violet-500: #5721de;
-  --color-midnight-violet-600: #451bb1;
-  --color-midnight-violet-700: #341485;
-  --color-midnight-violet-800: #230d59;
-  --color-midnight-violet-900: #11072c;
-  --color-midnight-violet-950: #0c051f;
-
-  /* Palette: Indigo Ink */
-  --color-indigo-ink-50: #efe9fb;
-  --color-indigo-ink-100: #dfd4f7;
-  --color-indigo-ink-200: #bfa8f0;
-  --color-indigo-ink-300: #9f7de8;
-  --color-indigo-ink-400: #7f52e0;
-  --color-indigo-ink-500: #5f26d9;
-  --color-indigo-ink-600: #4c1fad;
-  --color-indigo-ink-700: #391782;
-  --color-indigo-ink-800: #260f57;
-  --color-indigo-ink-900: #13082b;
-  --color-indigo-ink-950: #0d051e;
+  /* Neutral support */
+  --neutral-50: #f7f8fb;
+  --neutral-100: #eef1f7;
+  --neutral-200: #e1e5ed;
+  --neutral-400: #b5bdce;
+  --neutral-600: #5b6478;
+  --neutral-800: #121728;
 
   /* Semantic Variables (Light Mode) */
-  --background: #ffffff; /* Cleaner white for light mode */
-  --foreground: var(--color-deep-twilight-950);
+  --background: var(--neutral-50);
+  --foreground: #0f172a;
   
   --card: #ffffff;
-  --card-foreground: var(--color-deep-twilight-950);
+  --card-foreground: #0f172a;
   
   --popover: #ffffff;
-  --popover-foreground: var(--color-deep-twilight-950);
+  --popover-foreground: #0f172a;
   
-  --primary: var(--color-deep-twilight-600);
-  --primary-foreground: #ffffff;
+  --primary: var(--brand-navy-500);
+  --primary-foreground: #f8fbff;
   
-  --secondary: var(--color-deep-sky-blue-50);
-  --secondary-foreground: var(--color-deep-sky-blue-900);
+  --secondary: var(--brand-cyan-100);
+  --secondary-foreground: var(--brand-navy-900);
   
-  --muted: var(--color-deep-twilight-50);
-  --muted-foreground: var(--color-deep-twilight-600);
+  --muted: var(--neutral-100);
+  --muted-foreground: var(--neutral-600);
   
-  --accent: var(--color-deep-sky-blue-100);
-  --accent-foreground: var(--color-deep-sky-blue-900);
+  --accent: var(--brand-magenta-500);
+  --accent-foreground: #ffffff;
   
-  --destructive: var(--color-electric-rose-500);
+  --destructive: var(--brand-rose-600);
   --destructive-foreground: #ffffff;
   
-  --border: var(--color-deep-twilight-100);
-  --input: var(--color-deep-twilight-100);
-  --ring: var(--color-deep-twilight-300);
+  --border: var(--neutral-200);
+  --input: var(--neutral-200);
+  --ring: var(--brand-cyan-500);
   
-  --radius: 0.5rem;
+  --radius: 0.6rem;
 }
 
 @theme inline {
@@ -116,74 +63,109 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-orbitron: var(--font-orbitron);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Semantic Variables (Dark Mode) */
-    --background: var(--color-deep-twilight-950);
-    --foreground: var(--color-deep-twilight-50);
-    
-    --card: var(--color-deep-twilight-900);
-    --card-foreground: var(--color-deep-twilight-50);
-    
-    --popover: var(--color-deep-twilight-900);
-    --popover-foreground: var(--color-deep-twilight-50);
-    
-    --primary: var(--color-deep-twilight-500);
-    --primary-foreground: #ffffff;
-    
-    --secondary: var(--color-deep-twilight-800);
-    --secondary-foreground: var(--color-deep-twilight-50);
-    
-    --muted: var(--color-deep-twilight-900);
-    --muted-foreground: var(--color-deep-twilight-400);
-    
-    --accent: var(--color-deep-twilight-800);
-    --accent-foreground: var(--color-deep-twilight-50);
-    
-    --destructive: var(--color-electric-rose-600);
-    --destructive-foreground: #ffffff;
-    
-    --border: var(--color-deep-twilight-800);
-    --input: var(--color-deep-twilight-800);
-    --ring: var(--color-deep-twilight-600);
-  }
+.light {
+  --background: var(--neutral-50);
+  --foreground: #0f172a;
+  
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  
+  --primary: var(--brand-navy-500);
+  --primary-foreground: #f8fbff;
+  
+  --secondary: var(--brand-cyan-100);
+  --secondary-foreground: var(--brand-navy-900);
+  
+  --muted: var(--neutral-100);
+  --muted-foreground: var(--neutral-600);
+  
+  --accent: var(--brand-magenta-500);
+  --accent-foreground: #ffffff;
+  
+  --destructive: var(--brand-rose-600);
+  --destructive-foreground: #ffffff;
+  
+  --border: var(--neutral-200);
+  --input: var(--neutral-200);
+  --ring: var(--brand-cyan-500);
 }
 
 /* Also support .dark class for manual toggle */
 .dark {
-    --background: var(--color-deep-twilight-950);
-    --foreground: var(--color-deep-twilight-50);
+    --background: #0b0f1f;
+    --foreground: #e8ebf6;
     
-    --card: var(--color-deep-twilight-900);
-    --card-foreground: var(--color-deep-twilight-50);
+    --card: #111733;
+    --card-foreground: #f4f6ff;
     
-    --popover: var(--color-deep-twilight-900);
-    --popover-foreground: var(--color-deep-twilight-50);
+    --popover: #111733;
+    --popover-foreground: #f4f6ff;
     
-    --primary: var(--color-deep-twilight-500);
-    --primary-foreground: #ffffff;
+    --primary: var(--brand-cyan-500);
+    --primary-foreground: #041226;
     
-    --secondary: var(--color-deep-twilight-800);
-    --secondary-foreground: var(--color-deep-twilight-50);
+    --secondary: #182040;
+    --secondary-foreground: #e4e8ff;
     
-    --muted: var(--color-deep-twilight-900);
-    --muted-foreground: var(--color-deep-twilight-400);
+    --muted: #131a30;
+    --muted-foreground: #a7b2d4;
     
-    --accent: var(--color-deep-twilight-800);
-    --accent-foreground: var(--color-deep-twilight-50);
+    --accent: var(--brand-rose-600);
+    --accent-foreground: #fff0f7;
     
-    --destructive: var(--color-electric-rose-600);
-    --destructive-foreground: #ffffff;
+    --destructive: var(--brand-magenta-500);
+    --destructive-foreground: #fff2fb;
     
-    --border: var(--color-deep-twilight-800);
-    --input: var(--color-deep-twilight-800);
-    --ring: var(--color-deep-twilight-600);
+    --border: #1f2948;
+    --input: #1f2948;
+    --ring: #5ad0ff;
+}
+
+/* Ensure legacy gray utility classes stay readable in dark mode */
+.dark .text-gray-900,
+.dark .text-gray-800,
+.dark .text-gray-700 {
+  color: var(--foreground) !important;
+}
+
+.dark .text-gray-600,
+.dark .text-gray-500,
+.dark .text-gray-400 {
+  color: var(--muted-foreground) !important;
+}
+
+.dark .border-gray-300,
+.dark .border-gray-200,
+.dark .border-gray-100 {
+  border-color: var(--border) !important;
+}
+
+/* Map common hardcoded light backgrounds to themed surfaces in dark mode */
+.dark .bg-white,
+.dark .bg-gray-50,
+.dark .bg-gray-100,
+.dark .bg-gray-200 {
+  background-color: var(--card) !important;
+  color: var(--foreground) !important;
+}
+
+/* Map hardcoded dark backgrounds to themed background to keep consistency */
+.dark .bg-gray-800,
+.dark .bg-gray-900,
+.dark .bg-black {
+  background-color: var(--background) !important;
 }
 
 body {
-  background: var(--background);
+  background: radial-gradient(circle at 20% 20%, rgba(10, 175, 253, 0.08), transparent 25%),
+              radial-gradient(circle at 80% 0%, rgba(231, 22, 128, 0.08), transparent 28%),
+              var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
@@ -271,4 +253,23 @@ select:disabled {
 
 .StripeElement--webkit-autofill {
   background-color: var(--accent) !important;
+}
+
+/* Utility aliases for themed surfaces */
+.bg-card {
+  background-color: var(--card);
+  color: var(--card-foreground);
+}
+
+.text-card-foreground {
+  color: var(--card-foreground);
+}
+
+.bg-popover {
+  background-color: var(--popover);
+  color: var(--popover-foreground);
+}
+
+.text-popover-foreground {
+  color: var(--popover-foreground);
 }

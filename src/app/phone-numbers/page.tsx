@@ -10,11 +10,14 @@ import { HeaderBar } from '@/components/dashboard/HeaderBar';
 import { ImportPhoneNumberModal } from '@/components/phone/ImportPhoneNumberModal';
 import { EditPhoneNumberModal } from '@/components/phone/EditPhoneNumberModal';
 import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { usePhoneNumbers } from '@/hooks/usePhoneNumbers';
 import { ImportedPhoneNumber } from '@/lib/retell';
 import { Search, Plus, Phone, Edit, Trash2, RefreshCw, AlertCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function PhoneNumbersPage() {
+  const t = useTranslations('phoneNumbers');
   const { phoneNumbers, loading, error, loadPhoneNumbers, importPhoneNumber } = usePhoneNumbers();
   const [agents, setAgents] = useState<Array<{ agent_id: string; agent_name: string }>>([]);
   const [showImportForm, setShowImportForm] = useState(false);
@@ -113,6 +116,11 @@ export default function PhoneNumbersPage() {
     );
   });
 
+  const primaryActionClass =
+    "inline-flex items-center justify-center h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold";
+  const actionButtonClass =
+    "inline-flex items-center justify-center h-9 w-9 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold";
+
   if (loading && phoneNumbers.length === 0) {
     return (
       <DashboardLayout>
@@ -130,31 +138,33 @@ export default function PhoneNumbersPage() {
     <DashboardLayout>
       <div className="flex flex-col h-full bg-background">
         {/* Header */}
-        <HeaderBar title="Numbers" />
+        <HeaderBar 
+          title={t('title')} 
+          description={t('headerDescription')} 
+          actions={
+            <button
+              onClick={() => setShowImportForm(true)}
+              className={`${primaryActionClass} flex items-center gap-2`}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              New Number
+            </button>
+          }
+        />
         
         {/* Main Content */}
         <div className="flex-1 p-6 space-y-6 overflow-y-auto">
-          {/* Top Bar with Search and Button */}
-          <div className="flex items-center justify-between mb-6">
-            {/* Search */}
+          {/* Top Bar with Search */}
+          <div className="flex items-center mb-6">
             <div className="relative">
               <input
                 type="text"
                 placeholder="Search numbers..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-3 h-10 w-96 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purplebg-background0 focus:border-transparent bg-card"
+                className="pl-10 pr-4 py-3 h-8 w-96 border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purplebg-background0 focus:border-transparent bg-card"
               />
             </div>
-
-            {/* New Number Button */}
-            <button
-              onClick={() => setShowImportForm(true)}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-2 rounded-lg transition-colors flex items-center"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              New Number
-            </button>
           </div>
 
         {/* Error */}
@@ -210,8 +220,8 @@ export default function PhoneNumbersPage() {
 
           <div className="bg-card p-4 rounded-lg border border-gray-200">
             <div className="flex items-center">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                <span className="text-green-600 font-bold text-sm">C</span>
+              <div className="w-8 h-8 bg-emerald-600/20 rounded-full flex items-center justify-center">
+                <span className="text-emerald-400 font-bold text-sm">C</span>
               </div>
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-600">Custom</p>
@@ -224,69 +234,76 @@ export default function PhoneNumbersPage() {
         </div>
 
         {/* Table */}
-        <div className="bg-card rounded-lg border border-gray-200 shadow-sm">
-          {/* Table Header */}
-          <div className="px-6 py-4 border-b border-gray-200">
-            <div className="grid grid-cols-6 gap-4 text-sm font-semibold text-gray-700">
-              <div>PHONE NUMBER</div>
-              <div>NICKNAME</div>
-              <div>TYPE</div>
-              <div>INBOUND AGENT</div>
-              <div>OUTBOUND AGENT</div>
-              <div>ACTIONS</div>
-            </div>
-          </div>
-
-          {/* Table Body */}
-          {filteredPhoneNumbers.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <Phone className="w-12 h-12 text-gray-300 mb-4" />
-              <p className="text-graybg-background0 font-medium">No phone numbers to display</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-200">
-              {filteredPhoneNumbers.map((phoneNumber) => (
-                <div key={phoneNumber.phone_number} className="px-6 py-4 hover:bg-graybg-background transition-colors">
-                  <div className="grid grid-cols-6 gap-4 items-center">
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
+        <div className="bg-card rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <Table>
+            <TableHeader className="bg-muted/40">
+              <TableRow>
+                <TableHead className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Phone Number</TableHead>
+                <TableHead className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Nickname</TableHead>
+                <TableHead className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Type</TableHead>
+                <TableHead className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Inbound Agent</TableHead>
+                <TableHead className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Outbound Agent</TableHead>
+                <TableHead className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredPhoneNumbers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="py-16">
+                    <div className="flex flex-col items-center justify-center space-y-3 text-center">
+                      <Phone className="w-12 h-12 text-muted-foreground/50" />
+                      <p className="text-sm text-muted-foreground">No phone numbers to display</p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredPhoneNumbers.map((phoneNumber) => (
+                  <TableRow key={phoneNumber.phone_number} className="hover:bg-muted/50 transition-colors">
+                    <TableCell className="px-4 py-3">
+                      <p className="text-sm font-medium text-foreground">
                         {phoneNumber.phone_number_pretty || phoneNumber.phone_number}
                       </p>
-                      <p className="text-xs text-graybg-background0">{phoneNumber.phone_number}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">{phoneNumber.nickname || '-'}</p>
-                    </div>
-                    <div>
+                      <p className="text-xs text-muted-foreground">{phoneNumber.phone_number}</p>
+                    </TableCell>
+                    <TableCell className="px-4 py-3">
+                      <p className="text-sm text-muted-foreground">{phoneNumber.nickname || '-'}</p>
+                    </TableCell>
+                    <TableCell className="px-4 py-3">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                         {phoneNumber.phone_number_type || 'custom'}
                       </span>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">{phoneNumber.inbound_agent_id?.substring(0, 12) || '-'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">{phoneNumber.outbound_agent_id?.substring(0, 12) || '-'}</p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handleEdit(phoneNumber)}
-                        className="p-2 text-primary hover:bg-primary/5 rounded-lg transition-colors"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(phoneNumber.phone_number || '')}
-                        className="p-2 text-red-600 hover:bg-redbg-background rounded-lg transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                    </TableCell>
+                    <TableCell className="px-4 py-3">
+                      <p className="text-sm text-muted-foreground">
+                        {phoneNumber.inbound_agent_id?.substring(0, 12) || '-'}
+                      </p>
+                    </TableCell>
+                    <TableCell className="px-4 py-3">
+                      <p className="text-sm text-muted-foreground">
+                        {phoneNumber.outbound_agent_id?.substring(0, 12) || '-'}
+                      </p>
+                    </TableCell>
+                    <TableCell className="px-4 py-3">
+                      <div className="flex items-center justify-end space-x-2">
+                        <button
+                          onClick={() => handleEdit(phoneNumber)}
+                          className={actionButtonClass}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(phoneNumber.phone_number || '')}
+                          className={actionButtonClass}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
 
         {/* Pagination */}

@@ -270,12 +270,12 @@ export function WebCallInterface({
       <div className="text-center mb-6">
         {isCallActive && (
           <div className="mb-4">
-            <div className="text-2xl font-mono text-green-600 mb-2">
+            <div className="text-2xl font-mono text-emerald-400 mb-2">
               {formatDuration(callDuration)}
             </div>
             <div className="flex items-center justify-center space-x-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm text-green-600 font-medium">
+              <div className="w-3 h-3 bg-emerald-600 rounded-full animate-pulse"></div>
+              <span className="text-sm text-emerald-400 font-medium">
                 Llamada en curso
               </span>
             </div>
@@ -295,7 +295,7 @@ export function WebCallInterface({
         {!isCallActive && !isConnecting && (
           <button
             onClick={startCall}
-            className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
+            className="flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
           >
             <Phone className="w-5 h-5" />
             <span>Iniciar Llamada</span>

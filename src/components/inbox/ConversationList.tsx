@@ -28,9 +28,9 @@ export function ConversationList({
   onSearchChange
 }: ConversationListProps) {
   return (
-    <div className="flex flex-col h-full bg-card border-r border-border">
+    <div className="flex flex-col h-full bg-card border-r border-gray-200">
       {/* Header */}
-      <div className="p-4 border-b border-border">
+      <div className="p-4 border-b border-gray-200">
         <h2 className="text-lg font-semibold text-foreground mb-3">Inbox</h2>
         
         {/* Search */}
@@ -76,10 +76,10 @@ export function ConversationList({
                       <img 
                         src={conversation.avatar} 
                         alt={conversation.name}
-                        className="w-10 h-10 rounded-full"
+                        className="w-10 h-8 rounded-full"
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                      <div className="w-10 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
                         {conversation.name.charAt(0).toUpperCase()}
                       </div>
                     )}
@@ -107,7 +107,7 @@ export function ConversationList({
       </div>
 
       {/* Pagination */}
-      <div className="p-4 border-t border-border bg-muted">
+      <div className="p-4 border-t border-gray-200 bg-muted">
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <span>Showing 1 - {conversations.length}</span>
           <div className="flex items-center space-x-2">
