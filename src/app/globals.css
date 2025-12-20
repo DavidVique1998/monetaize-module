@@ -2,21 +2,101 @@
 
 :root {
   /* Brand palette inspired by requested colors */
-  --brand-navy-100: #dbe2ff;
-  --brand-navy-300: #5c6fc4;
-  --brand-navy-500: #0d1f6e;
-  --brand-navy-900: #0c143a;
+  --dragonfruit-50: #fee6f3;
+  --dragonfruit-100: #fecde6;
+  --dragonfruit-200: #fd9bce;
+  --dragonfruit-300: #fc69b5;
+  --dragonfruit-400: #fb379c;
+  --dragonfruit-500: #fa0584;
+  --dragonfruit-600: #c80469;
+  --dragonfruit-700: #96034f;
+  --dragonfruit-800: #640235;
+  --dragonfruit-900: #32011a;
+  --dragonfruit-950: #230112;
 
-  --brand-rose-100: #ffd7ea;
-  --brand-rose-400: #e8509f;
-  --brand-rose-600: #ad0e56;
+  --neon-violet-50: #f6e7fe;
+  --neon-violet-100: #eecffc;
+  --neon-violet-200: #dd9ff9;
+  --neon-violet-300: #cb6ef7;
+  --neon-violet-400: #ba3ef4;
+  --neon-violet-500: #a90ef1;
+  --neon-violet-600: #870bc1;
+  --neon-violet-700: #650891;
+  --neon-violet-800: #440660;
+  --neon-violet-900: #220330;
+  --neon-violet-950: #180222;
 
-  --brand-cyan-100: #d7f1ff;
-  --brand-cyan-300: #5ad0ff;
-  --brand-cyan-500: #0aaffd;
+  --electric-aqua-50: #e5fdff;
+  --electric-aqua-100: #ccfbff;
+  --electric-aqua-200: #99f7ff;
+  --electric-aqua-300: #66f2ff;
+  --electric-aqua-400: #33eeff;
+  --electric-aqua-500: #00eaff;
+  --electric-aqua-600: #00bbcc;
+  --electric-aqua-700: #008c99;
+  --electric-aqua-800: #005e66;
+  --electric-aqua-900: #002f33;
+  --electric-aqua-950: #002124;
 
-  --brand-magenta-500: #e71680;
-  --brand-ink-900: #0c061f;
+  --ink-black-50: #eceff8;
+  --ink-black-100: #d9def2;
+  --ink-black-200: #b4bde4;
+  --ink-black-300: #8e9cd7;
+  --ink-black-400: #687cca;
+  --ink-black-500: #425bbd;
+  --ink-black-600: #354997;
+  --ink-black-700: #283671;
+  --ink-black-800: #1b244b;
+  --ink-black-900: #0d1226;
+  --ink-black-950: #090d1a;
+
+  --prussian-blue-50: #eceef9;
+  --prussian-blue-100: #d9ddf2;
+  --prussian-blue-200: #b3bce6;
+  --prussian-blue-300: #8c9ad9;
+  --prussian-blue-400: #6679cc;
+  --prussian-blue-500: #4057bf;
+  --prussian-blue-600: #334699;
+  --prussian-blue-700: #263473;
+  --prussian-blue-800: #19234d;
+  --prussian-blue-900: #0d1126;
+  --prussian-blue-950: #090c1b;
+
+  --emerald-50: #e5fff7;
+  --emerald-100: #ccffef;
+  --emerald-200: #99ffdf;
+  --emerald-300: #66ffcf;
+  --emerald-400: #33ffbe;
+  --emerald-500: #00ffae;
+  --emerald-600: #00cc8b;
+  --emerald-700: #009969;
+  --emerald-800: #006646;
+  --emerald-900: #003323;
+  --emerald-950: #002418;
+
+  --raspberry-red-50: #fce8ef;
+  --raspberry-red-100: #fad1df;
+  --raspberry-red-200: #f5a3be;
+  --raspberry-red-300: #f0759e;
+  --raspberry-red-400: #eb477e;
+  --raspberry-red-500: #e6195d;
+  --raspberry-red-600: #b8144b;
+  --raspberry-red-700: #8a0f38;
+  --raspberry-red-800: #5c0a25;
+  --raspberry-red-900: #2e0513;
+  --raspberry-red-950: #20040d;
+
+  --lemon-lime-50: #fcfce8;
+  --lemon-lime-100: #f9f8d2;
+  --lemon-lime-200: #f3f2a5;
+  --lemon-lime-300: #edeb78;
+  --lemon-lime-400: #e8e54a;
+  --lemon-lime-500: #e2de1d;
+  --lemon-lime-600: #b5b217;
+  --lemon-lime-700: #878512;
+  --lemon-lime-800: #5a590c;
+  --lemon-lime-900: #2d2c06;
+  --lemon-lime-950: #201f04;
 
   /* Neutral support */
   --neutral-50: #f7f8fb;
@@ -26,35 +106,49 @@
   --neutral-600: #5b6478;
   --neutral-800: #121728;
 
-  /* Semantic Variables (Light Mode) */
-  --background: var(--neutral-50);
-  --foreground: #0f172a;
+  --primary: var(--dragonfruit-400);
+  --primary-foreground: var(--dragonfruit-950);
+
+  --secondary: var(--neon-violet-500);
+  --secondary-foreground: var(--neon-violet-950);
+
+  --success: var(--emerald-500);
+  --success-foreground: var(--emerald-950);
+
+  --warning: var(--lemon-lime-500);
+  --warning-foreground: var(--lemon-lime-950);
+
+  --info: var(--electric-aqua-500);
+  --info-foreground: var(--electric-aqua-950);
+
+  --error: var(--raspberry-red-500);
+  --error-foreground: var(--raspberry-red-950);
   
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  
-  --primary: var(--brand-navy-500);
-  --primary-foreground: #f8fbff;
-  
-  --secondary: var(--brand-cyan-100);
-  --secondary-foreground: var(--brand-navy-900);
-  
+  --destructive: var(--error);
+  --destructive-foreground: var(--error-foreground);
+  --destructive-light: rgba(230, 25, 93, 0.1);
+  --destructive-dark: var(--raspberry-red-700);
+  --destructive-border: var(--raspberry-red-300);
+
   --muted: var(--neutral-100);
   --muted-foreground: var(--neutral-600);
+  --accent: var(--prussian-blue-500);
+  --accent-foreground: white;
   
-  --accent: var(--brand-magenta-500);
-  --accent-foreground: #ffffff;
+  /* Light mode: light = claro, dark = oscuro */
+  --light: var(--neutral-100);
+  --light-foreground: var(--ink-black-950);
+  --dark: var(--ink-black-900);
+  --dark-foreground: var(--neutral-50);
+  /* Semantic Variables (Light Mode) */
+  --background: var(--neutral-50);
+  --foreground: var(--ink-black-950);
   
-  --destructive: var(--brand-rose-600);
-  --destructive-foreground: #ffffff;
+  --card: #ffffff;
+  --card-foreground: var(--ink-black-950);
   
   --border: var(--neutral-200);
   --input: var(--neutral-200);
-  --ring: var(--brand-cyan-500);
-  
   --radius: 0.6rem;
 }
 
@@ -68,28 +162,13 @@
 
 .light {
   --background: var(--neutral-50);
-  --foreground: #0f172a;
+  --foreground: var(--ink-black-950);
   
   --card: #ffffff;
-  --card-foreground: #0f172a;
+  --card-foreground: var(--ink-black-950);
   
   --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  
-  --primary: var(--brand-navy-500);
-  --primary-foreground: #f8fbff;
-  
-  --secondary: var(--brand-cyan-100);
-  --secondary-foreground: var(--brand-navy-900);
-  
-  --muted: var(--neutral-100);
-  --muted-foreground: var(--neutral-600);
-  
-  --accent: var(--brand-magenta-500);
-  --accent-foreground: #ffffff;
-  
-  --destructive: var(--brand-rose-600);
-  --destructive-foreground: #ffffff;
+  --popover-foreground: var(--ink-black-950);
   
   --border: var(--neutral-200);
   --input: var(--neutral-200);
@@ -106,22 +185,30 @@
     
     --popover: #111733;
     --popover-foreground: #f4f6ff;
+
+    /* Ajustar colores foreground para mejor contraste en dark mode */
+    --primary-foreground: white;
+    --secondary-foreground: white;
+    --success-foreground: white;
+    --info-foreground: white;
+    --error-foreground: white;
+    --warning-foreground: var(--ink-black-950);
     
-    --primary: var(--brand-cyan-500);
-    --primary-foreground: #041226;
+    --destructive: var(--error);
+    --destructive-foreground: var(--error-foreground);
+    --destructive-light: rgba(230, 25, 93, 0.2);
+    --destructive-dark: var(--raspberry-red-400);
+    --destructive-border: var(--raspberry-red-500);
     
-    --secondary: #182040;
-    --secondary-foreground: #e4e8ff;
-    
-    --muted: #131a30;
     --muted-foreground: #a7b2d4;
+    --accent-foreground: white;
     
-    --accent: var(--brand-rose-600);
-    --accent-foreground: #fff0f7;
-    
-    --destructive: var(--brand-magenta-500);
-    --destructive-foreground: #fff2fb;
-    
+    /* Dark mode: light = más claro (card), dark = menos oscuro (ink-black-700) */
+    --light: var(--card);
+    --light-foreground: var(--card-foreground);
+    --dark: var(--ink-black-700);
+    --dark-foreground: var(--neutral-50);
+
     --border: #1f2948;
     --input: #1f2948;
     --ring: #5ad0ff;
@@ -272,4 +359,255 @@ select:disabled {
 
 .text-popover-foreground {
   color: var(--popover-foreground);
+}
+
+/* Error message styling with theme-adaptive colors */
+.error-message-container {
+  background-color: var(--destructive-light) !important;
+  border: 2px solid var(--destructive-border) !important;
+  color: var(--destructive-dark) !important;
+}
+
+.error-message-container .error-icon {
+  color: var(--destructive) !important;
+}
+
+.error-message-container .error-title,
+.error-message-container .error-text {
+  color: var(--destructive-dark) !important;
+}
+
+/* Button gradient with theme colors - gradient in background */
+.btn-gradient-primary {
+  background: linear-gradient(to right, var(--primary), var(--secondary)) !important;
+  color: white !important;
+}
+
+.btn-gradient-primary:hover {
+  background: linear-gradient(to right, var(--primary), var(--secondary)) !important;
+  opacity: 0.9;
+}
+
+/* Button gradient outline - gradient on border, primary text */
+.btn-gradient-primary-outline {
+  position: relative !important;
+  background: var(--background) !important;
+  color: var(--primary) !important;
+  /* border: 2px solid transparent !important; */
+  isolation: isolate !important;
+}
+
+.btn-gradient-primary-outline::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: inherit !important;
+  padding: 2px !important;
+  background: linear-gradient(to right, var(--primary), var(--secondary)) !important;
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0) !important;
+  -webkit-mask-composite: xor !important;
+  mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0) !important;
+  mask-composite: exclude !important;
+  z-index: -1 !important;
+}
+
+.btn-gradient-primary-outline:hover {
+  background: linear-gradient(to right, var(--primary), var(--secondary)) !important;
+  color: white !important;
+}
+
+.btn-gradient-primary-outline:hover::before {
+  display: none !important;
+}
+
+.dark .btn-gradient-primary-outline {
+  background: var(--card) !important;
+}
+
+.dark .btn-gradient-primary-outline:hover {
+  background: linear-gradient(to right, var(--primary), var(--secondary)) !important;
+  color: white !important;
+}
+
+/* Button solid variants - using CSS custom properties directly */
+.btn-success {
+  background-color: var(--success) !important;
+  color: var(--success-foreground) !important;
+}
+
+.btn-success:hover {
+  background-color: var(--success) !important;
+  opacity: 0.9;
+}
+
+.btn-info {
+  background-color: var(--info) !important;
+  color: var(--info-foreground) !important;
+}
+
+.btn-info:hover {
+  background-color: var(--info) !important;
+  opacity: 0.9;
+}
+
+.btn-error {
+  background-color: var(--error) !important;
+  color: var(--error-foreground) !important;
+}
+
+.btn-error:hover {
+  background-color: var(--error) !important;
+  opacity: 0.9;
+}
+
+.btn-warning {
+  background-color: var(--warning) !important;
+  color: var(--warning-foreground) !important;
+}
+
+.btn-warning:hover {
+  background-color: var(--warning) !important;
+  opacity: 0.9;
+}
+
+.btn-destructive {
+  background-color: var(--destructive) !important;
+  color: var(--destructive-foreground) !important;
+}
+
+.btn-destructive:hover {
+  background-color: var(--destructive) !important;
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  background-color: var(--secondary) !important;
+  color: var(--secondary-foreground) !important;
+}
+
+.btn-secondary:hover {
+  background-color: var(--secondary) !important;
+  opacity: 0.8;
+}
+
+.btn-light {
+  background-color: var(--light) !important;
+  color: var(--light-foreground) !important;
+}
+
+.btn-light:hover {
+  background-color: var(--light) !important;
+  opacity: 0.9;
+}
+
+.btn-dark {
+  background-color: var(--dark) !important;
+  color: var(--dark-foreground) !important;
+}
+
+.btn-dark:hover {
+  background-color: var(--dark) !important;
+  opacity: 0.9;
+}
+
+/* Button outline variants - work in both light and dark themes */
+.btn-outline-primary {
+  border: 2px solid var(--primary) !important;
+  background: transparent !important;
+  color: var(--primary) !important;
+}
+
+.btn-outline-primary:hover {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.dark .btn-outline-primary:hover {
+  color: var(--primary-foreground) !important;
+}
+
+.btn-outline-secondary {
+  border: 2px solid var(--secondary) !important;
+  background: transparent !important;
+  color: var(--secondary) !important;
+}
+
+.btn-outline-secondary:hover {
+  background: var(--secondary) !important;
+  color: white !important;
+}
+
+.dark .btn-outline-secondary:hover {
+  color: var(--secondary-foreground) !important;
+}
+
+.btn-outline-success {
+  border: 2px solid var(--success) !important;
+  background: transparent !important;
+  color: var(--success) !important;
+}
+
+.btn-outline-success:hover {
+  background: var(--success) !important;
+  color: white !important;
+}
+
+.dark .btn-outline-success:hover {
+  color: var(--success-foreground) !important;
+}
+
+.btn-outline-info {
+  border: 2px solid var(--info) !important;
+  background: transparent !important;
+  color: var(--info) !important;
+}
+
+.btn-outline-info:hover {
+  background: var(--info) !important;
+  color: white !important;
+}
+
+.dark .btn-outline-info:hover {
+  color: var(--info-foreground) !important;
+}
+
+.btn-outline-error {
+  border: 2px solid var(--error) !important;
+  background: transparent !important;
+  color: var(--error) !important;
+}
+
+.btn-outline-error:hover {
+  background: var(--error) !important;
+  color: white !important;
+}
+
+.dark .btn-outline-error:hover {
+  color: var(--error-foreground) !important;
+}
+
+.btn-outline-warning {
+  border: 2px solid var(--warning) !important;
+  background: transparent !important;
+  color: var(--warning) !important;
+}
+
+.btn-outline-warning:hover {
+  background: var(--warning) !important;
+  color: var(--warning-foreground) !important;
+}
+
+.dark .btn-outline-warning {
+  /* En dark mode, el warning puede necesitar más contraste */
+  border-color: var(--warning) !important;
+  color: var(--warning) !important;
+}
+
+.dark .btn-outline-warning:hover {
+  background: var(--warning) !important;
+  color: var(--warning-foreground) !important;
 }

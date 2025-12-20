@@ -181,6 +181,9 @@ export function AgentDebugPanel() {
               <div className="space-y-2">
                 {debugInfo.retellAgents
                   .filter(agent => debugInfo.missingLinks.includes(agent.agent_id))
+                  .filter((agent, index, self) => 
+                    index === self.findIndex(a => a.agent_id === agent.agent_id)
+                  )
                   .map(agent => (
                     <div key={agent.agent_id} className="flex items-center justify-between bg-card rounded-lg p-3 border border-yellow-200">
                       <div>

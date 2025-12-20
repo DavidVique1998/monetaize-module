@@ -3,11 +3,17 @@ import { verifyToken, extractTokenFromHeader } from '@/lib/jwt';
 import { RetellSyncService } from '@/lib/retell-sync';
 
 /**
- * GET /api/public/agents/ghl - Listar agentes en formato GHL (GoHighLevel)
+ * POST /api/public/agents/ghl - Listar agentes en formato GHL (GoHighLevel)
  * Endpoint público que requiere autenticación mediante JWT
  * 
  * Headers:
  *   Authorization: Bearer <token>
+ *   Content-Type: application/json
+ * 
+ * Body (opcional):
+ * {
+ *   "locationId": "string (opcional)"  // Filtrar por location ID
+ * }
  * 
  * Response (formato GHL):
  * {
@@ -30,7 +36,7 @@ import { RetellSyncService } from '@/lib/retell-sync';
  *   ]
  * }
  */
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     // Extraer token del header Authorization
     const authHeader = request.headers.get('Authorization');

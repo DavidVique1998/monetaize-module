@@ -10,10 +10,13 @@ import { RetellSyncService } from '@/lib/retell-sync';
  * 
  * Body:
  * {
- *   agentId: string,        // ID del agente a usar (requerido)
- *   toNumber: string,       // Número de teléfono destino (requerido, formato E.164)
- *   fromNumber?: string,    // Número de teléfono origen (opcional)
- *   metadata?: object       // Metadatos adicionales para la llamada (opcional)
+ *   agentId: string,                    // ID del agente a usar (requerido)
+ *   toNumber: string,                   // Número de teléfono destino (requerido, formato E.164)
+ *   fromNumber?: string,                // Número de teléfono origen (opcional, formato E.164)
+ *   agentVersion?: number,               // Versión específica del agente (opcional)
+ *   retellLlmDynamicVariables?: object,  // Variables dinámicas para el LLM (opcional)
+ *   metadata?: object,                   // Metadatos adicionales para la llamada (opcional)
+ *   customSipHeaders?: object            // Headers SIP personalizados (opcional)
  * }
  * 
  * Response:
@@ -45,7 +48,15 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { agentId, toNumber, fromNumber, metadata } = body;
+    const { 
+      agentId, 
+      toNumber, 
+      fromNumber, 
+      metadata,
+      agentVersion,
+      retellLlmDynamicVariables,
+      customSipHeaders
+    } = body;
 
     // Validar parámetros requeridos
     if (!agentId) {
@@ -124,9 +135,24 @@ export async function POST(request: NextRequest) {
       callData.from_number = fromNumber;
     }
 
+    // Agregar versión del agente si se proporciona
+    if (agentVersion) {
+      callData.override_agent_version = agentVersion;
+    }
+
+    // Agregar variables dinámicas del LLM si se proporcionan
+    if (retellLlmDynamicVariables) {
+      callData.retell_llm_dynamic_variables = retellLlmDynamicVariables;
+    }
+
     // Agregar metadatos si se proporcionan
     if (metadata) {
       callData.metadata = metadata;
+    }
+
+    // Agregar headers SIP personalizados si se proporcionan
+    if (customSipHeaders) {
+      callData.custom_sip_headers = customSipHeaders;
     }
 
     console.log('Creando llamada con:', {
@@ -159,33 +185,34 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('Error creando llamada:', error);
     
-    // Manejar errores específicos de Retell
-    if (error.message?.includes('agent')) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: `Error con el agente: ${error.message}` 
-        },
-        { status: 400 }
-      );
+    // Extraer mensaje de error
+    let errorMessage = error.message || 'Error al crear la llamada';
+    let statusCode = 500;
+    
+    // Si el error viene de Retell con información específica, usarla
+    if (error.message) {
+      errorMessage = error.message;
+      
+      // Determinar código de estado basado en el tipo de error
+      if (error.message.includes('country not supported') || 
+          error.message.includes('phone number') || 
+          error.message.includes('number') ||
+          error.message.includes('agent') ||
+          error.message.includes('400')) {
+        statusCode = 400;
+      } else if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+        statusCode = 401;
+      } else if (error.message.includes('404') || error.message.includes('not found')) {
+        statusCode = 404;
+      }
     }
-
-    if (error.message?.includes('phone number') || error.message?.includes('number')) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: `Error con el número telefónico: ${error.message}` 
-        },
-        { status: 400 }
-      );
-    }
-
+    
     return NextResponse.json(
       { 
         success: false, 
-        error: error.message || 'Error al crear la llamada' 
+        error: errorMessage
       },
-      { status: 500 }
+      { status: statusCode }
     );
   }
 }

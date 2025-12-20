@@ -123,7 +123,7 @@ export default function ProfilePage() {
       } else {
         console.error('Error logging out:', await response.text());
         // Aún así, intentar redirigir
-        router.push('/install_ghl');
+      router.push('/install_ghl');
       }
     } catch (error) {
       console.error('Error logging out:', error);

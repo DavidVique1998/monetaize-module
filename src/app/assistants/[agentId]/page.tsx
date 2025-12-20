@@ -33,6 +33,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
 
 // Idiomas disponibles según Retell AI
 const LANGUAGES = [
@@ -504,23 +505,18 @@ export default function EditAssistantPage() {
 
                 <div className="h-6 w-px bg-border mx-1"></div>
 
-                <button
+                <Button
                   onClick={handleSave}
+                  variant="dark"
                   disabled={isSaved || isSaving}
-                  className={`p-2 rounded-lg transition-all border ${
-                    isSaved 
-                      ? 'bg-graybg-background text-muted-foreground border-gray-200 cursor-not-allowed shadow-none' 
-                      : 'bg-card text-gray-700 border-graybg-border hover:bg-graybg-background hover:text-foreground hover:border-gray-400 shadow-sm'
-                  }`}
                   title="Save Changes manually"
                 >
                   <Save className="w-5 h-5" />
-                </button>
+                </Button>
 
-                <button
+                <Button
                   onClick={handlePublish}
                   disabled={isPublishing || !isSaved || !agent || (agent as any).is_published}
-                  className="inline-flex items-center justify-center h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isPublishing ? (
                     <>
@@ -533,7 +529,7 @@ export default function EditAssistantPage() {
                       Publish
                     </>
                   )}
-                </button>
+                </Button>
               </div>
             </div>
 

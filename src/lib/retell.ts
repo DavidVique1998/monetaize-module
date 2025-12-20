@@ -425,9 +425,33 @@ export class RetellService {
       // El registro se creará cuando se llame a saveCallData() con los datos completos
       
       return call;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating call:', error);
-      throw new Error('Failed to create call');
+      
+      // Extraer mensaje de error de Retell
+      let errorMessage = 'Failed to create call';
+      
+      if (error?.error) {
+        // Retell SDK error structure
+        if (typeof error.error === 'string') {
+          errorMessage = error.error;
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+        } else if (error.error?.error) {
+          errorMessage = error.error.error;
+        }
+      } else if (error?.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
+      // Si el error tiene información sobre el país no soportado, incluirla
+      if (error?.status === 400 && errorMessage.includes('country not supported')) {
+        errorMessage = errorMessage;
+      }
+      
+      throw new Error(errorMessage);
     }
   }
 

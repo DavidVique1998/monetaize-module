@@ -10,6 +10,7 @@ import { Search, Bot, FolderPlus, MoreVertical, Trash2, Copy, X, Folder, Chevron
 import { useTranslations } from 'next-intl';
 import { Spinner } from '@/components/ui/spinner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 
 interface Folder {
   id: string;
@@ -405,17 +406,16 @@ export default function AssistantsPage() {
           description={t('headerDescription')}
           actions={
             <div className="flex items-center space-x-3">
-              <button
+              <Button
+                variant="default-outline"
                 onClick={() => setShowCreateFolderModal(true)}
-                className="inline-flex items-center justify-center h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold cursor-pointer"
               >
                 <FolderPlus className="w-4 h-4 mr-2" />
                 {t('createFolder')}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleCreateAssistant}
                 disabled={creatingAgent}
-                className="inline-flex items-center justify-center h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed text-sm font-semibold cursor-pointer"
               >
                 {creatingAgent ? (
                   <>
@@ -428,7 +428,7 @@ export default function AssistantsPage() {
                     {t('createAssistant')}
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           }
         />
@@ -445,7 +445,6 @@ export default function AssistantsPage() {
               />
             </div>
           </div>
-
           <div className="bg-card rounded-lg border border-gray-200 shadow-sm">
             <Table>
               <TableHeader className="bg-muted/40">

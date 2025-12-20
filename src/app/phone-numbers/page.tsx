@@ -9,6 +9,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { HeaderBar } from '@/components/dashboard/HeaderBar';
 import { ImportPhoneNumberModal } from '@/components/phone/ImportPhoneNumberModal';
 import { EditPhoneNumberModal } from '@/components/phone/EditPhoneNumberModal';
+import { MakeCallModal } from '@/components/phone/MakeCallModal';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { usePhoneNumbers } from '@/hooks/usePhoneNumbers';
@@ -22,6 +23,7 @@ export default function PhoneNumbersPage() {
   const [agents, setAgents] = useState<Array<{ agent_id: string; agent_name: string }>>([]);
   const [showImportForm, setShowImportForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
+  const [showMakeCallForm, setShowMakeCallForm] = useState(false);
   const [selectedPhoneNumber, setSelectedPhoneNumber] = useState<ImportedPhoneNumber | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -100,10 +102,17 @@ export default function PhoneNumbersPage() {
     }
   };
 
-  // Manejar prueba
-  const handleTest = (phoneNumber: string) => {
-    // TODO: Implementar prueba de llamada
-    console.log('Test phone number:', phoneNumber);
+  // Manejar hacer llamada
+  const handleMakeCall = (phoneNumber: ImportedPhoneNumber) => {
+    setSelectedPhoneNumber(phoneNumber);
+    setShowMakeCallForm(true);
+  };
+
+  // Manejar éxito de llamada
+  const handleCallSuccess = async (callData: any) => {
+    console.log('Call created successfully:', callData);
+    setShowMakeCallForm(false);
+    // Opcional: mostrar notificación de éxito
   };
 
   // Filtrar números por búsqueda
@@ -115,11 +124,6 @@ export default function PhoneNumbersPage() {
       phone.nickname?.toLowerCase().includes(query)
     );
   });
-
-  const primaryActionClass =
-    "inline-flex items-center justify-center h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold";
-  const actionButtonClass =
-    "inline-flex items-center justify-center h-9 w-9 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold";
 
   if (loading && phoneNumbers.length === 0) {
     return (
@@ -142,15 +146,17 @@ export default function PhoneNumbersPage() {
           title={t('title')} 
           description={t('headerDescription')} 
           actions={
-            <button
+            <Button
               onClick={() => setShowImportForm(true)}
-              className={`${primaryActionClass} flex items-center gap-2`}
+              variant="default"
             >
               <Plus className="w-4 h-4 mr-2" />
               New Number
-            </button>
+            </Button>
           }
         />
+
+        // AQUI AGREGA TODOS LOS BOTONES Y SUS VARIANTES
         
         {/* Main Content */}
         <div className="flex-1 p-6 space-y-6 overflow-y-auto">
@@ -285,18 +291,27 @@ export default function PhoneNumbersPage() {
                     </TableCell>
                     <TableCell className="px-4 py-3">
                       <div className="flex items-center justify-end space-x-2">
-                        <button
+                        <Button
+                          onClick={() => handleMakeCall(phoneNumber)}
+                          title="Realizar llamada"
+                          variant="light"
+                        >
+                          <Phone className="w-4 h-4" />
+                        </Button>
+                        <Button
                           onClick={() => handleEdit(phoneNumber)}
-                          className={actionButtonClass}
+                          title="Editar"
+                          variant="light"
                         >
                           <Edit className="w-4 h-4" />
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           onClick={() => handleDelete(phoneNumber.phone_number || '')}
-                          className={actionButtonClass}
+                          title="Eliminar"
+                          variant="outline-error"
                         >
                           <Trash2 className="w-4 h-4" />
-                        </button>
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -335,6 +350,18 @@ export default function PhoneNumbersPage() {
             setSelectedPhoneNumber(null);
           }}
           onSuccess={handleEditSuccess}
+          phoneNumber={selectedPhoneNumber}
+          agents={agents}
+        />
+
+        {/* Modal de hacer llamada */}
+        <MakeCallModal
+          isOpen={showMakeCallForm}
+          onClose={() => {
+            setShowMakeCallForm(false);
+            setSelectedPhoneNumber(null);
+          }}
+          onSuccess={handleCallSuccess}
           phoneNumber={selectedPhoneNumber}
           agents={agents}
         />

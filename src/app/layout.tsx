@@ -60,6 +60,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning className="bg-background text-foreground">
       <body
+        suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} ${orbitron.variable} antialiased bg-background text-foreground min-h-screen transition-colors`}
       >
         <ThemeProvider

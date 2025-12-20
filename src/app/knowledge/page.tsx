@@ -8,6 +8,7 @@ import { Plus, BookOpen, Trash2, Edit2, ExternalLink, FileText, Globe } from 'lu
 import { Spinner } from '@/components/ui/spinner';
 import { CreateKnowledgeBaseModal } from '@/components/knowledge/CreateKnowledgeBaseModal';
 import { AddSourcesModal } from '@/components/knowledge/AddSourcesModal';
+import { Button } from '@/components/ui/button';
 
 export default function KnowledgePage() {
   const [knowledgeBases, setKnowledgeBases] = useState<KnowledgeBase[]>([]);
@@ -15,10 +16,6 @@ export default function KnowledgePage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAddSourcesModal, setShowAddSourcesModal] = useState(false);
   const [selectedKnowledgeBase, setSelectedKnowledgeBase] = useState<KnowledgeBase | null>(null);
-  const actionButtonClass =
-    "inline-flex items-center justify-center h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold";
-  const iconButtonClass =
-    "inline-flex items-center justify-center h-9 w-9 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold";
 
   const loadKnowledgeBases = async () => {
     try {
@@ -96,13 +93,13 @@ export default function KnowledgePage() {
           title="Knowledge Bases"
           description="Gestiona tus bases de conocimiento para proporcionar contexto a tus agentes"
           actions={
-            <button
+            <Button
+              variant="default"
               onClick={() => setShowCreateModal(true)}
-              className={`${actionButtonClass} gap-2`}
             >
               <Plus className="w-5 h-5" />
               Nueva Knowledge Base
-            </button>
+            </Button>
           }
         />
 
@@ -119,13 +116,13 @@ export default function KnowledgePage() {
               <p className="text-gray-600 mb-4">
                 Crea tu primera Knowledge Base para proporcionar contexto a tus agentes
               </p>
-              <button
+              <Button
                 onClick={() => setShowCreateModal(true)}
-                className={`${actionButtonClass} inline-flex items-center gap-2`}
+                variant="default-outline"
               >
                 <Plus className="w-5 h-5" />
                 Crear Knowledge Base
-              </button>
+              </Button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg-grid-cols-3 gap-4">
