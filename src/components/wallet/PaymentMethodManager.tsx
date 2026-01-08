@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { CreditCard, Plus, Trash2, AlertCircle, CheckCircle2, Lock, X } from 'lucide-react';
+import { CreditCard, Plus, Trash2, AlertCircle, CheckCircle2, Lock, X, Info } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { 
   useStripe, 
   useElements, 
@@ -37,6 +38,8 @@ function PaymentMethodManagerInner({
 }: PaymentMethodManagerProps) {
   const stripe = useStripe();
   const elements = useElements();
+  const { theme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,15 +49,25 @@ function PaymentMethodManagerInner({
   const [showAddForm, setShowAddForm] = useState(false);
   const [cardName, setCardName] = useState('');
 
-  // Opciones de estilo para los elementos de Stripe
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Obtener colores según el tema actual
+  // Usamos resolvedTheme que siempre tiene un valor válido
+  const isDarkMode = resolvedTheme === 'dark';
+  
+  // Opciones de estilo para los elementos de Stripe basadas en el tema
+  // Los colores se adaptan automáticamente al tema dark/light
   const cardElementOptions = {
     style: {
       base: {
         fontSize: '14px',
-        color: '#111827',
+        color: isDarkMode ? '#e5e7eb' : '#111827',
         fontFamily: 'system-ui, -apple-system, sans-serif',
+        backgroundColor: 'transparent',
         '::placeholder': {
-          color: '#9ca3af',
+          color: isDarkMode ? '#6b7280' : '#9ca3af',
         },
       },
       invalid: {
@@ -290,7 +303,7 @@ function PaymentMethodManagerInner({
                 value={cardName}
                 onChange={(e) => setCardName(e.target.value)}
                 placeholder="Juan Pérez"
-                className="w-full px-3 py-2 text-sm bg-transparent border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                className="w-full px-3 py-2 text-sm rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-background text-foreground transition-colors"
               />
             </div>
 
@@ -298,8 +311,11 @@ function PaymentMethodManagerInner({
               <label className="block text-xs font-medium text-foreground mb-1">
                 Número de tarjeta
               </label>
-              <div className="px-3 py-2 text-sm bg-transparent border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-colors">
-                <CardNumberElement options={cardElementOptions} />
+              <div className="px-3 py-2 text-sm rounded-lg focus-within:ring-2 focus-within:ring-primary focus-within:border-primary bg-background transition-colors">
+                <CardNumberElement 
+                  key={`card-number-${resolvedTheme || 'light'}`}
+                  options={cardElementOptions} 
+                />
               </div>
             </div>
 
@@ -308,15 +324,21 @@ function PaymentMethodManagerInner({
                 <label className="block text-xs font-medium text-foreground mb-1">
                   Vencimiento
                 </label>
-                <div className="px-3 py-2 text-sm bg-transparent border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-colors">
-                  <CardExpiryElement options={cardElementOptions} />
+                <div className="px-3 py-2 text-sm rounded-lg focus-within:ring-2 focus-within:ring-primary focus-within:border-primary bg-background transition-colors">
+                  <CardExpiryElement 
+                    key={`card-expiry-${resolvedTheme || 'light'}`}
+                    options={cardElementOptions} 
+                  />
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-foreground mb-1">CVC</label>
-                <div className="px-3 py-2 text-sm bg-transparent border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-colors">
-                  <CardCvcElement options={cardElementOptions} />
+                <div className="px-3 py-2 text-sm rounded-lg focus-within:ring-2 focus-within:ring-primary focus-within:border-primary bg-background transition-colors">
+                  <CardCvcElement 
+                    key={`card-cvc-${resolvedTheme || 'light'}`}
+                    options={cardElementOptions} 
+                  />
                 </div>
               </div>
             </div>
@@ -338,7 +360,7 @@ function PaymentMethodManagerInner({
                 Cancelar
               </Button>
               <Button
-                variant="light"
+                variant="default"
                 onClick={handleSavePaymentMethod}
                 disabled={saving || !stripe}
               >
@@ -358,9 +380,9 @@ function PaymentMethodManagerInner({
 
       {/* Lista de métodos de pago */}
       {paymentMethods.length === 0 && !showAddForm ? (
-        <div className="text-center py-8">
-          <CreditCard className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground mb-4">
+        <div className="text-center py-2">
+          <p className="text-sm text-muted-foreground flex items-center justify-center">
+            <Info className="w-4 h-4 text-muted-foreground mr-2 flex-shrink-0 mt-0.5" />
             No tienes métodos de pago guardados
           </p>
         </div>

@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Volume2, Play, Pause, Settings as SettingsIcon, X, Search } from 'lucide-react';
 import type { RetellVoice } from '@/hooks/useVoices';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 interface VoiceSelectorProps {
   voices: RetellVoice[];
@@ -98,38 +100,53 @@ export function VoiceSelector({ voices, value, onChange, onSettingsClick, minima
   };
 
   return (
-    <div className="flex items-center space-x-8 px-3 py-1.5 border border-gray-300 rounded-lg relative" ref={dropdownRef}>
-      <Volume2 className="w-3 h-3 text-muted-foreground" />
-      
-      <button
-        onClick={handleOpen}
-        className="text-sm font-medium text-foreground bg-transparent border-0 outline-0 cursor-pointer flex-1 text-left"
-      >
-        {selectedVoice?.voice_name || 'Select Voice'}
-      </button>
-
-      {value && (
-        <button 
-          onClick={handleClear}
-          className="hover:bg-muted rounded p-0.5 transition-colors cursor-pointer"
-          title="Clear selection"
+    <div className="relative w-full" ref={dropdownRef}>
+      <div className="relative group">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Volume2 className="w-4 h-4 text-muted-foreground" />
+        </div>
+        
+        <Button
+          variant="ghost"
+          onClick={handleOpen}
+          className="pl-10 pr-10 h-10 w-full bg-card border border-gray-200 text-foreground text-sm rounded-lg focus:ring-purple-500 focus:border-primary block shadow-sm hover:border-gray-300 transition-all cursor-pointer appearance-none text-left truncate justify-start"
         >
-          <X className="w-3 h-3 text-muted-foreground" />
-        </button>
-      )}
+          {selectedVoice?.voice_name || 'Select Voice'}
+        </Button>
 
-      {onSettingsClick && (
-        <button 
-          onClick={onSettingsClick}
-          className="hover:bg-muted rounded p-0.5 transition-colors cursor-pointer"
-          title="Voice Settings"
-        >
-          <SettingsIcon className="w-3 h-3 text-muted-foreground" />
-        </button>
-      )}
+        <div className="absolute inset-y-0 right-0 pr-2 flex items-center gap-1">
+          {value && (
+            <Button 
+              variant="ghost"
+              size="icon"
+              onClick={handleClear}
+              className="h-7 w-7 hover:bg-muted rounded transition-colors"
+              title="Clear selection"
+            >
+              <X className="w-3.5 h-3.5 text-muted-foreground" />
+            </Button>
+          )}
+
+          {onSettingsClick ? (
+            <Button 
+              variant="ghost"
+              size="icon"
+              onClick={onSettingsClick}
+              className="h-7 w-7 hover:bg-muted rounded transition-colors"
+              title="Voice Settings"
+            >
+              <SettingsIcon className="w-3.5 h-3.5 text-muted-foreground" />
+            </Button>
+          ) : (
+            <div className="pointer-events-none p-1">
+              <SettingsIcon className="w-3 h-3 text-muted-foreground" />
+            </div>
+          )}
+        </div>
+      </div>
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-1 bg-popover border border-gray-300 rounded-lg shadow-lg z-50 w-96">
+        <div className="absolute top-full right-0 mt-1 bg-popover border border-gray-200 rounded-lg shadow-xl z-[100] w-96 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           {/* Search bar */}
           <div className="p-3 border-b border-gray-200">
             <div className="relative">
@@ -185,16 +202,18 @@ export function VoiceSelector({ voices, value, onChange, onSettingsClick, minima
                   
                   {/* Play Button */}
                   {voice.preview_audio_url && (
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={(e) => handlePlay(e, voice)}
-                      className="ml-3 p-2 hover:bg-primary/10 rounded-lg transition-colors flex-shrink-0 group/play cursor-pointer"
+                      className="ml-3 h-9 w-9 hover:bg-primary/10 rounded-lg transition-colors flex-shrink-0 group/play"
                     >
                       {playingId === voice.voice_id ? (
                         <Pause className="w-5 h-5 text-purple-600" />
                       ) : (
                         <Play className="w-5 h-5 text-muted-foreground group/play:hover:text-primary transition-colors" />
                       )}
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>

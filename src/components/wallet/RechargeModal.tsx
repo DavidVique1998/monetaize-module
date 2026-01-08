@@ -5,6 +5,7 @@ import { X, CreditCard, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
 
 interface RechargeModalProps {
   isOpen: boolean;
@@ -123,13 +124,15 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
               <p className="text-xs text-muted-foreground">{t('subtitle')}</p>
             </div>
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={handleClose}
             disabled={loading}
-            className="p-2 hover:bg-muted rounded-lg transition-colors"
+            className="text-muted-foreground"
           >
-            <X className="w-5 h-5 text-muted-foreground" />
-          </button>
+            <X className="w-5 h-5" />
+          </Button>
         </div>
 
         {/* Content */}
@@ -141,19 +144,15 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
             </label>
             <div className="grid grid-cols-3 gap-3">
               {PREDEFINED_AMOUNTS.map((value) => (
-                <button
+                <Button
                   key={value}
+                  variant={amount === value && customAmount === '' ? "default" : "outline"}
                   onClick={() => handleAmountSelect(value)}
                   disabled={loading}
-                  className={cn(
-                    "px-4 py-3 rounded-lg border-2 transition-all",
-                    amount === value && customAmount === ''
-                      ? "border-primary bg-primary/10 text-primary font-semibold"
-                      : "border-input hover:border-primary/50 text-foreground"
-                  )}
+                  className={cn("h-auto py-3 text-base font-semibold")}
                 >
                   ${value}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -215,21 +214,23 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
 
           {/* Botones */}
           <div className="flex space-x-3 pt-4 border-t border-gray-200">
-            <button
+            <Button
+              variant="outline"
               onClick={handleClose}
               disabled={loading}
-              className="flex-1 bg-card hover:bg-muted disabled:bg-muted text-foreground font-semibold px-4 py-2 rounded-lg border-2 border-input transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
+              className="flex-1"
             >
               {t('cancel')}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="default"
               onClick={handleRecharge}
               disabled={loading || amount <= 0}
-              className="flex-1 bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground text-primary-foreground font-semibold px-4 py-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
+              className="flex-1"
             >
               {loading ? (
                 <>
-                  <Spinner size="sm" className="mr-2 text-primary-foreground" />
+                  <Spinner size="sm" className="mr-2" />
                   {t('processing')}
                 </>
               ) : (
@@ -238,7 +239,7 @@ export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps
                   {t('continue')}
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

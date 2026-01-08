@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 // Idiomas disponibles según Retell AI
 const LANGUAGES = [
@@ -102,16 +103,6 @@ export default function EditAssistantPage() {
     totalCalls: number;
   } | null>(null);
   const [loadingStats, setLoadingStats] = useState(false);
-
-  // Auto-hide error after 5 seconds
-  useEffect(() => {
-    if (publishError) {
-      const timer = setTimeout(() => {
-        setPublishError(null);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [publishError]);
 
   useEffect(() => {
     loadAgent();
@@ -257,6 +248,7 @@ export default function EditAssistantPage() {
 
       setIsSaved(true);
       setOwnershipError(null);
+      toast.success('Assistant saved successfully');
     } catch (error: any) {
       console.error('Error saving agent:', error);
       
@@ -264,6 +256,17 @@ export default function EditAssistantPage() {
         setOwnershipError({
           message: error.message,
           agentId: error.agentId
+        });
+        toast.error('Ownership Error', {
+          description: error.message,
+          action: {
+            label: 'Fix in Debug',
+            onClick: () => router.push('/debug/agents'),
+          },
+        });
+      } else {
+        toast.error('Failed to save assistant', {
+          description: error.message || 'An unexpected error occurred'
         });
       }
     } finally {
@@ -300,6 +303,9 @@ export default function EditAssistantPage() {
           loadAgentVersions();
           setSelectedVersion(result.data.version ?? null);
           setIsSaved(true);
+          toast.success('Assistant published successfully', {
+            description: `Now live on version ${result.data.version}`
+          });
         }
       } else {
         throw new Error(result.error || 'Failed to publish agent');
@@ -307,6 +313,9 @@ export default function EditAssistantPage() {
     } catch (error: any) {
       console.error('Error publishing agent:', error);
       setPublishError(error.message || 'Failed to publish agent');
+      toast.error('Publish Failed', {
+        description: error.message
+      });
     } finally {
       setIsPublishing(false);
     }
@@ -368,6 +377,7 @@ export default function EditAssistantPage() {
   const handleCopyId = () => {
     if (agent) {
       navigator.clipboard.writeText(agent.agent_id);
+      toast.success('Agent ID copied to clipboard');
     }
   };
 
@@ -423,17 +433,19 @@ export default function EditAssistantPage() {
     <DashboardLayout>
       <div className="flex flex-col h-screen bg-background overflow-visible">
         {/* Modern Header */}
-        <header className="bg-card border-b border-gray-200 shadow-sm sticky top-0">
+        <header className="bg-card border-b border-gray-200 shadow-sm sticky top-0 z-30">
           <div className="px-6 py-3">
             <div className="flex items-center justify-between">
               {/* Left: Back & Title */}
               <div className="flex items-center space-x-4">
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => router.push('/assistants')}
-                  className="p-2 hover:bg-muted rounded-full transition-colors text-graybg-background0 hover:text-foreground"
+                  className="hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-foreground"
                 >
                   <ArrowLeft className="w-5 h-5" />
-                </button>
+                </Button>
                 
                 <div className="flex flex-col">
                   <div className="flex items-center space-x-3">
@@ -473,9 +485,9 @@ export default function EditAssistantPage() {
                     )}
                   </div>
                   
-                  <div className="flex items-center text-xs text-graybg-background0 mt-0.5 space-x-2">
-                    <span className="flex items-center cursor-pointer hover:text-purple-600 transition-colors bg-muted border border-gray-200" onClick={handleCopyId} title="Copy Agent ID">
-                      ID: {agent.agent_id.substring(0, 8)}...
+                  <div className="flex items-center text-sm text-graybg-background0 mt-0.5 space-x-2">
+                    <span className="flex items-center cursor-pointer hover:text-purple-600 transition-colors bg-muted" onClick={handleCopyId} title="Copy Agent ID">
+                      ID: {agent.agent_id.substring(0, 20)}...
                       <Copy className="w-2.5 h-2.5 ml-1" />
                     </span>
                   </div>
@@ -536,10 +548,12 @@ export default function EditAssistantPage() {
             {/* Navigation Tabs and Quick Settings Combined Row */}
             <div className="mt-6 flex flex-col xl:flex-row items-center justify-between gap-4">
               {/* Tabs (Left side) */}
-              <div className="flex bg-muted/10 p-1 rounded-lg border border-gray-200 w-full max-w-md xl:max-w-xs shrink-0">
-                <button
+              <div className="flex bg-muted/10 p-1 rounded-lg border border-gray-200 w-full max-w-md xl:max-w-xs shrink-0 h-10">
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setViewMode('edit')}
-                  className={`flex-1 flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                  className={`flex-1 flex items-center justify-center h-full rounded-md text-sm font-medium transition-all duration-200 ${
                     viewMode === 'edit' 
                       ? 'bg-card text-foreground shadow-sm ring-1 ring-black/5' 
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
@@ -547,10 +561,12 @@ export default function EditAssistantPage() {
                 >
                   <LayoutTemplate className="w-4 h-4 mr-2" />
                   Editor
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setViewMode('test')}
-                  className={`flex-1 flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                  className={`flex-1 flex items-center justify-center h-full rounded-md text-sm font-medium transition-all duration-200 ${
                     viewMode === 'test' 
                       ? 'bg-card text-purple-600 shadow-sm ring-1 ring-black/5' 
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
@@ -558,15 +574,15 @@ export default function EditAssistantPage() {
                 >
                   <Play className="w-4 h-4 mr-2" />
                   Simulator
-                </button>
+                </Button>
               </div>
 
               {/* Quick Settings Bar + Version Selector (Right side - Only in Edit Mode) */}
               {viewMode === 'edit' && (
                 <div className="flex flex-wrap items-center justify-center xl:justify-end gap-3 w-full">
                   {/* Version Selector */}
-                  <div className="flex flex-col space-y-1">
-                    <label className="text-[10px] font-semibold text-graybg-background0 uppercase tracking-wider pl-1">Version</label>
+                  <div className="flex flex-col space-y-1 min-w-[150px] w-full xl:w-56">
+                    <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider pl-1">Version</label>
                     <div className="relative">
                       <select
                         value={selectedVersion ?? ''}
@@ -576,7 +592,7 @@ export default function EditAssistantPage() {
                             handleVersionChange(val);
                           }
                         }}
-                        className="pl-3 pr-8 py-2 w-32 bg-card border border-gray-200 text-foreground text-sm rounded-lg focus:ring-purplebg-background0 focus:border-primary block shadow-sm hover:border-graybg-border transition-all cursor-pointer appearance-none"
+                        className="pl-3 pr-8 py-2 w-full bg-card border border-gray-200 text-foreground text-[15px] rounded-lg focus:ring-purple-500 focus:border-primary block shadow-sm hover:border-gray-300 transition-all cursor-pointer appearance-none min-w-[150px]"
                       >
                         {versions.map((v) => (
                           <option key={v.version} value={v.version}>
@@ -595,7 +611,7 @@ export default function EditAssistantPage() {
 
                   {/* Model Selector */}
                   <div className="flex flex-col space-y-1">
-                    <label className="text-[10px] font-semibold text-graybg-background0 uppercase tracking-wider pl-1">AI Model</label>
+                    <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider pl-1">AI Model</label>
                     <div className="relative group">
                     
                       <select
@@ -605,7 +621,7 @@ export default function EditAssistantPage() {
                           setIsSaved(false);
                           scheduleAutoSave();
                         }}
-                        className="pl-12 pr-8 py-2 w-full xl:w-56 bg-card border border-gray-200 text-foreground text-sm rounded-lg focus:ring-purplebg-background0 focus:border-primary block shadow-sm hover:border-graybg-border transition-all cursor-pointer appearance-none relative"
+                        className="pl-12 pr-8 py-2 w-full xl:w-56 bg-card border border-gray-200 text-foreground text-sm rounded-lg focus:ring-purple-500 focus:border-primary block shadow-sm hover:border-gray-300 transition-all cursor-pointer appearance-none relative"
                       >
                         {LLM_MODELS.map((model) => (
                           <option key={model.id} value={model.id}>
@@ -621,7 +637,7 @@ export default function EditAssistantPage() {
 
                   {/* Voice Selector */}
                   <div className="flex flex-col space-y-1">
-                    <label className="text-[10px] font-semibold text-graybg-background0 uppercase tracking-wider pl-1">Voice</label>
+                    <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider pl-1">Voice</label>
                     <div className="relative w-full xl:w-56">
                       <VoiceSelector
                         voices={voices}
@@ -638,7 +654,7 @@ export default function EditAssistantPage() {
 
                   {/* Language Selector */}
                   <div className="flex flex-col space-y-1">
-                    <label className="text-[10px] font-semibold text-graybg-background0 uppercase tracking-wider pl-1">Language</label>
+                    <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider pl-1">Language</label>
                     <div className="relative group">
                       <select
                         value={language}
@@ -647,7 +663,7 @@ export default function EditAssistantPage() {
                           setIsSaved(false);
                           scheduleAutoSave();
                         }}
-                        className="pl-12 pr-8 py-2 w-full xl:w-56 bg-card border border-gray-200 text-foreground text-sm rounded-lg focus:ring-purplebg-background0 focus:border-primary block shadow-sm hover:border-graybg-border transition-all cursor-pointer appearance-none relative"
+                        className="pl-12 pr-8 py-2 w-full xl:w-56 bg-card border border-gray-200 text-foreground text-sm rounded-lg focus:ring-purple-500 focus:border-primary block shadow-sm hover:border-gray-300 transition-all cursor-pointer appearance-none relative"
                       >
                         {LANGUAGES.map((lang) => (
                           <option key={lang.code} value={lang.code}>
@@ -692,10 +708,14 @@ export default function EditAssistantPage() {
                           {characterCount} / {characterLimit}
                         </span>
                         <div className="h-3 w-px bg-border"></div>
-                        <button className="text-xs text-purple-600 font-medium hover:text-primary flex items-center transition-colors">
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="h-auto p-0 text-xs text-purple-600 font-medium hover:text-primary flex items-center transition-colors"
+                        >
                           <Info className="w-3 h-3 mr-1" />
                           Tips
-                        </button>
+                        </Button>
                       </div>
                     </div>
                     <div className="flex-1 relative group">
@@ -728,13 +748,14 @@ export default function EditAssistantPage() {
                           </p>
                         </div>
                       </div>
-                      <button
+                      <Button
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="text-xs font-bold bg-amberbg-background0 hover:bg-amber-600 text-white px-5 py-2.5 rounded-lg transition-all shadow-sm hover:shadow disabled:opacitybg-background disabled:shadow-none"
+                        size="sm"
+                        className="text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-sm hover:shadow disabled:opacity-50"
                       >
                         {isSaving ? 'Saving...' : 'Save & Reload Simulators'}
-                      </button>
+                      </Button>
                     </div>
                   )}
 
@@ -808,39 +829,6 @@ export default function EditAssistantPage() {
             </div>
           )}
         </div>
-
-        {/* Global Error/Notification Toasts */}
-        {publishError && (
-          <div className="fixed bottom-6 right-6 zbg-background bg-redbg-background border border-red-200 rounded-xl p-4 shadow-xl max-w-sm animate-in slide-in-from-bottom durationbg-border flex items-start space-x-3">
-            <AlertTriangle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="text-sm font-bold text-red-800">Publish Failed</p>
-              <p className="text-xs text-destructive mt-1">{publishError}</p>
-            </div>
-            <button onClick={() => setPublishError(null)} className="text-red-400 hover:text-destructive transition-colors">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        )}
-
-        {ownershipError && (
-          <div className="fixed bottom-6 right-6 zbg-background bg-orangebg-background border border-orange-200 rounded-xl p-4 shadow-xl max-w-sm animate-in slide-in-from-bottom durationbg-border flex items-start space-x-3">
-            <AlertTriangle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="text-sm font-bold text-orange-800">Ownership Error</p>
-              <p className="text-xs text-orange-600 mt-1">{ownershipError.message}</p>
-              <button
-                onClick={() => router.push('/debug/agents')}
-                className="mt-2 text-xs bg-orange-100 hover:bg-orange-200 text-orange-800 px-3 py-1.5 rounded-lg transition-colors font-medium"
-              >
-                Fix in Debug
-              </button>
-            </div>
-            <button onClick={() => setOwnershipError(null)} className="text-orange-400 hover:text-orange-600 transition-colors">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        )}
 
         {/* Model Config Drawer - Opcional, si queremos mantener ajustes avanzados del LLM */}
         <ModelConfigDrawer

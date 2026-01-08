@@ -21,6 +21,7 @@ import {
 import { RetellAgent } from '@/lib/retell';
 import { RetellTool, RetellToolType, RetellToolParameter } from '@/types/retell-tools';
 import { KnowledgeBase } from '@/types/knowledge-base';
+import { Button } from '../ui/button';
 
 interface AgentConfigSidebarProps {
   agent: RetellAgent | null;
@@ -41,9 +42,10 @@ interface ConfigSectionProps {
 function ConfigSection({ title, icon, isExpanded, onToggle, children }: ConfigSectionProps) {
   return (
     <div className="border-b border-gray-200">
-      <button
+      <Button
+        variant="ghost"
         onClick={onToggle}
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors rounded-none"
       >
         <div className="flex items-center space-x-3">
           {icon}
@@ -54,7 +56,7 @@ function ConfigSection({ title, icon, isExpanded, onToggle, children }: ConfigSe
         ) : (
           <ChevronDown className="w-4 h-4 text-muted-foreground/70" />
         )}
-      </button>
+      </Button>
       {isExpanded && (
         <div className="px-4 pb-4 pt-2">
           {children}
@@ -801,34 +803,38 @@ export function AgentConfigSidebar({
                           )}
                         </div>
                         <div className="flex items-center gap-1 ml-2">
-                          <button
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => handleEditTool(index)}
-                            className="p-1 text-muted-foreground hover:text-primary hover:bg-purple-50 rounded transition-colors"
+                            className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-purple-50"
                             title="Editar tool"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => handleDeleteTool(index)}
-                            className="p-1 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                            className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:bg-red-50"
                             title="Eliminar tool"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
 
-                <button
+                <Button
+                  variant="outline-primary"
                   onClick={handleAddTool}
                   disabled={!getLLMId()}
-                  className="inline-flex items-center justify-center w-full h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Plus className="w-4 h-4" />
                   Agregar Tool
-                </button>
+                </Button>
               </>
             )}
           </div>
@@ -1230,13 +1236,13 @@ export function AgentConfigSidebar({
                   <h4 className="text-sm font-semibold text-foreground">Campos a extraer</h4>
                   <p className="text-xs text-muted-foreground">Define variables adicionales que quieres obtener del análisis.</p>
                 </div>
-                <button
+                <Button
+                  variant="outline-primary"
                   onClick={handleAddPostCallEntry}
-                  className="text-xs text-primary hover:text-primary/80 flex items-center gap-1"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   Agregar
-                </button>
+                </Button>
               </div>
 
               {Array.isArray(getValue('post_call_analysis_data', [])) && getValue('post_call_analysis_data', []).length > 0 && (
@@ -1266,20 +1272,21 @@ export function AgentConfigSidebar({
                         )}
                       </div>
                       <div className="flex items-center gap-1 ml-2">
-                        <button
+                        <Button
+                          variant="outline-primary"
                           onClick={() => handleEditPostCallEntry(index, getValue('post_call_analysis_data', []))}
                           className="p-1 text-muted-foreground hover:text-primary hover:bg-purple-50 rounded transition-colors"
                           title="Editar campo"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           onClick={() => handleDeletePostCallEntry(index, getValue('post_call_analysis_data', []))}
-                          className="p-1 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                          variant="outline-error"
                           title="Eliminar campo"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -1293,7 +1300,8 @@ export function AgentConfigSidebar({
                       {editingPostCallIndex !== null ? 'Editar campo' : 'Nuevo campo'}
                     </h4>
                     {editingPostCallIndex !== null && (
-                      <button
+                      <Button
+                        variant="outline-error"
                         onClick={() => {
                           setEditingPostCallIndex(null);
                           setPostCallForm({
@@ -1304,10 +1312,9 @@ export function AgentConfigSidebar({
                             choices: '',
                           });
                         }}
-                        className="text-muted-foreground hover:text-foreground transition-colors"
                       >
                         <X className="w-4 h-4" />
-                      </button>
+                      </Button>
                     )}
                   </div>
 
@@ -1379,13 +1386,15 @@ export function AgentConfigSidebar({
                   </div>
 
                   <div className="flex gap-2">
-                    <button
+                    <Button
+                      variant="outline-primary"
                       onClick={() => handleSavePostCallEntry(getValue('post_call_analysis_data', []))}
                       className="inline-flex items-center justify-center flex-1 h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold"
                     >
                       {editingPostCallIndex !== null ? 'Actualizar' : 'Agregar'}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="outline-error"
                       onClick={() => {
                         setEditingPostCallIndex(null);
                         setPostCallForm({
@@ -1399,7 +1408,7 @@ export function AgentConfigSidebar({
                       className="inline-flex items-center justify-center h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold"
                     >
                       Cancelar
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
@@ -1504,12 +1513,14 @@ export function AgentConfigSidebar({
                         : 'Webhook personalizado configurado. Puedes dejarlo vacío para usar el webhook por defecto.'}
                     </p>
                     {!isUsingDefault && (
-                      <button
+                      <Button
+                        variant="link"
+                        size="sm"
                         onClick={() => onSettingsChange({ webhook_url: '' })}
-                        className="mt-2 text-xs text-primary hover:text-primary/80 underline"
+                        className="mt-2 h-auto p-0 text-xs text-primary hover:text-primary/80 underline"
                       >
                         Restaurar webhook por defecto
-                      </button>
+                      </Button>
                     )}
                   </>
                 );
@@ -1546,9 +1557,12 @@ export function AgentConfigSidebar({
             <p className="text-xs text-muted-foreground">
               Configure Model Context Protocol connections.
             </p>
-            <button className="inline-flex items-center justify-center w-full h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold">
+            <Button 
+              variant="default"
+              className="w-full"
+            >
               Add MCP Connection
-            </button>
+            </Button>
           </div>
         </ConfigSection>
       </div>
@@ -1561,7 +1575,9 @@ export function AgentConfigSidebar({
               <h3 className="text-lg font-semibold text-foreground">
                 {editingToolIndex !== null ? 'Editar Tool' : 'Agregar Tool'}
               </h3>
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => {
                   setShowToolModal(false);
                     setToolForm({
@@ -1591,7 +1607,7 @@ export function AgentConfigSidebar({
                 className="text-muted-foreground/70 hover:text-muted-foreground"
               >
                 <X className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
 
             <div className="p-6 space-y-4">
@@ -2085,13 +2101,15 @@ export function AgentConfigSidebar({
                       <label className="block text-sm font-medium text-gray-700">
                         Parámetros
                       </label>
-                      <button
+                      <Button
+                        variant="link"
+                        size="sm"
                         onClick={handleAddParameter}
-                        className="text-xs text-primary hover:text-primary/80 flex items-center gap-1"
+                        className="h-auto p-0 text-xs text-primary hover:text-primary/80 flex items-center gap-1"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         Agregar Parámetro
-                      </button>
+                      </Button>
                     </div>
 
                     {/* Lista de parámetros */}
@@ -2126,20 +2144,24 @@ export function AgentConfigSidebar({
                               )}
                             </div>
                             <div className="flex items-center gap-1 ml-2">
-                              <button
+                              <Button
+                                variant="ghost"
+                                size="icon"
                                 onClick={() => handleEditParameter(index)}
-                                className="p-1 text-muted-foreground hover:text-primary hover:bg-purple-50 rounded transition-colors"
+                                className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-purple-50"
                                 title="Editar parámetro"
                               >
                                 <Edit2 className="w-3.5 h-3.5" />
-                              </button>
-                              <button
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
                                 onClick={() => handleDeleteParameter(index)}
-                                className="p-1 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:bg-red-50"
                                 title="Eliminar parámetro"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
-                              </button>
+                              </Button>
                             </div>
                           </div>
                         ))}
@@ -2154,12 +2176,14 @@ export function AgentConfigSidebar({
                             {editingParameterIndex !== null ? 'Editar Parámetro' : 'Nuevo Parámetro'}
                           </h4>
                           {editingParameterIndex !== null && (
-                            <button
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               onClick={handleCancelParameter}
-                              className="text-muted-foreground hover:text-foreground transition-colors"
+                              className="h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
                             >
                               <X className="w-4 h-4" />
-                            </button>
+                            </Button>
                           )}
                         </div>
 
@@ -2243,19 +2267,20 @@ export function AgentConfigSidebar({
                         )}
 
                         <div className="flex gap-2">
-                          <button
+                          <Button
                             onClick={handleSaveParameter}
-                            className="inline-flex items-center justify-center flex-1 h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold"
+                            className="flex-1"
                           >
                             {editingParameterIndex !== null ? 'Actualizar' : 'Agregar'}
-                          </button>
+                          </Button>
                           {editingParameterIndex !== null && (
-                            <button
+                            <Button
+                              variant="outline"
                               onClick={handleCancelParameter}
-                              className="inline-flex items-center justify-center h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold"
+                              className="flex-1"
                             >
                               Cancelar
-                            </button>
+                            </Button>
                           )}
                         </div>
                       </div>
@@ -2265,7 +2290,8 @@ export function AgentConfigSidebar({
               )}
 
               <div className="flex gap-3 pt-4">
-                <button
+                <Button
+                  variant="outline"
                   onClick={() => {
                     setShowToolModal(false);
                     setToolForm({
@@ -2286,16 +2312,16 @@ export function AgentConfigSidebar({
                     });
                     setEditingParameterIndex(null);
                   }}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-muted rounded-lg hover:bg-muted transition-colors"
+                  className="flex-1"
                 >
                   Cancelar
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleSaveTool}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
+                  className="flex-1"
                 >
                   {editingToolIndex !== null ? 'Actualizar' : 'Agregar'}
-                </button>
+                </Button>
               </div>
             </div>
           </div>

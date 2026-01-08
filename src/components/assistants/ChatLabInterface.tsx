@@ -7,10 +7,13 @@ import {
   AlertTriangle, 
   Sparkles, 
   MessageSquare,
-  User
+  User,
+  X
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 interface ChatLabInterfaceProps {
   agentId: string;
@@ -75,11 +78,18 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
       setAgentValidation(data);
 
       if (!data.isValid) {
-        setError(`Agent configuration issues: ${data.issues.join(', ')}`);
+        const issuesMsg = `Agent configuration issues: ${data.issues.join(', ')}`;
+        setError(issuesMsg);
+        toast.error('Configuration Issues', {
+          description: data.issues.join(', ')
+        });
       }
     } catch (error: any) {
       console.error('Error validating agent:', error);
       setError('Error validating agent configuration');
+      toast.error('Validation Error', {
+        description: 'Failed to validate agent configuration'
+      });
     } finally {
       setIsValidating(false);
     }
@@ -123,9 +133,13 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
         created_timestamp: Date.now(),
       };
       setMessages([welcomeMessage]);
+      toast.success('Chat session started');
     } catch (error: any) {
       console.error('Frontend: Error starting chat:', error);
       setError(error.message || 'Error al iniciar el chat');
+      toast.error('Chat Error', {
+        description: error.message
+      });
     } finally {
       setIsLoading(false);
     }
@@ -159,6 +173,9 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
       
       if (!response.ok) {
         if (response.status === 402) {
+            toast.error('Insufficient Balance', {
+              description: 'Please recharge your wallet to continue chatting.'
+            });
             throw new Error('Insufficient balance to send message');
         }
         throw new Error('Failed to send message');
@@ -172,17 +189,17 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
     } catch (error: any) {
       console.error('Error sending message:', error);
       setError(error.message || 'Error al enviar el mensaje');
+      if (error.message !== 'Insufficient balance to send message') {
+        toast.error('Message Error', {
+          description: error.message
+        });
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   const clearChat = async () => {
-    // Si la sesión de chat incluía un agente efímero, intentar limpiarlo también.
-    // Esto idealmente debería manejarse en el backend al terminar el chat o con un job de limpieza,
-    // pero podemos hacer un intento best-effort aquí si tuviéramos el ID.
-    // (Por ahora el backend maneja la terminación del chat).
-
     if (chatId) {
       try {
         await fetch('/api/chat/end', {
@@ -201,6 +218,7 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
     setChatId(null);
     setIsChatActive(false);
     setError(null);
+    toast.info('Chat history cleared');
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -223,14 +241,16 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
         </div>
         <div className="flex items-center space-x-2">
           {isChatActive && (
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={clearChat}
-              className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors flex items-center"
+              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-8"
               title={t('clearChat')}
             >
               <Trash2 className="w-3.5 h-3.5 mr-1.5" />
               {t('clearChat')}
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -260,12 +280,6 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
                         ? `${t('retellLlm')} (${agentValidation.agent?.llm_info?.prompt_length || 0} chars)` 
                         : t('conversationFlow')} • v{agentValidation.agent?.validated_version ?? agentValidation.agent?.version ?? 0}
                     </p>
-                    {!agentValidation.agent?.llm_info?.is_published && agentValidation.agent?.published_version && (
-                      <p className="text-xs text-orange-600 dark:text-orange-400 mt-1 flex items-center justify-center">
-                        <AlertTriangle className="w-3 h-3 mr-1" />
-                        {t('publishedAgentWarning', { version: agentValidation.agent.published_version })}
-                      </p>
-                    )}
                   </div>
                 </div>
               ) : (
@@ -290,10 +304,10 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
                 <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
                   {t('startDescription')}
                 </p>
-                <button
+                <Button
+                  size="lg"
                   onClick={startChat}
                   disabled={isLoading || !agentValidation?.isValid}
-                  className="bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground text-primary-foreground font-medium px-6 py-2.5 rounded-lg transition-all shadow-sm hover:shadow flex items-center mx-auto"
                 >
                   {isLoading ? (
                     <>
@@ -306,7 +320,7 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
                       {t('startSession')}
                     </>
                   )}
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -381,13 +395,14 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
               className="w-full pl-5 pr-12 py-3.5 bg-muted/50 border border-input rounded-full text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input focus:bg-background transition-all disabled:opacity-60"
               autoFocus
             />
-            <button
+            <Button
+              size="icon"
               onClick={sendMessage}
               disabled={!inputMessage.trim() || isLoading}
-              className="absolute right-2 top-1.5 p-2 bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground text-primary-foreground rounded-full transition-all shadow-sm disabled:shadow-none"
+              className="absolute right-2 top-1.5 h-8 w-8 rounded-full"
             >
               <Send className="w-4 h-4" />
-            </button>
+            </Button>
           </div>
           <p className="text-[10px] text-center text-muted-foreground mt-2">
             {t('disclaimer')}
@@ -404,14 +419,14 @@ export function ChatLabInterface({ agentId, agentName }: ChatLabInterfaceProps) 
               <p className="text-sm text-destructive font-medium">{t('chatError')}</p>
               <p className="text-xs text-destructive/90 mt-1 break-words">{error}</p>
             </div>
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setError(null)}
-              className="text-destructive/70 hover:text-destructive transition-colors ml-2 flex-shrink-0"
+              className="text-destructive/70 hover:text-destructive h-6 w-6 ml-2 flex-shrink-0"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+              <X className="w-4 h-4" />
+            </Button>
           </div>
         </div>
       )}

@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Phone, PhoneOff, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 interface WebCallInterfaceProps {
   agentId: string;
@@ -83,12 +85,18 @@ export function WebCallInterface({
         retellClientRef.current.on('error', (error: any) => {
           console.error('Call error:', error);
           setError('Error durante la llamada');
+          toast.error('Error durante la llamada', {
+            description: typeof error === 'string' ? error : error?.message
+          });
         });
         
         console.log('Retell Web Client initialized');
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error initializing Retell client:', error);
         setError('Error al inicializar el cliente de llamadas');
+        toast.error('Error de Inicialización', {
+          description: error.message
+        });
       }
     };
 
@@ -147,6 +155,7 @@ export function WebCallInterface({
       setIsCallActive(true);
       setIsConnecting(false);
       onCallStart?.();
+      toast.success('Llamada iniciada correctamente');
 
       // Iniciar contador de duración
       callDurationRef.current = setInterval(() => {
@@ -156,6 +165,9 @@ export function WebCallInterface({
     } catch (error: any) {
       console.error('Error starting call:', error);
       setError(error.message || 'Error al iniciar la llamada');
+      toast.error('Error al iniciar la llamada', {
+        description: error.message
+      });
       setIsConnecting(false);
     }
   };
@@ -174,6 +186,8 @@ export function WebCallInterface({
         clearInterval(callDurationRef.current);
         callDurationRef.current = null;
       }
+      
+      toast.success('Llamada finalizada');
       
       // Actualizar datos finales de la llamada después de un delay
       // para dar tiempo a Retell a procesar los datos finales
@@ -260,12 +274,6 @@ export function WebCallInterface({
         </p>
       </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-800">{error}</p>
-        </div>
-      )}
-
       {/* Estado de la llamada */}
       <div className="text-center mb-6">
         {isCallActive && (
@@ -293,48 +301,43 @@ export function WebCallInterface({
       {/* Controles de llamada */}
       <div className="flex justify-center space-x-4 mb-6">
         {!isCallActive && !isConnecting && (
-          <button
+          <Button
             onClick={startCall}
-            className="flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
+            size="lg"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8"
           >
-            <Phone className="w-5 h-5" />
+            <Phone className="w-5 h-5 mr-2" />
             <span>Iniciar Llamada</span>
-          </button>
+          </Button>
         )}
 
         {isCallActive && (
           <>
-            <button
+            <Button
               onClick={toggleMute}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                isMuted 
-                  ? 'bg-destructive/10 text-destructive hover:bg-destructive/20' 
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
-              }`}
+              variant={isMuted ? "destructive" : "secondary"}
+              className={isMuted ? "bg-destructive/10 text-destructive hover:bg-destructive/20" : ""}
             >
-              {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+              {isMuted ? <MicOff className="w-5 h-5 mr-2" /> : <Mic className="w-5 h-5 mr-2" />}
               <span>{isMuted ? 'Desactivar Mic' : 'Activar Mic'}</span>
-            </button>
+            </Button>
 
-            <button
+            <Button
               onClick={toggleSpeaker}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                isSpeakerMuted 
-                  ? 'bg-destructive/10 text-destructive hover:bg-destructive/20' 
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
-              }`}
+              variant={isSpeakerMuted ? "destructive" : "secondary"}
+              className={isSpeakerMuted ? "bg-destructive/10 text-destructive hover:bg-destructive/20" : ""}
             >
-              {isSpeakerMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+              {isSpeakerMuted ? <VolumeX className="w-5 h-5 mr-2" /> : <Volume2 className="w-5 h-5 mr-2" />}
               <span>{isSpeakerMuted ? 'Activar Audio' : 'Silenciar Audio'}</span>
-            </button>
+            </Button>
 
-            <button
+            <Button
               onClick={endCall}
-              className="flex items-center space-x-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground font-semibold px-4 py-2 rounded-lg transition-colors"
+              variant="destructive"
             >
-              <PhoneOff className="w-5 h-5" />
+              <PhoneOff className="w-5 h-5 mr-2" />
               <span>Terminar</span>
-            </button>
+            </Button>
           </>
         )}
       </div>

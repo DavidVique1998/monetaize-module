@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { cn } from '@/lib/utils';
 import { ChevronRight } from 'lucide-react';
 import { Phone, Plus, AlertCircle } from 'lucide-react';
+import { Button } from '../ui/button';
 
 const phoneNumberSchema = z.object({
   // Tipo de operación: 'create' o 'import'
@@ -492,10 +493,10 @@ export function ImportPhoneNumberModal({ isOpen, onClose, onSuccess, agents = []
 
         {/* Footer */}
         <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-200 bg-card">
-          <button
+          <Button
             onClick={handleSubmit(onSubmit)}
             disabled={isLoading}
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center"
+            className="w-full"
           >
             {isLoading ? (
               <>
@@ -508,7 +509,7 @@ export function ImportPhoneNumberModal({ isOpen, onClose, onSuccess, agents = []
                 {watchedOperationType === 'import' ? 'Importar Número' : 'Crear Número de Teléfono'}
               </>
             )}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

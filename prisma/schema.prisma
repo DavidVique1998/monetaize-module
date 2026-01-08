@@ -17,6 +17,27 @@ enum UserRole {
   LOCATION
 }
 
+// Campaign status enum
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  IN_PROGRESS
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+// Campaign contact execution status enum
+enum CampaignContactStatus {
+  PENDING
+  IN_QUEUE
+  CALLING
+  COMPLETED
+  FAILED
+  RETRY_PENDING
+  OPTED_OUT
+}
+
 // User model for authentication and user management
 model User {
   id        String   @id @default(uuid())
@@ -43,12 +64,14 @@ model User {
   stripeCustomerId String? @unique // ID del customer en Stripe
 
   // Relations
-  agents        Agent[]
-  folders       Folder[]
-  phoneNumbers  PhoneNumber[]
-  wallet        Wallet?
-  calls         Call[]
+  agents         Agent[]
+  folders        Folder[]
+  phoneNumbers   PhoneNumber[]
+  wallet         Wallet?
+  calls          Call[]
   knowledgeBases KnowledgeBase[]
+  campaigns      Campaign[]
+  contactGroups  ContactGroup[]
 
   @@index([email])
   @@index([ghlLocationId])
@@ -106,6 +129,7 @@ model Agent {
   phoneNumbers    PhoneNumber[] @relation("InboundAgents")
   outboundNumbers PhoneNumber[] @relation("OutboundAgents")
   tags            AgentTag[]
+  campaigns       Campaign[]
 
   @@index([retellAgentId])
   @@index([userId])
@@ -155,6 +179,7 @@ model PhoneNumber {
   outboundAgent Agent?  @relation("OutboundAgents", fields: [outboundAgentId], references: [id])
   userId        String?
   owner         User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaigns     Campaign[] @relation("CampaignToPhoneNumber")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -194,6 +219,10 @@ model Contact {
   userId    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relations
+  groups    ContactGroup[] @relation("ContactToGroup")
+  campaigns CampaignContact[]
 
   @@index([phone])
   @@index([email])
@@ -454,4 +483,80 @@ model BatchProcessingConfig {
 
   @@index([walletId])
   @@index([enabled])
+}
+
+// Contact Group model for organizing contacts into lists
+model ContactGroup {
+  id          String    @id @default(uuid())
+  name        String
+  description String?   @db.Text
+  userId      String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  owner     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contacts  Contact[]  @relation("ContactToGroup")
+  campaigns Campaign[]
+
+  @@index([userId])
+}
+
+// Campaign model for automated calling
+model Campaign {
+  id               String         @id @default(uuid())
+  name             String
+  description      String?        @db.Text
+  status           CampaignStatus @default(DRAFT)
+  
+  // Execution settings
+  scheduledAt      DateTime?      // When to start
+  timezone         String         @default("UTC")
+  
+  // Main relations
+  userId           String
+  agentId          String
+  contactGroupId   String
+  
+  // Retry and limit settings
+  maxAttempts      Int            @default(1)    // Max attempts if no answer
+  retryDelay       Int            @default(3600) // Seconds between retries
+  concurrencyLimit Int            @default(1)    // Max simultaneous calls
+  
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  // Relations
+  owner            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agent            Agent          @relation(fields: [agentId], references: [id])
+  contactGroup     ContactGroup   @relation(fields: [contactGroupId], references: [id])
+  
+  // Many-to-many with PhoneNumber
+  phoneNumbers     PhoneNumber[]  @relation("CampaignToPhoneNumber")
+  
+  // Tracking individual contacts in the campaign
+  campaignContacts CampaignContact[]
+
+  @@index([userId])
+  @@index([agentId])
+  @@index([status])
+}
+
+// Tracking model for each contact in a campaign
+model CampaignContact {
+  id           String                @id @default(uuid())
+  campaignId   String
+  contactId    String
+  status       CampaignContactStatus @default(PENDING)
+  attempts     Int                   @default(0)
+  lastCallId   String?               // Reference to the last Retell call ID
+  
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  campaign     Campaign              @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  contact      Contact               @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, contactId])
+  @@index([status])
 }

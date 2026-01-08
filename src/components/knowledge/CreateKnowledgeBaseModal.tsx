@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { Button } from '../ui/button';
 
 interface CreateKnowledgeBaseModalProps {
   isOpen: boolean;
@@ -287,36 +288,33 @@ export function CreateKnowledgeBaseModal({
                   placeholder={t('urlPlaceholder')}
                   className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purplebg-muted/300"
                 />
-                <button
-                  type="button"
+                <Button
+                  variant="outline-primary"
                   onClick={handleAddUrl}
-                  className="px-4 py-2 text-sm text-primary border border-purple-200 rounded-lg hover:bg-purplebg-muted/30 transition-colors flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
                   {t('add')}
-                </button>
+                </Button>
               </div>
             </div>
           </div>
         </form>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 flex gap-3">
-          <button
-            type="button"
+        <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3">
+          <Button
+            variant="outline-error"
             onClick={onClose}
-            className="flex-1 px-4 py-2 text-sm font-medium text-foreground bg-muted rounded-lg hover:bg-gray-200 transition-colors"
           >
             {t('cancel')}
-          </button>
-          <button
-            type="submit"
+          </Button>
+          <Button
+            variant="default"
             onClick={handleSubmit}
             disabled={isLoading}
-            className="flex-1 px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors disabled:opacitybg-muted/30 disabled:cursor-not-allowed"
           >
             {isLoading ? t('creating') : t('create')}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
