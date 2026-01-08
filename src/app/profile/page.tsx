@@ -24,7 +24,7 @@ interface User {
   ghlLocationTimezone: string | null;
 }
 
-export default function ProfilePage(): React.ReactNode {
+export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);

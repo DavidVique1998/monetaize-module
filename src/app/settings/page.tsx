@@ -1,7 +1,7 @@
 import React from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 
-export default function SettingsPage(): React.ReactNode {
+export default function SettingsPage() {
   return (
     <DashboardLayout>
       <div className="flex items-center justify-center h-96">

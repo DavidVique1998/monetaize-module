@@ -20,7 +20,7 @@ interface BalanceData {
   userId: string;
 }
 
-export function WalletBalance({ className, isCollapsed = false, onRechargeClick }: WalletBalanceProps): React.ReactNode {
+export function WalletBalance({ className, isCollapsed = false, onRechargeClick }: WalletBalanceProps) {
   const t = useTranslations('wallet.balanceCard');
   const [balance, setBalance] = useState<BalanceData | null>(null);
   const [loading, setLoading] = useState(true);

@@ -16,7 +16,7 @@ interface SpinnerProps {
   label?: string;
 }
 
-export function Spinner({ size = "md", className, label = "Loading" }: SpinnerProps): React.ReactNode {
+export function Spinner({ size = "md", className, label = "Loading" }: SpinnerProps) {
   return (
     <Loader2
       role="status"

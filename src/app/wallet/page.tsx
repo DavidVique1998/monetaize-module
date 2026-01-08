@@ -137,7 +137,7 @@ function WalletPageFallback() {
   );
 }
 
-export default function WalletPage(): React.ReactNode {
+export default function WalletPage() {
   return (
     <Suspense fallback={<WalletPageFallback />}>
       <WalletContent />

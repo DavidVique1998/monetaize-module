@@ -247,7 +247,7 @@ function InstallGHLContent() {
   );
 }
 
-export default function InstallGHLPage(): React.ReactNode {
+export default function InstallGHLPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden">

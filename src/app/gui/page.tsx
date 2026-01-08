@@ -15,7 +15,7 @@ import { Phone, Plus, Trash2, Edit, RefreshCw, AlertCircle, CheckCircle2, Info, 
 import { toast } from 'sonner';
 import { Toaster } from '@/components/ui/sonner';
 
-export default function GuiPage(): React.ReactNode {
+export default function GuiPage() {
   const [alertDialogOpen, setAlertDialogOpen] = useState<{ [key: string]: boolean }>({});
   const [dialogOpen, setDialogOpen] = useState<{ [key: string]: boolean }>({});
 

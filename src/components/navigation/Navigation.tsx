@@ -39,7 +39,7 @@ interface DropdownItemProps {
   onClick?: () => void;
 }
 
-export function DropdownItem({ icon, label, isActive = false, onClick }: DropdownItemProps): React.ReactNode {
+export function DropdownItem({ icon, label, isActive = false, onClick }: DropdownItemProps) {
   return (
     <button
       onClick={onClick}
@@ -74,7 +74,7 @@ export function NavigationItem({
   onDropdownToggle,
   className,
   isCollapsed = false
-}: NavigationItemProps): React.ReactNode {
+}: NavigationItemProps) {
   const handleClick = () => {
     if (hasDropdown && onDropdownToggle) {
       onDropdownToggle();
@@ -131,7 +131,7 @@ interface NavigationGroupProps {
   className?: string;
 }
 
-export function NavigationGroup({ children, className }: NavigationGroupProps): React.ReactNode {
+export function NavigationGroup({ children, className }: NavigationGroupProps) {
   return (
     <div className={cn("space-y-1 mb-6", className)}>
       {children}
@@ -139,7 +139,7 @@ export function NavigationGroup({ children, className }: NavigationGroupProps): 
   );
 }
 
-export function Navigation({ isCollapsed = false }: { isCollapsed?: boolean }): React.ReactNode {
+export function Navigation({ isCollapsed = false }: { isCollapsed?: boolean }) {
   const { navigationItems, activeItem, openDropdowns, handleNavigationClick, toggleDropdown } = useSidebarNavigation();
 
   const handleDropdownItemClick = (subItem: any) => {

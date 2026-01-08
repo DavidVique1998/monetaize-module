@@ -10,7 +10,7 @@ import { CreateKnowledgeBaseModal } from '@/components/knowledge/CreateKnowledge
 import { AddSourcesModal } from '@/components/knowledge/AddSourcesModal';
 import { Button } from '@/components/ui/button';
 
-export default function KnowledgePage(): React.ReactNode {
+export default function KnowledgePage() {
   const [knowledgeBases, setKnowledgeBases] = useState<KnowledgeBase[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);

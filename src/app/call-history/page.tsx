@@ -64,7 +64,7 @@ interface CallStats {
   averageDuration: number;
 }
 
-export default function CallHistoryPage(): React.ReactNode {
+export default function CallHistoryPage() {
   const [calls, setCalls] = useState<Call[]>([]);
   const [stats, setStats] = useState<CallStats | null>(null);
   const [loading, setLoading] = useState(true);

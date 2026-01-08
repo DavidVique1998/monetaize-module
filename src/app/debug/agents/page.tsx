@@ -6,7 +6,7 @@ import { AgentDebugPanel } from '@/components/debug/AgentDebugPanel';
 import { ArrowLeft, Wrench } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-export default function AgentDebugPage(): React.ReactNode {
+export default function AgentDebugPage() {
   const router = useRouter();
 
   return (

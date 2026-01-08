@@ -29,7 +29,7 @@ import {
   Heart
 } from 'lucide-react';
 
-export default function CallCenterPage(): React.ReactNode {
+export default function CallCenterPage() {
   const [activeTab, setActiveTab] = useState<'data-center' | 'call-list'>('data-center');
 
   // Datos del embudo

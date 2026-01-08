@@ -25,7 +25,7 @@ interface AgentWithFolder extends RetellAgent {
   folder?: { id: string; name: string } | null;
 }
 
-export default function AssistantsPage(): React.ReactNode {
+export default function AssistantsPage() {
   const router = useRouter();
   const t = useTranslations('assistants');
   const { agents, loading, error, loadAgents } = useAgents();

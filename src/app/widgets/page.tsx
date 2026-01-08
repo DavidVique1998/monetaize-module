@@ -1,7 +1,7 @@
 import React from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 
-export default function WidgetsPage(): React.ReactNode {
+export default function WidgetsPage() {
   return (
     <DashboardLayout>
       <div className="flex items-center justify-center h-96">

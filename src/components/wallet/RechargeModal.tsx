@@ -14,7 +14,7 @@ interface RechargeModalProps {
 
 const PREDEFINED_AMOUNTS = [10, 25, 50, 100, 250, 500];
 
-export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps): React.ReactNode {
+export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps) {
   const t = useTranslations('wallet.rechargeModal');
   const [amount, setAmount] = useState<number>(50);
   const [customAmount, setCustomAmount] = useState<string>('');

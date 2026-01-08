@@ -16,7 +16,7 @@ interface User {
   createdAt: string;
 }
 
-export default function AdminTokensPage(): React.ReactNode {
+export default function AdminTokensPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState<string | null>(null);

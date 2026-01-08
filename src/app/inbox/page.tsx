@@ -5,7 +5,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { ConversationList } from '@/components/inbox/ConversationList';
 import { ConversationDetail } from '@/components/inbox/ConversationDetail';
 
-export default function InboxPage(): React.ReactNode {
+export default function InboxPage() {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 

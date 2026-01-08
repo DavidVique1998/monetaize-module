@@ -12,7 +12,7 @@ import { useVoices } from '@/hooks/useVoices';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Settings, Volume2 } from 'lucide-react';
 
-export default function VoicesPage(): React.ReactNode {
+export default function VoicesPage() {
   const {
     voices,
     selectedVoice,

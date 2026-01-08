@@ -17,7 +17,7 @@ import { ImportedPhoneNumber } from '@/lib/retell';
 import { Search, Plus, Phone, Edit, Trash2, RefreshCw, AlertCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-export default function PhoneNumbersPage(): React.ReactNode {
+export default function PhoneNumbersPage() {
   const t = useTranslations('phoneNumbers');
   const { phoneNumbers, loading, error, loadPhoneNumbers, importPhoneNumber } = usePhoneNumbers();
   const [agents, setAgents] = useState<Array<{ agent_id: string; agent_name: string }>>([]);

@@ -7,7 +7,7 @@ interface GenericPageProps {
   children?: React.ReactNode;
 }
 
-export function GenericPage({ title, description, children }: GenericPageProps): React.ReactNode {
+export function GenericPage({ title, description, children }: GenericPageProps) {
   return (
     <DashboardLayout>
       <div className="flex items-center justify-center h-96">

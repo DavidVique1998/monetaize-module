@@ -9,7 +9,7 @@ interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
-export function DashboardLayout({ children }: DashboardLayoutProps): React.ReactNode {
+export function DashboardLayout({ children }: DashboardLayoutProps) {
   const {
     isCollapsed,
     isVisible,

@@ -60,7 +60,7 @@ const LLM_MODELS = [
   { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', provider: 'Google' },
 ];
 
-export default function EditAssistantPage(): React.ReactNode {
+export default function EditAssistantPage() {
   const router = useRouter();
   const params = useParams();
   const agentId = params.agentId as string;
