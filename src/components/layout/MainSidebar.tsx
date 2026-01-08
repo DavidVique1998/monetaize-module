@@ -39,7 +39,7 @@ export function MainSidebar({
   onMouseEnter,
   onMouseLeave,
   onTogglePin
-}: MainSidebarProps) {
+}: MainSidebarProps): React.ReactNode {
   const router = useRouter();
   const { theme, resolvedTheme } = useTheme();
   const [user, setUser] = useState<User | null>(null);

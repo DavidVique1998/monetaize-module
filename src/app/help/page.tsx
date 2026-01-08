@@ -1,6 +1,7 @@
+import React from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 
-export default function HelpPage() {
+export default function HelpPage(): React.ReactNode {
   return (
     <DashboardLayout>
       <div className="flex items-center justify-center h-96">

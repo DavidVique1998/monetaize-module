@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { HeaderBar } from '@/components/dashboard/HeaderBar';
 import { KnowledgeBase } from '@/types/knowledge-base';
@@ -10,7 +10,7 @@ import { CreateKnowledgeBaseModal } from '@/components/knowledge/CreateKnowledge
 import { AddSourcesModal } from '@/components/knowledge/AddSourcesModal';
 import { Button } from '@/components/ui/button';
 
-export default function KnowledgePage() {
+export default function KnowledgePage(): React.ReactNode {
   const [knowledgeBases, setKnowledgeBases] = useState<KnowledgeBase[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -85,6 +85,9 @@ export default function KnowledgePage() {
       </span>
     );
   };
+
+  const actionButtonClass = "inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed";
+  const iconButtonClass = "p-1.5 text-gray-400 hover:text-red-500 transition-colors";
 
   return (
     <DashboardLayout>

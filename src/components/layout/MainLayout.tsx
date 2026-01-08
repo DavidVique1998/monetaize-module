@@ -9,7 +9,7 @@ interface MainLayoutProps {
   className?: string;
 }
 
-export function MainLayout({ children, className }: MainLayoutProps) {
+export function MainLayout({ children, className }: MainLayoutProps): React.ReactNode {
   return (
     <div className="flex h-screen bg-background text-foreground">
       {/* Sidebar izquierdo */}

@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { HeaderBar } from '@/components/dashboard/HeaderBar';
@@ -25,7 +25,7 @@ interface AgentWithFolder extends RetellAgent {
   folder?: { id: string; name: string } | null;
 }
 
-export default function AssistantsPage() {
+export default function AssistantsPage(): React.ReactNode {
   const router = useRouter();
   const t = useTranslations('assistants');
   const { agents, loading, error, loadAgents } = useAgents();

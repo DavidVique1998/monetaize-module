@@ -25,7 +25,7 @@ interface MenuItemProps {
   isDanger?: boolean;
 }
 
-function MenuItem({ icon, label, onClick, isDanger = false }: MenuItemProps) {
+function MenuItem({ icon, label, onClick, isDanger = false }: MenuItemProps): React.ReactNode {
   return (
     <button
       onClick={onClick}
@@ -58,7 +58,7 @@ export function UserProfile({
   className,
   isCollapsed = false,
   onClick
-}: UserProfileProps) {
+}: UserProfileProps): React.ReactNode {
   const router = useRouter();
   const t = useTranslations('userProfile');
   const { theme, setTheme } = useTheme();

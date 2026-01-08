@@ -7,7 +7,7 @@ import { NewContactModal } from '@/components/contacts/NewContactModal';
 import { ContactsTable } from '@/components/contacts/ContactsTable';
 import { Search } from 'lucide-react';
 
-export default function ContactsPage() {
+export default function ContactsPage(): React.ReactNode {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (

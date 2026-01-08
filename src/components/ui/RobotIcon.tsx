@@ -5,7 +5,7 @@ interface RobotIconProps {
   className?: string;
 }
 
-export function RobotIcon({ className }: RobotIconProps) {
+export function RobotIcon({ className }: RobotIconProps): React.ReactNode {
   return (
     <div className={cn(
       "w-12 h-12 relative group",

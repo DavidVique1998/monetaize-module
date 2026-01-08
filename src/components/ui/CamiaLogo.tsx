@@ -29,7 +29,7 @@ export function CamiaLogo({
   showGlow = true,
   animated = false,
   collapsed = false
-}: CamiaLogoProps) {
+}: CamiaLogoProps): React.ReactNode {
   const { theme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 

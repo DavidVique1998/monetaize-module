@@ -17,7 +17,7 @@ const languages: LanguageOption[] = [
   { code: 'en', name: 'English', nativeName: 'English' },
 ];
 
-export function LanguageSelector() {
+export function LanguageSelector(): React.ReactNode {
   const locale = useLocale() as 'es' | 'en';
   const t = useTranslations('userProfile');
   const router = useRouter();
@@ -86,4 +86,3 @@ export function LanguageSelector() {
     </div>
   );
 }
-

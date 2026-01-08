@@ -6,7 +6,7 @@ interface SidebarProps {
   className?: string;
 }
 
-export function Sidebar({ children, className }: SidebarProps) {
+export function Sidebar({ children, className }: SidebarProps): React.ReactNode {
   return (
     <div className={cn(
       "flex flex-col h-full w-64 bg-card/95 border-r border-gray-200 shadow-lg supports-[backdrop-filter]:backdrop-blur-xl",
@@ -22,7 +22,7 @@ interface SidebarHeaderProps {
   className?: string;
 }
 
-export function SidebarHeader({ children, className }: SidebarHeaderProps) {
+export function SidebarHeader({ children, className }: SidebarHeaderProps): React.ReactNode {
   return (
     <div className={cn("flex items-center justify-center p-6 border-b border-gray-200", className)}>
       {children}
@@ -35,7 +35,7 @@ interface SidebarContentProps {
   className?: string;
 }
 
-export function SidebarContent({ children, className }: SidebarContentProps) {
+export function SidebarContent({ children, className }: SidebarContentProps): React.ReactNode {
   return (
     <div className={cn("flex-1 px-4 py-2 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent", className)}>
       {children}
@@ -48,7 +48,7 @@ interface SidebarFooterProps {
   className?: string;
 }
 
-export function SidebarFooter({ children, className }: SidebarFooterProps) {
+export function SidebarFooter({ children, className }: SidebarFooterProps): React.ReactNode {
   return (
     <div className={cn("p-4 border-t border-gray-200 bg-muted/30", className)}>
       {children}

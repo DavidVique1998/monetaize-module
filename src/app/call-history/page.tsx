@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { HeaderBar } from '@/components/dashboard/HeaderBar';
 import { 
@@ -30,6 +30,7 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 
 interface Call {
   id: string;
@@ -63,17 +64,11 @@ interface CallStats {
   averageDuration: number;
 }
 
-export default function CallHistoryPage() {
+export default function CallHistoryPage(): React.ReactNode {
   const [calls, setCalls] = useState<Call[]>([]);
   const [stats, setStats] = useState<CallStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const actionButtonClass = cn(
-    "inline-flex items-center justify-center h-8 px-4 rounded-md text-sm font-semibold transition-colors",
-    "bg-foreground text-background hover:bg-foreground/90",
-    "disabled:opacity-60 disabled:cursor-not-allowed"
-  );
-  
   // Filtros
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -231,18 +226,18 @@ export default function CallHistoryPage() {
           description="Complete history of phone and web calls."
           actions={
             <div className="flex items-center space-x-3">
-              <button
+              <Button
+                variant="default-outline"
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className={cn(actionButtonClass, "gap-2")}
               >
-                <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
                 <span>Refresh</span>
-              </button>
-              <button className={cn(actionButtonClass, "gap-2")}>
-                <Download className="w-4 h-4" />
+              </Button>
+              <Button>
+                <Download className="w-4 h-4 mr-2" />
                 <span>Export</span>
-              </button>
+              </Button>
             </div>
           }
         />
@@ -633,4 +628,3 @@ export default function CallHistoryPage() {
     </DashboardLayout>
   );
 }
-

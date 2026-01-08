@@ -1,3 +1,4 @@
+import React from 'react';
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -15,7 +16,7 @@ interface SpinnerProps {
   label?: string;
 }
 
-export function Spinner({ size = "md", className, label = "Loading" }: SpinnerProps) {
+export function Spinner({ size = "md", className, label = "Loading" }: SpinnerProps): React.ReactNode {
   return (
     <Loader2
       role="status"

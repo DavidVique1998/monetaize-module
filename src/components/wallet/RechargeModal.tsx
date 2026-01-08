@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { X, CreditCard, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
@@ -14,7 +14,7 @@ interface RechargeModalProps {
 
 const PREDEFINED_AMOUNTS = [10, 25, 50, 100, 250, 500];
 
-export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps) {
+export function RechargeModal({ isOpen, onClose, onSuccess }: RechargeModalProps): React.ReactNode {
   const t = useTranslations('wallet.rechargeModal');
   const [amount, setAmount] = useState<number>(50);
   const [customAmount, setCustomAmount] = useState<string>('');

@@ -5,6 +5,7 @@ import { Settings, CheckCircle2, AlertCircle, CreditCard } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { PaymentMethodManager } from './PaymentMethodManager';
 import { useTranslations } from 'next-intl';
+import { Button } from '../ui/button';
 
 interface AutoRechargeSettingsProps {
   className?: string;
@@ -269,10 +270,10 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
         )}
 
         {/* Botón guardar */}
-        <button
+        <Button
           onClick={handleSave}
           disabled={saving || threshold <= 0 || rechargeAmount <= 0 || (enabled && !settings?.paymentMethodId)}
-          className="inline-flex items-center justify-center w-full h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center w-full"
         >
           {saving ? (
             <>
@@ -282,7 +283,7 @@ export function AutoRechargeSettings({ className }: AutoRechargeSettingsProps) {
           ) : (
             t('save')
           )}
-        </button>
+        </Button>
       </div>
     </div>
   );

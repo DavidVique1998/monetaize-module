@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAgents, RetellAgent } from '@/hooks/useAgents';
@@ -60,7 +60,7 @@ const LLM_MODELS = [
   { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', provider: 'Google' },
 ];
 
-export default function EditAssistantPage() {
+export default function EditAssistantPage(): React.ReactNode {
   const router = useRouter();
   const params = useParams();
   const agentId = params.agentId as string;

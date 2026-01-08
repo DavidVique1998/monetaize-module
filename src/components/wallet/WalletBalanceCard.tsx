@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Wallet, RefreshCw, AlertCircle, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
+import { Button } from '../ui/button';
 
 interface WalletBalanceCardProps {
   className?: string;
@@ -52,8 +53,8 @@ export function WalletBalanceCard({ className, onRechargeClick }: WalletBalanceC
 
   const isNegative = balance ? balance.balance < 0 : false;
   const formattedBalance = balance
-    ? `${isNegative ? '-' : ''}$${Math.abs(balance.balance).toFixed(3)}`
-    : '$0.000';
+    ? `${isNegative ? '-' : ''}$${Math.abs(balance.balance).toFixed(2)}`
+    : '$0.00';
 
   return (
     <div className={cn(
@@ -61,6 +62,8 @@ export function WalletBalanceCard({ className, onRechargeClick }: WalletBalanceC
       "before:absolute before:inset-0 before:bg-gradient-to-br before:from-primary/6 before:via-secondary/4 before:to-transparent before:pointer-events-none",
       className
     )}>
+
+      
       <div className="relative p-6">
       {/* Header */}
         <div className="flex items-center justify-between mb-4">
@@ -109,12 +112,12 @@ export function WalletBalanceCard({ className, onRechargeClick }: WalletBalanceC
 
           {/* Botón de recarga */}
           {onRechargeClick && (
-            <button
+            <Button
               onClick={onRechargeClick}
-              className="inline-flex items-center justify-center w-full h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center w-full"
             >
               {t('rechargeBalance')}
-            </button>
+            </Button>
           )}
         </>
       )}

@@ -9,7 +9,7 @@ interface BalanceCardProps {
   isCollapsed?: boolean;
 }
 
-export function BalanceCard({ balance, currency = '$', className, isCollapsed = false }: BalanceCardProps) {
+export function BalanceCard({ balance, currency = '$', className, isCollapsed = false }: BalanceCardProps): React.ReactNode {
   const isNegative = balance < 0;
   const formattedBalance = `${isNegative ? '-' : ''}${currency}${Math.abs(balance).toFixed(2)}`;
 

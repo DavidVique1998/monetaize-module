@@ -4,7 +4,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { HeaderBar } from '@/components/dashboard/HeaderBar';
 import { ImportPhoneNumberModal } from '@/components/phone/ImportPhoneNumberModal';
@@ -17,7 +17,7 @@ import { ImportedPhoneNumber } from '@/lib/retell';
 import { Search, Plus, Phone, Edit, Trash2, RefreshCw, AlertCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-export default function PhoneNumbersPage() {
+export default function PhoneNumbersPage(): React.ReactNode {
   const t = useTranslations('phoneNumbers');
   const { phoneNumbers, loading, error, loadPhoneNumbers, importPhoneNumber } = usePhoneNumbers();
   const [agents, setAgents] = useState<Array<{ agent_id: string; agent_name: string }>>([]);
@@ -155,8 +155,6 @@ export default function PhoneNumbersPage() {
             </Button>
           }
         />
-
-        // AQUI AGREGA TODOS LOS BOTONES Y SUS VARIANTES
         
         {/* Main Content */}
         <div className="flex-1 p-6 space-y-6 overflow-y-auto">

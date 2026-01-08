@@ -1,3 +1,4 @@
+import React from 'react';
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Orbitron } from "next/font/google";
 import "./globals.css";
@@ -51,7 +52,7 @@ export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>): Promise<React.ReactNode> {
   // Obtener locale de las cookies o usar default
   const cookieStore = await cookies();
   const locale = (cookieStore.get('NEXT_LOCALE')?.value || routing.defaultLocale) as 'es' | 'en';

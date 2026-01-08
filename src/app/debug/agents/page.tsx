@@ -1,11 +1,12 @@
 'use client';
 
+import React from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { AgentDebugPanel } from '@/components/debug/AgentDebugPanel';
 import { ArrowLeft, Wrench } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-export default function AgentDebugPage() {
+export default function AgentDebugPage(): React.ReactNode {
   const router = useRouter();
 
   return (

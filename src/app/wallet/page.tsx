@@ -7,7 +7,7 @@ import { WalletTransactions } from '@/components/wallet/WalletTransactions';
 import { AutoRechargeSettings } from '@/components/wallet/AutoRechargeSettings';
 import { PaymentMethodManager } from '@/components/wallet/PaymentMethodManager';
 import { RechargeModal } from '@/components/wallet/RechargeModal';
-import { useState, useEffect, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { CheckCircle2, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -137,11 +137,10 @@ function WalletPageFallback() {
   );
 }
 
-export default function WalletPage() {
+export default function WalletPage(): React.ReactNode {
   return (
     <Suspense fallback={<WalletPageFallback />}>
       <WalletContent />
     </Suspense>
   );
 }
-

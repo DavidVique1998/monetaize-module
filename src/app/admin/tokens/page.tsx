@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useState, useEffect } from 'react';
 import { Key, Copy, CheckCircle2, AlertCircle, User, Building2 } from 'lucide-react';
@@ -15,7 +16,7 @@ interface User {
   createdAt: string;
 }
 
-export default function AdminTokensPage() {
+export default function AdminTokensPage(): React.ReactNode {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState<string | null>(null);
@@ -258,4 +259,3 @@ Content-Type: application/json
     </DashboardLayout>
   );
 }
-

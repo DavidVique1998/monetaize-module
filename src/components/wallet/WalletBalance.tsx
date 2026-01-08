@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Wallet, RefreshCw, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import { Spinner } from '@/components/ui/spinner';
+import { Button } from '../ui/button';
 
 interface WalletBalanceProps {
   className?: string;
@@ -19,7 +20,7 @@ interface BalanceData {
   userId: string;
 }
 
-export function WalletBalance({ className, isCollapsed = false, onRechargeClick }: WalletBalanceProps) {
+export function WalletBalance({ className, isCollapsed = false, onRechargeClick }: WalletBalanceProps): React.ReactNode {
   const t = useTranslations('wallet.balanceCard');
   const [balance, setBalance] = useState<BalanceData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -116,12 +117,11 @@ export function WalletBalance({ className, isCollapsed = false, onRechargeClick 
             {formattedBalance}
           </div>
           {onRechargeClick && (
-            <button
+            <Button
               onClick={onRechargeClick}
-              className="inline-flex items-center justify-center w-full h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed mt-auto"
             >
               {t('rechargeBalance')}
-            </button>
+            </Button>
           )}
         </>
       )}

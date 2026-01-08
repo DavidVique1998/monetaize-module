@@ -5,13 +5,14 @@
 
 'use client';
 
+import React from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { VoiceList } from '@/components/voices/VoiceList';
 import { useVoices } from '@/hooks/useVoices';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Settings, Volume2 } from 'lucide-react';
 
-export default function VoicesPage() {
+export default function VoicesPage(): React.ReactNode {
   const {
     voices,
     selectedVoice,

@@ -11,6 +11,7 @@ import {
 } from '@stripe/react-stripe-js';
 import { StripeProviderWrapper } from './StripeProviderWrapper';
 import { Spinner } from '@/components/ui/spinner';
+import { Button } from '../ui/button';
 
 interface PaymentMethod {
   id: string;
@@ -238,13 +239,13 @@ function PaymentMethodManagerInner({
           </div>
         </div>
         {!showAddForm && (
-          <button
+          <Button
+            variant="default-outline"
             onClick={() => setShowAddForm(true)}
-            className="flex items-center space-x-1 px-3 py-1.5 text-sm text-primary border border-blue-200 rounded-lg hover:bg-muted transition-colors"
           >
             <Plus className="w-4 h-4" />
             <span>Agregar</span>
-          </button>
+          </Button>
         )}
       </div>
 
@@ -289,7 +290,7 @@ function PaymentMethodManagerInner({
                 value={cardName}
                 onChange={(e) => setCardName(e.target.value)}
                 placeholder="Juan Pérez"
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-bluebg-muted/300 focus:border-primary"
+                className="w-full px-3 py-2 text-sm bg-transparent border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
               />
             </div>
 
@@ -297,7 +298,7 @@ function PaymentMethodManagerInner({
               <label className="block text-xs font-medium text-foreground mb-1">
                 Número de tarjeta
               </label>
-              <div className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-bluebg-muted/300 focus-within:border-primary bg-card">
+              <div className="px-3 py-2 text-sm bg-transparent border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-colors">
                 <CardNumberElement options={cardElementOptions} />
               </div>
             </div>
@@ -307,14 +308,14 @@ function PaymentMethodManagerInner({
                 <label className="block text-xs font-medium text-foreground mb-1">
                   Vencimiento
                 </label>
-                <div className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-bluebg-muted/300 focus-within:border-primary bg-card">
+                <div className="px-3 py-2 text-sm bg-transparent border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-colors">
                   <CardExpiryElement options={cardElementOptions} />
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-foreground mb-1">CVC</label>
-                <div className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-bluebg-muted/300 focus-within:border-primary bg-card">
+                <div className="px-3 py-2 text-sm bg-transparent border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-colors">
                   <CardCvcElement options={cardElementOptions} />
                 </div>
               </div>
@@ -325,11 +326,21 @@ function PaymentMethodManagerInner({
               <p>Tu información está protegida y encriptada. No almacenamos los datos de tu tarjeta.</p>
             </div>
 
-            <div className="flex space-x-2">
-              <button
+            <div className="flex space-x-2 justify-end">
+              <Button
+                variant="outline-error"
+                onClick={() => {
+                  setShowAddForm(false);
+                  setError(null);
+                  setCardName('');
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="light"
                 onClick={handleSavePaymentMethod}
                 disabled={saving || !stripe}
-                className="inline-flex items-center justify-center flex-1 h-8 px-4 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors text-sm font-semibold gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? (
                   <>
@@ -339,17 +350,7 @@ function PaymentMethodManagerInner({
                 ) : (
                   'Guardar Tarjeta'
                 )}
-              </button>
-              <button
-                onClick={() => {
-                  setShowAddForm(false);
-                  setError(null);
-                  setCardName('');
-                }}
-                className="px-4 py-2 text-sm text-foreground border border-gray-300 rounded-lg hover:bg-graybg-muted/30 transition-colors"
-              >
-                Cancelar
-              </button>
+              </Button>
             </div>
           </div>
         </div>
